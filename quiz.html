@@ -39,7 +39,7 @@ function mostrarQuestao(){
     document.getElementById("areaQuestao").innerHTML = `
         <p><b>${q.ENUNCIADO}</b></p>
 
-        ${["A","B","C","D","E"].map(l=>`
+        ${["A","B","C","D"].map(l=>`
             <label>
                 <input type="radio" name="resp" value="${l}">
                 ${q["ALT_"+l]}
