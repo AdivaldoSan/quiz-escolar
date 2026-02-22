@@ -39,42 +39,76 @@
 <script>
 
 let banco = [];
-
 let mapaDescritores = {};
 
+// ==========================
+// CARREGA BANCO VIA API
+// ==========================
 carregarBancoCompleto().then(({questoes, descritores}) => {
 
     banco = questoes.filter(q => q.ATIVO === "SIM");
 
-    // cria mapa CODIGO → DESCRICAO
+    // cria mapa CODIGO -> DESCRICAO
     descritores.forEach(d => {
         mapaDescritores[d.CODIGO] = d.DESCRICAO;
     });
 
-    preencherSelect("disciplina", [...new Set(banco.map(q => q.DISCIPLINA))]);
-    preencherSelect("assunto", [...new Set(banco.map(q => q.ASSUNTO))]);
+    // preenche apenas disciplinas primeiro
+    preencherSelect("disciplina",
+        [...new Set(banco.map(q => q.DISCIPLINA))]
+    );
 
-    // descritor agora mostra significado
-   const listaDescritores = [...new Set(banco.map(q => q.DESCRITOR))];
+    // quando mudar disciplina → atualiza filtros
+    document.getElementById("disciplina").addEventListener("change", atualizarFiltros);
 
-const select = document.getElementById("descritor");
-select.innerHTML = "<option value=''>Todos</option>";
-
-listaDescritores.forEach(cod => {
-
-    const desc = mapaDescritores[cod] || "";
-
-    let op = document.createElement("option");
-    op.value = cod;
-    op.textContent = cod + (desc ? " — " + desc : "");
-
-    select.appendChild(op);
+    // primeira carga automática
+    atualizarFiltros();
 });
 
-});
 
+// ==========================
+// ATUALIZA ASSUNTO + DESCRITOR
+// ==========================
+function atualizarFiltros(){
+
+    const disc = document.getElementById("disciplina").value;
+
+    const filtrado = banco.filter(q => q.DISCIPLINA === disc);
+
+    // ---- Assuntos disponíveis
+    const assuntos = [...new Set(filtrado.map(q => q.ASSUNTO))];
+
+    const selAssunto = document.getElementById("assunto");
+    selAssunto.innerHTML = "";
+
+    assuntos.forEach(a=>{
+        let op = document.createElement("option");
+        op.value = a;
+        op.textContent = a;
+        selAssunto.appendChild(op);
+    });
+
+    // ---- Descritores disponíveis
+    const descrs = [...new Set(filtrado.map(q => q.DESCRITOR))];
+
+    const selDesc = document.getElementById("descritor");
+    selDesc.innerHTML = "<option value=''>Todos</option>";
+
+    descrs.forEach(cod=>{
+        let op = document.createElement("option");
+        op.value = cod;
+        op.textContent = cod + " — " + (mapaDescritores[cod] || "");
+        selDesc.appendChild(op);
+    });
+}
+
+
+// ==========================
+// FUNÇÃO AUXILIAR
+// ==========================
 function preencherSelect(id, lista) {
     const select = document.getElementById(id);
+    select.innerHTML = "";
     lista.forEach(item => {
         let op = document.createElement("option");
         op.value = item;
@@ -83,6 +117,10 @@ function preencherSelect(id, lista) {
     });
 }
 
+
+// ==========================
+// GERA O QUIZ
+// ==========================
 function gerarQuiz() {
 
     const disc = disciplina.value;
@@ -101,16 +139,19 @@ function gerarQuiz() {
 
     let selecionadas = filtradas.slice(0, qtd);
 
-   const idAplicacao = "QUIZ_" + Date.now();
+    const idAplicacao = "QUIZ_" + Date.now();
 
     localStorage.setItem("quizAtual", JSON.stringify({
-    id: idAplicacao,
-    nome: nome,
-    questoes: selecionadas
+        id: idAplicacao,
+        nome: nome,
+        questoes: selecionadas
     }));
+
     window.location.href = "quiz.html";
 }
 
+
+// ==========================
 function embaralhar(array){
     for(let i=array.length-1;i>0;i--){
         let j=Math.floor(Math.random()*(i+1));
