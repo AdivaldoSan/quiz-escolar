@@ -35,6 +35,20 @@
 
 <p id="resultado"></p>
 
+<script>
+window.onerror = function(msg, src, line, col, err){
+    document.body.innerHTML = `
+        <h2 style="color:red">Erro detectado</h2>
+        <b>Mensagem:</b> ${msg}<br>
+        <b>Arquivo:</b> ${src}<br>
+        <b>Linha:</b> ${line}<br>
+        <b>Coluna:</b> ${col}<br>
+        <pre>${err ? err.stack : ""}</pre>
+    `;
+    return true;
+};
+</script>
+    
 <script src="js/conexao.js"></script>
 
 <script>
