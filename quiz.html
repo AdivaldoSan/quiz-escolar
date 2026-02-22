@@ -19,35 +19,54 @@
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzVkBqTlzyRMIEq2f1ZP6qOeJ9y5lNfmI83qLpCIsCxnhyTf_TXTb4_TDguW-j5x5XwkA/exec";
 
-    //==========================
-    function embaralharArray(arr){
+
+// ===========================
+// FUNÇÃO DE EMBARALHAR
+// ===========================
+function embaralharArray(arr){
     for(let i = arr.length-1; i>0; i--){
         let j = Math.floor(Math.random()*(i+1));
         [arr[i],arr[j]]=[arr[j],arr[i]];
     }
     return arr;
 }
-    
-    let quiz = JSON.parse(localStorage.getItem("quizAtual"));
 
-// se ainda não foi embaralhado, embaralha e salva
+
+// ===========================
+// RECUPERA QUIZ
+// ===========================
+let quiz = JSON.parse(localStorage.getItem("quizAtual"));
+
+if(!quiz){
+    document.body.innerHTML = "<h3>Quiz não encontrado.</h3>";
+    throw new Error("quizAtual não existe");
+}
+
+
+// ===========================
+// EMBARALHA QUESTÕES (UMA VEZ)
+// ===========================
 if(!quiz.embaralhado){
     quiz.questoes = embaralharArray(quiz.questoes);
     quiz.embaralhado = true;
     localStorage.setItem("quizAtual", JSON.stringify(quiz));
 }
 
+
+// ===========================
+// RESTAURA PROGRESSO
+// ===========================
 let atual = quiz.atual || 0;
 let respostas = quiz.respostas || [];
 
 document.getElementById("tituloQuiz").innerText = quiz.nome;
-    
-
 
 mostrarQuestao();
 
 
-// ==========================
+// ===========================
+// MOSTRAR QUESTÃO
+// ===========================
 function mostrarQuestao(){
 
     const q = quiz.questoes[atual];
@@ -55,34 +74,34 @@ function mostrarQuestao(){
     document.getElementById("contador").innerText =
         "Questão " + (atual+1) + " de " + quiz.questoes.length;
 
+
     // ===============================
-// EMBARALHA ALTERNATIVAS SÓ 1 VEZ
-// ===============================
+    // EMBARALHA ALTERNATIVAS UMA VEZ
+    // ===============================
+    let alternativas;
 
-let alternativas;
+    if(!q.ordemExibida){
 
-// se ainda não existe ordem salva, cria uma
-if(!q.ordemExibida){
+        alternativas = [
+            {letra:"A", texto:q.ALT_A},
+            {letra:"B", texto:q.ALT_B},
+            {letra:"C", texto:q.ALT_C},
+            {letra:"D", texto:q.ALT_D}
+        ];
 
-    alternativas = [
-        {letra:"A", texto:q.ALT_A},
-        {letra:"B", texto:q.ALT_B},
-        {letra:"C", texto:q.ALT_C},
-        {letra:"D", texto:q.ALT_D}
-    ];
+        alternativas = embaralharArray(alternativas);
 
-    alternativas = embaralharArray(alternativas);
+        q.ordemExibida = alternativas;
+        localStorage.setItem("quizAtual", JSON.stringify(quiz));
 
-    // salva a ordem congelada
-    q.ordemExibida = alternativas;
+    }else{
+        alternativas = q.ordemExibida;
+    }
 
-    localStorage.setItem("quizAtual", JSON.stringify(quiz));
 
-}else{
-    // usa a ordem já sorteada
-    alternativas = q.ordemExibida;
-}
-
+    // ===============================
+    // RENDERIZA QUESTÃO
+    // ===============================
     document.getElementById("areaQuestao").innerHTML = `
         <p><b>${q.ENUNCIADO}</b></p>
 
@@ -94,37 +113,29 @@ if(!q.ordemExibida){
         `).join("")}
     `;
 
-document.getElementById("areaQuestao").innerHTML = `
-    <p><b>${q.ENUNCIADO}</b></p>
 
-    ${alternativas.map((alt,i)=>`
-        <label>
-            <input type="radio" name="resp" value="${alt.letra}">
-            ${String.fromCharCode(97+i)}) ${alt.texto}
-        </label><br><br>
-    `).join("")}
-`;
+    // ===============================
+    // RESTAURA RESPOSTA
+    // ===============================
+    const respAnterior = respostas.find(r => r.questao === q.ID);
+
+    if(respAnterior){
+        const radio = document.querySelector(
+            `input[name="resp"][value="${respAnterior.marcada}"]`
+        );
+        if(radio) radio.checked = true;
+    }
 
 
-// ===============================
-// RESTAURA RESPOSTA SE JÁ EXISTIR
-// ===============================
-const respAnterior = respostas.find(r => r.questao === q.ID);
-
-if(respAnterior){
-    const radio = document.querySelector(
-        \`input[name="resp"][value="${respAnterior.marcada}"]`
-    );
-    if(radio) radio.checked = true;
-}
-    
     if(atual === quiz.questoes.length-1){
         document.getElementById("btnAvancar").innerText = "Finalizar";
     }
 }
 
 
-// ==========================
+// ===========================
+// AVANÇAR QUESTÃO
+// ===========================
 function avancar(){
 
     const marcada = document.querySelector('input[name="resp"]:checked');
@@ -136,16 +147,16 @@ function avancar(){
 
     respostas.push({
         questao: quiz.questoes[atual].ID,
-        marcada: marcada.value, // letra real (A/B/C/D)
+        marcada: marcada.value,
         correta: quiz.questoes[atual].GABARITO
     });
 
-    // salva progresso
-quiz.atual = atual + 1;
-quiz.respostas = respostas;
-localStorage.setItem("quizAtual", JSON.stringify(quiz));
-
     atual++;
+
+    // salva progresso
+    quiz.atual = atual;
+    quiz.respostas = respostas;
+    localStorage.setItem("quizAtual", JSON.stringify(quiz));
 
     if(atual >= quiz.questoes.length){
         finalizar();
@@ -156,15 +167,16 @@ localStorage.setItem("quizAtual", JSON.stringify(quiz));
 }
 
 
-// ==========================
+// ===========================
+// FINALIZAR QUIZ
+// ===========================
 async function finalizar(){
 
     let acertos = respostas.filter(r=>r.marcada===r.correta).length;
 
-    // limpa o estado salvo do quiz (encerrou a tentativa)
-localStorage.removeItem("quizAtual");
+    // limpa tentativa
+    localStorage.removeItem("quizAtual");
 
-    // monta pacote para enviar ao Apps Script
     const envio = respostas.map(r => ({
         aplicacao: quiz.nome,
         aluno: "anonimo",
@@ -172,10 +184,8 @@ localStorage.removeItem("quizAtual");
         marcada: r.marcada,
         correta: r.correta
     }));
-    
 
     try{
-
         await fetch(API, {
             method:"POST",
             body: JSON.stringify(envio)
@@ -186,9 +196,7 @@ localStorage.removeItem("quizAtual");
             <p>Acertos: ${acertos} de ${respostas.length}</p>
             <p>Respostas registradas com sucesso.</p>
         `;
-
     }catch(e){
-
         document.body.innerHTML = `
             <h2>Quiz finalizado</h2>
             <p>Acertos: ${acertos} de ${respostas.length}</p>
