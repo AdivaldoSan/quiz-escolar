@@ -3,22 +3,25 @@ const API =
 
 
 // ===============================
-function tabelaParaObjetos(linhas){
-
-    const cab = linhas[0];
-
-    return linhas.slice(1).map(l => {
-
-        let obj = {};
-
-        cab.forEach((c,i)=>{
-            obj[c] = l[i];
-        });
-
-        return obj;
-    });
+function normalizarChave(s){
+  return String(s || "")
+    .normalize("NFD")                 // remove acentos
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()                           // remove espaços nas pontas
+    .toUpperCase();                   // padroniza
 }
 
+function tabelaParaObjetos(linhas){
+  const cab = linhas[0].map(normalizarChave);
+
+  return linhas.slice(1).map(l => {
+    let obj = {};
+    cab.forEach((c,i)=>{
+      obj[c] = l[i];
+    });
+    return obj;
+  });
+}
 
 // ===============================
 async function carregarBancoCompleto(){
