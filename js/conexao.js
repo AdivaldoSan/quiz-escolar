@@ -1,19 +1,26 @@
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT1lJ0sUJwMigB4zCrEgu8v_QpfzhX7ctHy5iNK6EtKyjJgWroTZYBkbExjsAbN5XYFHSbXhJI5eMzm/pub?output=csv";
+const BASE =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vT1lJ0sUJwMigB4zCrEgu8v_QpfzhX7ctHy5iNK6EtKyjJgWroTZYBkbExjsAbN5XYFHSbXhJI5eMzm/pub?output=csv";
 
-// Função para ler a planilha
-async function carregarQuestoes() {
-    const resposta = await fetch(SHEET_URL);
-    const texto = await resposta.text();
+async function carregarAba(gid) {
+    const url = BASE + "&gid=" + gid;
+    const resp = await fetch(url);
+    const txt = await resp.text();
 
-    const linhas = texto.split("\n").map(l => l.split(","));
+    const linhas = txt.split("\n").map(l => l.split(","));
+    const cab = linhas.shift();
 
-    const cabecalho = linhas.shift();
-
-    const dados = linhas.map(linha => {
+    return linhas.map(l => {
         let obj = {};
-        cabecalho.forEach((col, i) => obj[col.trim()] = linha[i]);
+        cab.forEach((c,i)=>obj[c.trim()] = l[i]);
         return obj;
     });
+}
 
-    return dados;
+// IDs das abas (vamos descobrir uma vez só)
+async function carregarBancoCompleto(){
+
+    const questoes = await carregarAba("0");  // aba QUESTOES
+    const descritores = await carregarAba("1"); // aba DESCRITORES
+
+    return {questoes, descritores};
 }
