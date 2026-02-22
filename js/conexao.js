@@ -3,18 +3,16 @@ const API =
 
 
 // ===============================
-// Converte matriz do Sheets → objetos
-// ===============================
 function tabelaParaObjetos(linhas){
 
-    const cabecalho = linhas[0];
+    const cab = linhas[0];
 
-    return linhas.slice(1).map(linha => {
+    return linhas.slice(1).map(l => {
 
         let obj = {};
 
-        cabecalho.forEach((col, i)=>{
-            obj[col] = linha[i];
+        cab.forEach((c,i)=>{
+            obj[c] = l[i];
         });
 
         return obj;
@@ -23,36 +21,15 @@ function tabelaParaObjetos(linhas){
 
 
 // ===============================
-// Busca questões
-// ===============================
-async function carregarQuestoes(){
-
-    const r = await fetch(API + "?tipo=questoes");
-    const dados = await r.json();
-
-    return tabelaParaObjetos(dados);
-}
-
-
-// ===============================
-// Busca descritores
-// ===============================
-async function carregarDescritores(){
-
-    const r = await fetch(API + "?tipo=descritores");
-    const dados = await r.json();
-
-    return tabelaParaObjetos(dados);
-}
-
-
-// ===============================
 async function carregarBancoCompleto(){
 
-    const [questoes, descritores] = await Promise.all([
-        carregarQuestoes(),
-        carregarDescritores()
+    const [q,d] = await Promise.all([
+        fetch(API+"?tipo=questoes").then(r=>r.json()),
+        fetch(API+"?tipo=descritores").then(r=>r.json())
     ]);
 
-    return {questoes, descritores};
+    return {
+        questoes: tabelaParaObjetos(q),
+        descritores: tabelaParaObjetos(d)
+    };
 }
