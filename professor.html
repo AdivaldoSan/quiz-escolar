@@ -118,20 +118,6 @@ function atualizarFiltros(){
             selDesc.appendChild(op);
         });
     }
-
-
-    // ---- Descritores disponíveis
-    const descrs = [...new Set(filtrado.map(q => q.DESCRITOR))];
-
-    const selDesc = document.getElementById("descritor");
-    selDesc.innerHTML = "<option value=''>Todos</option>";
-
-    descrs.forEach(cod=>{
-        let op = document.createElement("option");
-        op.value = cod;
-        op.textContent = cod + " — " + (mapaDescritores[cod] || "");
-        selDesc.appendChild(op);
-    });
 }
 
 
