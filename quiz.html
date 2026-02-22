@@ -55,19 +55,33 @@ function mostrarQuestao(){
     document.getElementById("contador").innerText =
         "Questão " + (atual+1) + " de " + quiz.questoes.length;
 
-    // monta alternativas originais
-    let alternativas = [
+    // ===============================
+// EMBARALHA ALTERNATIVAS SÓ 1 VEZ
+// ===============================
+
+let alternativas;
+
+// se ainda não existe ordem salva, cria uma
+if(!q.ordemExibida){
+
+    alternativas = [
         {letra:"A", texto:q.ALT_A},
         {letra:"B", texto:q.ALT_B},
         {letra:"C", texto:q.ALT_C},
         {letra:"D", texto:q.ALT_D}
     ];
 
-    // embaralha só a exibição
     alternativas = embaralharArray(alternativas);
 
-    // guarda ordem mostrada (IMPORTANTE)
-    quiz.questoes[atual].ordemExibida = alternativas;
+    // salva a ordem congelada
+    q.ordemExibida = alternativas;
+
+    localStorage.setItem("quizAtual", JSON.stringify(quiz));
+
+}else{
+    // usa a ordem já sorteada
+    alternativas = q.ordemExibida;
+}
 
     document.getElementById("areaQuestao").innerHTML = `
         <p><b>${q.ENUNCIADO}</b></p>
