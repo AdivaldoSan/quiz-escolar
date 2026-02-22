@@ -47,6 +47,12 @@ quiz.questoes.forEach((q,i)=>{
 
 function corrigir(){
 
+    const nomeAluno = document.getElementById("aluno").value;
+    if(!nomeAluno){
+        alert("Digite seu nome.");
+        return;
+    }
+
     let acertos = 0;
 
     quiz.questoes.forEach((q,i)=>{
@@ -56,6 +62,12 @@ function corrigir(){
 
     document.getElementById("resultado").innerHTML =
         `<h3>Resultado: ${acertos} de ${quiz.questoes.length}</h3>`;
+
+    console.log({
+        aplicacao: quiz.id,
+        aluno: nomeAluno,
+        acertos: acertos
+    });
 }
 
 </script>
