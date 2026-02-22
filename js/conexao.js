@@ -1,9 +1,10 @@
 const BASE =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vT1lJ0sUJwMigB4zCrEgu8v_QpfzhX7ctHy5iNK6EtKyjJgWroTZYBkbExjsAbN5XYFHSbXhJI5eMzm/pub?output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vT1lJ0sUJwMigB4zCrEgu8v_QpfzhX7ctHy5iNK6EtKyjJgWroTZYBkbExjsAbN5XYFHSbXhJI5eMzm";
 
-// função que lê uma aba específica
 async function carregarAba(gid) {
-    const url = BASE + "&gid=" + gid;
+
+    const url = `${BASE}/pub?gid=${gid}&single=true&output=csv`;
+
     const resp = await fetch(url);
     const txt = await resp.text();
 
@@ -19,10 +20,9 @@ async function carregarAba(gid) {
         });
 }
 
-// carrega o banco completo (QUESTOES + DESCRITORES)
 async function carregarBancoCompleto(){
 
-    const questoes = await carregarAba("0");          // QUESTOES
+    const questoes = await carregarAba("0");            // QUESTOES
     const descritores = await carregarAba("499737335"); // DESCRITORES
 
     return {questoes, descritores};
