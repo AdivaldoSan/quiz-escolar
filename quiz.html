@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Responder Quiz</title>
+</head>
 
+<body style="font-family: Arial; max-width:800px; margin:auto;">
+
+<h2 id="titulo"></h2>
+
+<form id="formQuiz"></form>
+
+<button onclick="corrigir()">Finalizar</button>
+
+<p id="resultado"></p>
+
+<script>
+
+const quiz = JSON.parse(localStorage.getItem("quizAtual"));
+document.getElementById("titulo").innerText = quiz.nome;
+
+const form = document.getElementById("formQuiz");
+
+quiz.questoes.forEach((q,i)=>{
+
+    let div = document.createElement("div");
+    div.innerHTML = "<p><b>"+(i+1)+") "+q.ENUNCIADO+"</b></p>";
+
+    ["A","B","C","D"].forEach(letra=>{
+        let alt = q["ALT_"+letra];
+        if(alt){
+            div.innerHTML += `
+            <label>
+            <input type="radio" name="q${i}" value="${letra}">
+            ${letra}) ${alt}
+            </label><br>`;
+        }
+    });
+
+    form.appendChild(div);
+});
+
+function corrigir(){
+
+    let acertos = 0;
+
+    quiz.questoes.forEach((q,i)=>{
+        const marcada = document.querySelector(`input[name="q${i}"]:checked`);
+        if(marcada && marcada.value === q.GABARITO) acertos++;
+    });
+
+    document.getElementById("resultado").innerHTML =
+        `<h3>Resultado: ${acertos} de ${quiz.questoes.length}</h3>`;
+}
+
+</script>
+
+</body>
+</html>
