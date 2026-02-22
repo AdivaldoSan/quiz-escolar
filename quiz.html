@@ -61,7 +61,7 @@ let respostas = quiz.respostas || [];
 
 document.getElementById("tituloQuiz").innerText = quiz.nome;
 
-mostrarQuestao();
+iniciarIdentificacao();
 
 
 // ===========================
@@ -179,7 +179,8 @@ async function finalizar(){
 
     const envio = respostas.map(r => ({
         aplicacao: quiz.nome,
-        aluno: "anonimo",
+       aluno: quiz.alunoNome,
+turma: quiz.alunoTurma,
         questao: r.questao,
         marcada: r.marcada,
         correta: r.correta
@@ -205,6 +206,50 @@ async function finalizar(){
     }
 }
 
+async function iniciarIdentificacao(){
+
+    if(quiz.alunoNome){
+        mostrarQuestao();
+        return;
+    }
+
+    const r = await fetch(API+"?tipo=turmas&professor="+quiz.professor);
+    const dados = await r.json();
+    const turmas = dados.slice(1);
+
+    document.body.innerHTML = `
+        <h2>${quiz.nome}</h2>
+
+        <label>Seu nome:</label><br>
+        <input id="nomeAluno" style="width:100%;padding:8px"><br><br>
+
+        <label>Sua turma:</label><br>
+        <select id="turmaAluno" style="width:100%;padding:8px">
+            ${turmas.map(t=>`<option value="${t[2]}">${t[2]}</option>`).join("")}
+        </select><br><br>
+
+        <button onclick="confirmarAluno()">Iniciar</button>
+    `;
+}
+
+function confirmarAluno(){
+
+    const nome = document.getElementById("nomeAluno").value.trim();
+    const turma = document.getElementById("turmaAluno").value;
+
+    if(!nome){
+        alert("Digite seu nome.");
+        return;
+    }
+
+    quiz.alunoNome = nome;
+    quiz.alunoTurma = turma;
+
+    localStorage.setItem("quizAtual", JSON.stringify(quiz));
+
+    location.reload();
+}    
+    
 </script>
 
 </body>
