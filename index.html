@@ -5,7 +5,20 @@
   <title>Sistema de Avaliações</title>
 </head>
 <body style="font-family: Arial; text-align:center; margin-top:50px;">
-  <h1>✅ Sistema conectado</h1>
-  <p>Repositório inicial criado com sucesso.</p>
+
+<h1>📚 Banco conectado</h1>
+<p>Carregando questões...</p>
+
+<div id="resultado"></div>
+
+<script src="js/conexao.js"></script>
+
+<script>
+carregarQuestoes().then(questoes => {
+    document.getElementById("resultado").innerHTML =
+        "Total de questões carregadas: <b>" + questoes.length + "</b>";
+});
+</script>
+
 </body>
 </html>
