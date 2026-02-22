@@ -191,10 +191,12 @@ function gerarQuiz(){
     const selecionadas=
         filtradas.slice(0,quantidade.value);
 
-    localStorage.setItem("quizAtual",JSON.stringify({
-        nome:nomeQuiz.value||"Quiz",
-        questoes:selecionadas
-    }));
+   localStorage.setItem("quizAtual", JSON.stringify({
+    id: idAplicacao,
+    nome: nome,
+    professor: "professoradivaldo@gmail.com",
+    questoes: selecionadas
+}));
 
     window.location="quiz.html";
 }
