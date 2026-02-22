@@ -40,12 +40,33 @@
 
 let banco = [];
 
-carregarQuestoes().then(dados => {
-    banco = dados.filter(q => q.ATIVO === "SIM");
+let banco = [];
+let mapaDescritores = {};
+
+carregarBancoCompleto().then(({questoes, descritores}) => {
+
+    banco = questoes.filter(q => q.ATIVO === "SIM");
+
+    // cria mapa CODIGO → DESCRICAO
+    descritores.forEach(d => {
+        mapaDescritores[d.CODIGO] = d.DESCRICAO;
+    });
 
     preencherSelect("disciplina", [...new Set(banco.map(q => q.DISCIPLINA))]);
     preencherSelect("assunto", [...new Set(banco.map(q => q.ASSUNTO))]);
-    preencherSelect("descritor", [...new Set(banco.map(q => q.DESCRITOR))]);
+
+    // descritor agora mostra significado
+    const listaDescritores = [...new Set(banco.map(q => q.DESCRITOR))];
+
+    const select = document.getElementById("descritor");
+
+    listaDescritores.forEach(cod => {
+        let op = document.createElement("option");
+        op.value = cod;
+        op.textContent = cod + " — " + (mapaDescritores[cod] || "");
+        select.appendChild(op);
+    });
+
 });
 
 function preencherSelect(id, lista) {
