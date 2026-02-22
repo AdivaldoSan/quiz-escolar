@@ -76,11 +76,13 @@ function gerarQuiz() {
 
     let selecionadas = filtradas.slice(0, qtd);
 
-    localStorage.setItem("quizAtual", JSON.stringify({
-        nome: nome,
-        questoes: selecionadas
-    }));
+   const idAplicacao = "QUIZ_" + Date.now();
 
+    localStorage.setItem("quizAtual", JSON.stringify({
+    id: idAplicacao,
+    nome: nome,
+    questoes: selecionadas
+    }));
     window.location.href = "quiz.html";
 }
 
