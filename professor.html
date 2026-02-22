@@ -7,24 +7,20 @@
 
 <body style="font-family: Arial; max-width:800px; margin:auto;">
 
-    <div id="debug" style="background:#ffeeba;padding:10px;margin-bottom:10px;">
-Carregando scripts...
-</div>
-
 <h2>📘 Montagem de Quiz</h2>
-<div id="teste" style="background:#eee;padding:10px;">Testando conexão...</div>
+
 <label>Disciplina:</label>
 <select id="disciplina"></select>
 <br><br>
 
 <label>Assunto:</label>
 <select id="assunto"></select>
-<div id="infoAssunto" style="font-size:12px;color:#555;margin-top:4px;"></div>
+<div id="infoAssunto" style="font-size:12px;color:#555;"></div>
 <br>
 
 <label>Descritor (opcional):</label>
 <select id="descritor"></select>
-<div id="infoDescritor" style="font-size:12px;color:#555;margin-top:4px;"></div>
+<div id="infoDescritor" style="font-size:12px;color:#555;"></div>
 <br>
 
 <label>Quantidade de questões:</label>
@@ -37,38 +33,181 @@ Carregando scripts...
 
 <button onclick="gerarQuiz()">Gerar Quiz</button>
 
-<p id="resultado"></p>
+<p id="status"></p>
 
-<script>
-window.onerror = function(msg, src, line, col, err){
-    document.body.innerHTML = `
-        <h2 style="color:red">Erro detectado</h2>
-        <b>Mensagem:</b> ${msg}<br>
-        <b>Arquivo:</b> ${src}<br>
-        <b>Linha:</b> ${line}<br>
-        <b>Coluna:</b> ${col}<br>
-        <pre>${err ? err.stack : ""}</pre>
-    `;
-    return true;
-};
-</script>
-    
 <script src="./js/conexao.js"></script>
 
 <script>
 
-const url = "https://script.google.com/macros/s/AKfycbwoeCI-gCMXauWzpTQUekSsotpPFXnhknsEUjyM8T3T_RxUv2c_v_0Ud8ACCCOazUgqfw/exec?tipo=questoes";
+let banco = [];
+let mapaDescritores = {};
 
-fetch(url)
-.then(r => r.json())
-.then(d => {
-    document.getElementById("teste").innerHTML =
-        "✅ API respondeu. Linhas recebidas: " + d.length;
-})
-.catch(e => {
-    document.getElementById("teste").innerHTML =
-        "❌ Erro ao acessar API: " + e;
-});
+iniciar();
+
+async function iniciar(){
+
+    document.getElementById("status").innerText = "Carregando banco...";
+
+    const dados = await carregarBancoCompleto();
+
+    banco = dados.questoes.filter(q => q.ATIVO === "SIM");
+
+    dados.descritores.forEach(d=>{
+        mapaDescritores[d.CODIGO] = d.DESCRICAO;
+    });
+
+    preencherSelect("disciplina",
+        [...new Set(banco.map(q=>q.DISCIPLINA))]
+    );
+
+    document.getElementById("disciplina")
+        .addEventListener("change", atualizarFiltros);
+
+    document.getElementById("assunto")
+        .addEventListener("change", relacionarAssuntoComDescritor);
+
+    document.getElementById("descritor")
+        .addEventListener("change", relacionarDescritorComAssunto);
+
+    atualizarFiltros();
+
+    document.getElementById("status").innerText = "Banco carregado.";
+}
+
+
+
+// =============================
+// Atualiza lista ao trocar disciplina
+// =============================
+function atualizarFiltros(){
+
+    const disc = disciplina.value;
+
+    const filtrado = banco.filter(q=>q.DISCIPLINA===disc);
+
+    preencherSelect("assunto",
+        [...new Set(filtrado.map(q=>q.ASSUNTO))]
+    );
+
+    const descritores = [...new Set(filtrado.map(q=>q.DESCRITOR))];
+
+    const sel = document.getElementById("descritor");
+    sel.innerHTML = "<option value=''>Todos</option>";
+
+    descritores.forEach(cod=>{
+        let op = document.createElement("option");
+        op.value = cod;
+        op.textContent = cod + " — " + (mapaDescritores[cod]||"");
+        sel.appendChild(op);
+    });
+
+    assunto.disabled = false;
+    descritor.disabled = false;
+
+    infoAssunto.innerHTML="";
+    infoDescritor.innerHTML="";
+}
+
+
+
+// =============================
+// Quando escolhe ASSUNTO
+// =============================
+function relacionarAssuntoComDescritor(){
+
+    if(!assunto.value){
+        descritor.disabled=false;
+        infoAssunto.innerHTML="";
+        return;
+    }
+
+    descritor.disabled=true;
+
+    const descrs =
+        [...new Set(
+            banco.filter(q=>q.ASSUNTO===assunto.value)
+                 .map(q=>q.DESCRITOR)
+        )];
+
+    infoAssunto.innerHTML =
+        "Descritores relacionados:<br>" +
+        descrs.map(c=>c+" — "+(mapaDescritores[c]||"")).join("<br>");
+}
+
+
+
+// =============================
+// Quando escolhe DESCRITOR
+// =============================
+function relacionarDescritorComAssunto(){
+
+    if(!descritor.value){
+        assunto.disabled=false;
+        infoDescritor.innerHTML="";
+        return;
+    }
+
+    assunto.disabled=true;
+
+    const assuntos =
+        [...new Set(
+            banco.filter(q=>q.DESCRITOR===descritor.value)
+                 .map(q=>q.ASSUNTO)
+        )];
+
+    infoDescritor.innerHTML =
+        "Aparece nos assuntos: "+assuntos.join(", ");
+}
+
+
+
+// =============================
+function preencherSelect(id, lista){
+
+    const sel=document.getElementById(id);
+    sel.innerHTML="<option value=''>Todos</option>";
+
+    lista.forEach(v=>{
+        let op=document.createElement("option");
+        op.value=v;
+        op.textContent=v;
+        sel.appendChild(op);
+    });
+}
+
+
+
+// =============================
+function gerarQuiz(){
+
+    const filtradas=banco.filter(q=>
+        (disciplina.value===""||q.DISCIPLINA===disciplina.value)&&
+        (assunto.value===""||q.ASSUNTO===assunto.value)&&
+        (descritor.value===""||q.DESCRITOR===descritor.value)
+    );
+
+    embaralhar(filtradas);
+
+    const selecionadas=
+        filtradas.slice(0,quantidade.value);
+
+    localStorage.setItem("quizAtual",JSON.stringify({
+        nome:nomeQuiz.value||"Quiz",
+        questoes:selecionadas
+    }));
+
+    window.location="quiz.html";
+}
+
+
+
+// =============================
+function embaralhar(a){
+for(let i=a.length-1;i>0;i--){
+let j=Math.floor(Math.random()*(i+1));
+[a[i],a[j]]=[a[j],a[i]];
+}
+}
 
 </script>
 
