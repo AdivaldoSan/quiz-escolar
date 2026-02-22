@@ -75,8 +75,10 @@ function atualizarFiltros(){
 
     const filtrado = banco.filter(q => q.DISCIPLINA === disc);
 
-    // ---- Assuntos disponíveis
-    const assuntos = [...new Set(filtrado.map(q => q.ASSUNTO))];
+    // ==========================
+    // ASSUNTOS (sempre existem)
+    // ==========================
+    const assuntos = [...new Set(filtrado.map(q => q.ASSUNTO).filter(a => a))];
 
     const selAssunto = document.getElementById("assunto");
     selAssunto.innerHTML = "";
@@ -87,6 +89,36 @@ function atualizarFiltros(){
         op.textContent = a;
         selAssunto.appendChild(op);
     });
+
+    // ==========================
+    // VERIFICA SE DISCIPLINA TEM DESCRITOR
+    // ==========================
+    const descritoresDaDisciplina =
+        Object.entries(mapaDescritores)
+        .filter(([cod, desc]) =>
+            banco.some(q => q.DISCIPLINA === disc && q.DESCRITOR === cod)
+        );
+
+    const campoDescritor = document.getElementById("descritor").parentElement;
+
+    if(descritoresDaDisciplina.length === 0){
+        // ❌ disciplina sem matriz → esconder campo
+        campoDescritor.style.display = "none";
+    }else{
+        // ✔ disciplina com matriz → mostrar campo
+        campoDescritor.style.display = "block";
+
+        const selDesc = document.getElementById("descritor");
+        selDesc.innerHTML = "<option value=''>Todos</option>";
+
+        descritoresDaDisciplina.forEach(([cod, desc])=>{
+            let op = document.createElement("option");
+            op.value = cod;
+            op.textContent = cod + " — " + desc;
+            selDesc.appendChild(op);
+        });
+    }
+}
 
     // ---- Descritores disponíveis
     const descrs = [...new Set(filtrado.map(q => q.DESCRITOR))];
