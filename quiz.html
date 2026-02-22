@@ -37,8 +37,8 @@ if(!quiz.embaralhado){
     localStorage.setItem("quizAtual", JSON.stringify(quiz));
 }
 
-let atual = 0;
-let respostas = [];
+let atual = quiz.atual || 0;
+let respostas = quiz.respostas || [];
 
 document.getElementById("tituloQuiz").innerText = quiz.nome;
     
@@ -94,6 +94,30 @@ if(!q.ordemExibida){
         `).join("")}
     `;
 
+document.getElementById("areaQuestao").innerHTML = `
+    <p><b>${q.ENUNCIADO}</b></p>
+
+    ${alternativas.map((alt,i)=>`
+        <label>
+            <input type="radio" name="resp" value="${alt.letra}">
+            ${String.fromCharCode(97+i)}) ${alt.texto}
+        </label><br><br>
+    `).join("")}
+`;
+
+
+// ===============================
+// RESTAURA RESPOSTA SE JÁ EXISTIR
+// ===============================
+const respAnterior = respostas.find(r => r.questao === q.ID);
+
+if(respAnterior){
+    const radio = document.querySelector(
+        \`input[name="resp"][value="${respAnterior.marcada}"]`
+    );
+    if(radio) radio.checked = true;
+}
+    
     if(atual === quiz.questoes.length-1){
         document.getElementById("btnAvancar").innerText = "Finalizar";
     }
@@ -116,6 +140,11 @@ function avancar(){
         correta: quiz.questoes[atual].GABARITO
     });
 
+    // salva progresso
+quiz.atual = atual + 1;
+quiz.respostas = respostas;
+localStorage.setItem("quizAtual", JSON.stringify(quiz));
+
     atual++;
 
     if(atual >= quiz.questoes.length){
@@ -132,6 +161,9 @@ async function finalizar(){
 
     let acertos = respostas.filter(r=>r.marcada===r.correta).length;
 
+    // limpa o estado salvo do quiz (encerrou a tentativa)
+localStorage.removeItem("quizAtual");
+
     // monta pacote para enviar ao Apps Script
     const envio = respostas.map(r => ({
         aplicacao: quiz.nome,
@@ -140,6 +172,7 @@ async function finalizar(){
         marcada: r.marcada,
         correta: r.correta
     }));
+    
 
     try{
 
