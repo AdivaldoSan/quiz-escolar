@@ -1,15 +1,14 @@
-const BASE =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vT1lJ0sUJwMigB4zCrEgu8v_QpfzhX7ctHy5iNK6EtKyjJgWroTZYBkbExjsAbN5XYFHSbXhJI5eMzm";
+const PLANILHA_ID = "1WEwIs2YnMYGv1OsvvhmOxlDFCG_kNL6O4kgo4BwzmWU";
 
-// função que usa a API gviz (não sofre bloqueio CORS)
+// Lê uma aba pelo gid usando API oficial de visualização
 async function carregarAba(gid){
 
-    const url = `${BASE}/gviz/tq?tqx=out:json&gid=${gid}`;
+    const url = `https://docs.google.com/spreadsheets/d/${PLANILHA_ID}/gviz/tq?tqx=out:json&gid=${gid}`;
 
     const resp = await fetch(url);
     const txt = await resp.text();
 
-    // limpa o wrapper estranho que o Google manda
+    // remove o wrapper do Google
     const json = JSON.parse(txt.substring(47).slice(0, -2));
 
     const cols = json.table.cols.map(c => c.label);
@@ -25,7 +24,7 @@ async function carregarAba(gid){
     return dados;
 }
 
-// carrega tudo
+// carrega banco completo
 async function carregarBancoCompleto(){
 
     const questoes = await carregarAba("0");            // QUESTOES
