@@ -1,25 +1,31 @@
 const BASE =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vT1lJ0sUJwMigB4zCrEgu8v_QpfzhX7ctHy5iNK6EtKyjJgWroTZYBkbExjsAbN5XYFHSbXhJI5eMzm";
 
-async function carregarAba(gid) {
+// função que usa a API gviz (não sofre bloqueio CORS)
+async function carregarAba(gid){
 
-    const url = `${BASE}/pub?gid=${gid}&single=true&output=csv`;
+    const url = `${BASE}/gviz/tq?tqx=out:json&gid=${gid}`;
 
     const resp = await fetch(url);
     const txt = await resp.text();
 
-    const linhas = txt.split("\n").map(l => l.split(","));
-    const cab = linhas.shift();
+    // limpa o wrapper estranho que o Google manda
+    const json = JSON.parse(txt.substring(47).slice(0, -2));
 
-    return linhas
-        .filter(l => l.length > 1 && l[0] !== "")
-        .map(l => {
-            let obj = {};
-            cab.forEach((c,i)=>obj[c.trim()] = l[i]);
-            return obj;
+    const cols = json.table.cols.map(c => c.label);
+
+    const dados = json.table.rows.map(r => {
+        let obj = {};
+        r.c.forEach((cel,i)=>{
+            obj[cols[i]] = cel ? cel.v : "";
         });
+        return obj;
+    });
+
+    return dados;
 }
 
+// carrega tudo
 async function carregarBancoCompleto(){
 
     const questoes = await carregarAba("0");            // QUESTOES
