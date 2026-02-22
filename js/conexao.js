@@ -1,34 +1,24 @@
-const PLANILHA_ID = "1WEwIs2YnMYGv1OsvvhmOxlDFCG_kNL6O4kgo4BwzmWU";
+const API =
+"https://script.google.com/macros/s/AKfycbwoeCI-gCMXauWzpTQUekSsotpPFXnhknsEUjyM8T3T_RxUv2c_v_0Ud8ACCCOazUgqfw/exec";
 
-// Lê uma aba pelo gid usando API oficial de visualização
-async function carregarAba(gid){
-
-    const url = `https://docs.google.com/spreadsheets/d/${PLANILHA_ID}/gviz/tq?tqx=out:json&gid=${gid}`;
-
-    const resp = await fetch(url);
-    const txt = await resp.text();
-
-    // remove o wrapper do Google
-    const json = JSON.parse(txt.substring(47).slice(0, -2));
-
-    const cols = json.table.cols.map(c => c.label);
-
-    const dados = json.table.rows.map(r => {
+// converte matriz do Sheets em objetos
+function matrizParaObjetos(matriz){
+    const cab = matriz.shift();
+    return matriz.map(l=>{
         let obj = {};
-        r.c.forEach((cel,i)=>{
-            obj[cols[i]] = cel ? cel.v : "";
-        });
+        cab.forEach((c,i)=>obj[c]=l[i]);
         return obj;
     });
-
-    return dados;
 }
 
-// carrega banco completo
+// carrega questões + descritores via API segura
 async function carregarBancoCompleto(){
 
-    const questoes = await carregarAba("0");            // QUESTOES
-    const descritores = await carregarAba("499737335"); // DESCRITORES
+    const q = await fetch(API + "?tipo=questoes");
+    const questoes = matrizParaObjetos(await q.json());
+
+    const d = await fetch(API + "?tipo=descritores");
+    const descritores = matrizParaObjetos(await d.json());
 
     return {questoes, descritores};
 }
