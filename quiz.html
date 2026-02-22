@@ -28,10 +28,14 @@ const API = "https://script.google.com/macros/s/AKfycbzVkBqTlzyRMIEq2f1ZP6qOeJ9y
     return arr;
 }
     
-    const quiz = JSON.parse(localStorage.getItem("quizAtual"));
-    
-// embaralha ordem das questões para cada aluno   
-quiz.questoes = embaralharArray(quiz.questoes);
+    let quiz = JSON.parse(localStorage.getItem("quizAtual"));
+
+// se ainda não foi embaralhado, embaralha e salva
+if(!quiz.embaralhado){
+    quiz.questoes = embaralharArray(quiz.questoes);
+    quiz.embaralhado = true;
+    localStorage.setItem("quizAtual", JSON.stringify(quiz));
+}
 
 let atual = 0;
 let respostas = [];
