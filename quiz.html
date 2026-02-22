@@ -18,14 +18,8 @@
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzVkBqTlzyRMIEq2f1ZP6qOeJ9y5lNfmI83qLpCIsCxnhyTf_TXTb4_TDguW-j5x5XwkA/exec";
-const quiz = JSON.parse(localStorage.getItem("quizAtual"));
 
-let atual = 0;
-let respostas = [];
-
-document.getElementById("tituloQuiz").innerText = quiz.nome;
-    
-//==========================
+    //==========================
     function embaralharArray(arr){
     for(let i = arr.length-1; i>0; i--){
         let j = Math.floor(Math.random()*(i+1));
@@ -33,6 +27,18 @@ document.getElementById("tituloQuiz").innerText = quiz.nome;
     }
     return arr;
 }
+    
+    const quiz = JSON.parse(localStorage.getItem("quizAtual"));
+    
+// embaralha ordem das questões para cada aluno   
+quiz.questoes = embaralharArray(quiz.questoes);
+
+let atual = 0;
+let respostas = [];
+
+document.getElementById("tituloQuiz").innerText = quiz.nome;
+    
+
 
 mostrarQuestao();
 
