@@ -7,6 +7,10 @@
 
 <body style="font-family: Arial; max-width:800px; margin:auto;">
 
+    <div id="debug" style="background:#ffeeba;padding:10px;margin-bottom:10px;">
+Carregando scripts...
+</div>
+
 <h2>📘 Montagem de Quiz</h2>
 
 <label>Disciplina:</label>
@@ -52,6 +56,8 @@ window.onerror = function(msg, src, line, col, err){
 <script src="./js/conexao.js"></script>
 
 <script>
+
+    document.getElementById("debug").innerHTML = "JavaScript iniciou.";
 
 let banco = [];
 let mapaDescritores = {};
