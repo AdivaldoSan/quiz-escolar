@@ -24,6 +24,15 @@ let atual = 0;
 let respostas = [];
 
 document.getElementById("tituloQuiz").innerText = quiz.nome;
+    
+//==========================
+    function embaralharArray(arr){
+    for(let i = arr.length-1; i>0; i--){
+        let j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+}
 
 mostrarQuestao();
 
@@ -36,13 +45,27 @@ function mostrarQuestao(){
     document.getElementById("contador").innerText =
         "Questão " + (atual+1) + " de " + quiz.questoes.length;
 
+    // monta alternativas originais
+    let alternativas = [
+        {letra:"A", texto:q.ALT_A},
+        {letra:"B", texto:q.ALT_B},
+        {letra:"C", texto:q.ALT_C},
+        {letra:"D", texto:q.ALT_D}
+    ];
+
+    // embaralha só a exibição
+    alternativas = embaralharArray(alternativas);
+
+    // guarda ordem mostrada (IMPORTANTE)
+    quiz.questoes[atual].ordemExibida = alternativas;
+
     document.getElementById("areaQuestao").innerHTML = `
         <p><b>${q.ENUNCIADO}</b></p>
 
-        ${["A","B","C","D"].map(l=>`
+        ${alternativas.map((alt,i)=>`
             <label>
-                <input type="radio" name="resp" value="${l}">
-                ${q["ALT_"+l]}
+                <input type="radio" name="resp" value="${alt.letra}">
+                ${String.fromCharCode(97+i)}) ${alt.texto}
             </label><br><br>
         `).join("")}
     `;
@@ -65,7 +88,7 @@ function avancar(){
 
     respostas.push({
         questao: quiz.questoes[atual].ID,
-        marcada: marcada.value,
+        marcada: marcada.value, // letra real (A/B/C/D)
         correta: quiz.questoes[atual].GABARITO
     });
 
