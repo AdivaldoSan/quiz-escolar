@@ -12,7 +12,7 @@ Carregando scripts...
 </div>
 
 <h2>📘 Montagem de Quiz</h2>
-
+<div id="teste" style="background:#eee;padding:10px;">Testando conexão...</div>
 <label>Disciplina:</label>
 <select id="disciplina"></select>
 <br><br>
@@ -57,197 +57,18 @@ window.onerror = function(msg, src, line, col, err){
 
 <script>
 
-    document.getElementById("debug").innerHTML = "JavaScript iniciou.";
+const url = "https://script.google.com/macros/s/AKfycbwoeCI-gCMXauWzpTQUekSsotpPFXnhknsEUjyM8T3T_RxUv2c_v_0Ud8ACCCOazUgqfw/exec?tipo=questoes";
 
-let banco = [];
-let mapaDescritores = {};
-
-iniciar();
-
-async function iniciar(){
-    try{
-        const dados = await carregarBancoCompleto();
-
-        banco = dados.questoes.filter(q => q.ATIVO === "SIM");
-
-        dados.descritores.forEach(d => {
-            mapaDescritores[d.CODIGO] = d.DESCRICAO;
-        });
-
-        preencherSelect("disciplina",
-            [...new Set(banco.map(q => q.DISCIPLINA))]
-        );
-
-        document.getElementById("disciplina").addEventListener("change", atualizarFiltros);
-        document.getElementById("assunto").addEventListener("change", relacionarAssuntoComDescritor);
-        document.getElementById("descritor").addEventListener("change", relacionarDescritorComAssunto);
-
-        atualizarFiltros();
-
-    }catch(e){
-        document.body.innerHTML = "<h3>Erro ao carregar banco</h3><pre>"+e+"</pre>";
-        console.error(e);
-    }
-}
-
-
-// ============================
-// Atualiza filtros por disciplina
-// ============================
-function atualizarFiltros(){
-
-    const disc = document.getElementById("disciplina").value;
-
-    const filtrado = banco.filter(q => q.DISCIPLINA === disc);
-
-    // ----- Assuntos
-    const assuntos = [...new Set(filtrado.map(q => q.ASSUNTO).filter(a => a))];
-    preencherSelect("assunto", assuntos);
-
-    // ----- Descritores existentes na disciplina
-    const descritoresDaDisciplina =
-        [...new Set(filtrado.map(q => q.DESCRITOR).filter(d => d))];
-
-    const campoDescritor = document.getElementById("descritor").parentElement;
-
-    if(descritoresDaDisciplina.length === 0){
-        campoDescritor.style.display = "none";
-    }else{
-        campoDescritor.style.display = "block";
-
-        const selDesc = document.getElementById("descritor");
-        selDesc.innerHTML = "<option value=''>Todos</option>";
-
-        descritoresDaDisciplina.forEach(cod=>{
-            let op = document.createElement("option");
-            op.value = cod;
-            op.textContent = cod + " — " + (mapaDescritores[cod] || "");
-            selDesc.appendChild(op);
-        });
-    }
-
-    document.getElementById("assunto").disabled = false;
-    document.getElementById("descritor").disabled = false;
-    document.getElementById("infoAssunto").innerHTML = "";
-    document.getElementById("infoDescritor").innerHTML = "";
-}
-
-
-// ============================
-// Quando escolhe ASSUNTO
-// ============================
-function relacionarAssuntoComDescritor(){
-
-    const assuntoSel = document.getElementById("assunto").value;
-    const selDesc = document.getElementById("descritor");
-    const info = document.getElementById("infoAssunto");
-
-    if(!assuntoSel){
-        selDesc.disabled = false;
-        info.innerHTML = "";
-        return;
-    }
-
-    selDesc.disabled = true;
-
-    const descritoresLigados =
-        [...new Set(
-            banco.filter(q => q.ASSUNTO === assuntoSel)
-                 .map(q => q.DESCRITOR)
-        )];
-
-    info.innerHTML = descritoresLigados.length
-        ? "Descritores relacionados:<br>" +
-          descritoresLigados.map(c => c + " — " + (mapaDescritores[c]||"")).join("<br>")
-        : "";
-}
-
-
-// ============================
-// Quando escolhe DESCRITOR
-// ============================
-function relacionarDescritorComAssunto(){
-
-    const descSel = document.getElementById("descritor").value;
-    const selAss = document.getElementById("assunto");
-    const info = document.getElementById("infoDescritor");
-
-    if(!descSel){
-        selAss.disabled = false;
-        info.innerHTML = "";
-        return;
-    }
-
-    selAss.disabled = true;
-
-    const assuntosLigados =
-        [...new Set(
-            banco.filter(q => q.DESCRITOR === descSel)
-                 .map(q => q.ASSUNTO)
-        )];
-
-    info.innerHTML = assuntosLigados.length
-        ? "Aparece nos assuntos: " + assuntosLigados.join(", ")
-        : "";
-}
-
-
-// ============================
-// Utilitário
-// ============================
-function preencherSelect(id, lista) {
-    const select = document.getElementById(id);
-    select.innerHTML = "<option value=''>Todos</option>";
-
-    lista.forEach(item => {
-        let op = document.createElement("option");
-        op.value = item;
-        op.textContent = item;
-        select.appendChild(op);
-    });
-}
-
-
-// ============================
-// Gera o Quiz
-// ============================
-function gerarQuiz() {
-
-    const disc = disciplina.value;
-    const ass = assunto.value;
-    const desc = descritor.value;
-    const qtd = parseInt(quantidade.value);
-    const nome = nomeQuiz.value || "Quiz sem nome";
-
-    let filtradas = banco.filter(q =>
-        q.DISCIPLINA === disc &&
-        (ass === "" || q.ASSUNTO === ass) &&
-        (desc === "" || q.DESCRITOR === desc)
-    );
-
-    embaralhar(filtradas);
-
-    let selecionadas = filtradas.slice(0, qtd);
-
-    const idAplicacao = "QUIZ_" + Date.now();
-
-    localStorage.setItem("quizAtual", JSON.stringify({
-        id: idAplicacao,
-        nome: nome,
-        questoes: selecionadas
-    }));
-
-    window.location.href = "quiz.html";
-}
-
-
-// ============================
-function embaralhar(array){
-    for(let i=array.length-1;i>0;i--){
-        let j=Math.floor(Math.random()*(i+1));
-        [array[i],array[j]]=[array[j],array[i]];
-    }
-}
+fetch(url)
+.then(r => r.json())
+.then(d => {
+    document.getElementById("teste").innerHTML =
+        "✅ API respondeu. Linhas recebidas: " + d.length;
+})
+.catch(e => {
+    document.getElementById("teste").innerHTML =
+        "❌ Erro ao acessar API: " + e;
+});
 
 </script>
 
