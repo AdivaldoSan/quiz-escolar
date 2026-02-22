@@ -1,48 +1,58 @@
-const API = "https://script.google.com/macros/s/AKfycbwoeCI-gCMXauWzpTQUekSsotpPFXnhknsEUjyM8T3T_RxUv2c_v_0Ud8ACCCOazUgqfw/exec";
+const API =
+"https://script.google.com/macros/s/AKfycbwoeCI-gCMXauWzpTQUekSsotpPFXnhknsEUjyM8T3T_RxUv2c_v_0Ud8ACCCOazUgqfw/exec";
 
 
-// =============================
-// CARREGA QUESTÕES + DESCRITORES
-// =============================
-async function carregarBancoCompleto(){
+// ===============================
+// Converte matriz do Sheets → objetos
+// ===============================
+function tabelaParaObjetos(linhas){
 
-    const questoesResp = await fetch(API + "?tipo=questoes");
-    const questoesMat = await questoesResp.json();
+    const cabecalho = linhas[0];
 
-    const descrResp = await fetch(API + "?tipo=descritores");
-    const descrMat = await descrResp.json();
-
-    return {
-        questoes: matrizParaObjetos(questoesMat),
-        descritores: matrizParaObjetos(descrMat)
-    };
-}
-
-
-// =============================
-// CONVERTE MATRIZ → OBJETOS JS
-// =============================
-function matrizParaObjetos(matriz){
-
-    if(!Array.isArray(matriz) || matriz.length === 0){
-        return [];
-    }
-
-    // primeira linha = cabeçalho
-    const cabecalho = matriz[0].map(h => String(h).trim());
-
-    const linhas = matriz.slice(1);
-
-    return linhas.map(linha => {
+    return linhas.slice(1).map(linha => {
 
         let obj = {};
 
-        cabecalho.forEach((col, i) => {
-            obj[col] = (linha[i] !== undefined && linha[i] !== null)
-                ? String(linha[i]).trim()
-                : "";
+        cabecalho.forEach((col, i)=>{
+            obj[col] = linha[i];
         });
 
         return obj;
     });
+}
+
+
+// ===============================
+// Busca questões
+// ===============================
+async function carregarQuestoes(){
+
+    const r = await fetch(API + "?tipo=questoes");
+    const dados = await r.json();
+
+    return tabelaParaObjetos(dados);
+}
+
+
+// ===============================
+// Busca descritores
+// ===============================
+async function carregarDescritores(){
+
+    const r = await fetch(API + "?tipo=descritores");
+    const dados = await r.json();
+
+    return tabelaParaObjetos(dados);
+}
+
+
+// ===============================
+async function carregarBancoCompleto(){
+
+    const [questoes, descritores] = await Promise.all([
+        carregarQuestoes(),
+        carregarDescritores()
+    ]);
+
+    return {questoes, descritores};
 }
