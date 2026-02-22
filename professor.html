@@ -46,7 +46,7 @@ iniciar();
 
 async function iniciar(){
 
-    document.getElementById("status").innerText = "Carregando banco...";
+    document.getElementById("status").innerText = "Carregando banco de dados...";
 
     const dados = await carregarBancoCompleto();
 
@@ -71,7 +71,7 @@ async function iniciar(){
 
     atualizarFiltros();
 
-    document.getElementById("status").innerText = "Banco carregado.";
+    document.getElementById("status").innerText = "Banco de dados carregado.";
 }
 
 
