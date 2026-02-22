@@ -55,16 +55,21 @@ carregarBancoCompleto().then(({questoes, descritores}) => {
     preencherSelect("assunto", [...new Set(banco.map(q => q.ASSUNTO))]);
 
     // descritor agora mostra significado
-    const listaDescritores = [...new Set(banco.map(q => q.DESCRITOR))];
+   const listaDescritores = [...new Set(banco.map(q => q.DESCRITOR))];
 
-    const select = document.getElementById("descritor");
+const select = document.getElementById("descritor");
+select.innerHTML = "<option value=''>Todos</option>";
 
-    listaDescritores.forEach(cod => {
-        let op = document.createElement("option");
-        op.value = cod;
-        op.textContent = cod + " — " + (mapaDescritores[cod] || "");
-        select.appendChild(op);
-    });
+listaDescritores.forEach(cod => {
+
+    const desc = mapaDescritores[cod] || "";
+
+    let op = document.createElement("option");
+    op.value = cod;
+    op.textContent = cod + (desc ? " — " + desc : "");
+
+    select.appendChild(op);
+});
 
 });
 
