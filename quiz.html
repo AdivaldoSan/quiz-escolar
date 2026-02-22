@@ -17,7 +17,7 @@
 <p id="contador"></p>
 
 <script>
-
+const API = "https://script.google.com/macros/s/AKfycbzVkBqTlzyRMIEq2f1ZP6qOeJ9y5lNfmI83qLpCIsCxnhyTf_TXTb4_TDguW-j5x5XwkA/exec";
 const quiz = JSON.parse(localStorage.getItem("quizAtual"));
 
 let atual = 0;
@@ -81,17 +81,40 @@ function avancar(){
 
 
 // ==========================
-function finalizar(){
+async function finalizar(){
 
     let acertos = respostas.filter(r=>r.marcada===r.correta).length;
 
-    document.body.innerHTML = `
-        <h2>Quiz finalizado</h2>
-        <p>Acertos: ${acertos} de ${respostas.length}</p>
-        <p>Você já pode fechar esta página.</p>
-    `;
+    // monta pacote para enviar ao Apps Script
+    const envio = respostas.map(r => ({
+        aplicacao: quiz.nome,
+        aluno: "anonimo",
+        questao: r.questao,
+        marcada: r.marcada,
+        correta: r.correta
+    }));
 
-    console.log(respostas); // ainda vamos enviar pro banco
+    try{
+
+        await fetch(API, {
+            method:"POST",
+            body: JSON.stringify(envio)
+        });
+
+        document.body.innerHTML = `
+            <h2>Quiz finalizado</h2>
+            <p>Acertos: ${acertos} de ${respostas.length}</p>
+            <p>Respostas registradas com sucesso.</p>
+        `;
+
+    }catch(e){
+
+        document.body.innerHTML = `
+            <h2>Quiz finalizado</h2>
+            <p>Acertos: ${acertos} de ${respostas.length}</p>
+            <p style="color:red;">Erro ao registrar respostas.</p>
+        `;
+    }
 }
 
 </script>
