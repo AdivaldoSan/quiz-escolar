@@ -197,10 +197,13 @@ async function finalizar(){
 
     try{
 
-        await fetch(API, {
-            method:"POST",
-            body: JSON.stringify(envio)
-        });
+      await fetch(API, {
+    method:"POST",
+    body: JSON.stringify({
+        tipo:"respostas",
+        payload: envio
+    })
+});
 
         // pequeno delay visual (UX)
         await new Promise(r => setTimeout(r, 600));
