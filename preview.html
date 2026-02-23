@@ -5,90 +5,126 @@
 <title>Pré-visualização</title>
 </head>
 
-<body style="font-family:Arial;max-width:800px;margin:auto;">
+<body style="font-family:Arial; max-width:900px; margin:auto;">
 
-<h2>Pré-visualização do Quiz</h2>
+<h2>📋 Pré-visualização do Quiz</h2>
 
 <div id="conteudo"></div>
 
 <br>
-<button onclick="publicar()">Publicar Aplicação</button>
+<button id="btnPublicar" onclick="publicar()">Publicar Aplicação</button>
 
 <p id="status"></p>
 
+<script src="./js/conexao.js"></script>
+
 <script>
 
-const dados = JSON.parse(localStorage.getItem("previewQuiz"));
+const API = window.API || API; // usa mesma API do conexao.js
+let publicado = false;
 
-if(!dados){
-    document.body.innerHTML = "Prévia não encontrada.";
+// =========================
+// CARREGA QUIZ TEMPORÁRIO
+// =========================
+const preview = JSON.parse(localStorage.getItem("previewQuiz"));
+
+if(!preview){
+    document.body.innerHTML = "<h3>Preview não encontrado.</h3>";
+    throw new Error("previewQuiz não existe");
 }
 
-const div = document.getElementById("conteudo");
+// =========================
+// MOSTRA INFORMAÇÕES
+// =========================
+document.getElementById("conteudo").innerHTML = `
+<b>Nome:</b> ${preview.nome}<br>
+<b>Turma:</b> ${preview.turma}<br>
+<b>Quantidade:</b> ${preview.qtd} questões<br>
+<hr>
+`;
 
-dados.questoes.forEach((q,i)=>{
-    div.innerHTML += `
-        <p><b>${i+1}) ${q.ENUNCIADO}</b></p>
-        <p>a) ${q.ALT_A}</p>
-        <p>b) ${q.ALT_B}</p>
-        <p>c) ${q.ALT_C}</p>
-        <p>d) ${q.ALT_D}</p>
-        <hr>
+// =========================
+// LISTA QUESTÕES
+// =========================
+preview.questoes.forEach((q,i)=>{
+    const div = document.createElement("div");
+    div.style.marginBottom = "18px";
+
+    div.innerHTML = `
+        <b>${i+1}) ${q.ENUNCIADO}</b><br>
+        A) ${q.ALT_A}<br>
+        B) ${q.ALT_B}<br>
+        C) ${q.ALT_C}<br>
+        D) ${q.ALT_D}<br>
     `;
+
+    document.getElementById("conteudo").appendChild(div);
 });
 
+
+// =========================
+// PUBLICAR (SALVA NO BACKEND)
+// =========================
 async function publicar(){
 
-    document.getElementById("status").innerText="Publicando...";
+    if(publicado) return;
+    publicado = true;
 
-    const idAplicacao = dados.id;
+    const btn = document.getElementById("btnPublicar");
+    btn.disabled = true;
+    btn.innerText = "Publicando...";
 
-    await fetch(dados.API,{
-        method:"POST",
-        body:JSON.stringify({
-            tipo:"aplicacao",
-            id:idAplicacao,
-            nome:dados.nome,
-            professor:dados.professor,
-            qtd:dados.questoes.length,
-            questoes:dados.questoes
-        })
+    document.getElementById("status").innerText = "Registrando aplicação...";
 
-        let publicando = false;
+    try{
 
-    async function publicar(){
+        await fetch(API, {
+            method:"POST",
+            body: JSON.stringify({
+                tipo:"aplicacao",
+                id:preview.id,
+                nome:preview.nome,
+                turma:preview.turma,
+                professor:preview.professor,
+                qtd:preview.qtd,
+                questoes:preview.questoes
+            })
+        });
 
-    if(publicando) return;
-    publicando = true;
-    document.querySelector("button").disabled = true;
+        // gera link real
+        const link = window.location.origin + "/aluno.html?id=" + preview.id;
 
-    if(dados.publicado){
-    document.getElementById("status").innerText =
-    "Esta aplicação já foi publicada.";
-    return;
-}  
+        document.getElementById("status").innerHTML = `
+            ✅ Aplicação publicada!<br><br>
 
-      if(dados.publicado){
-    document.getElementById("status").innerText =
-    "Esta aplicação já foi publicada.";
-    return;
-}  
-    });
+            <b>Link para os alunos:</b><br>
+            <input id="link" value="${link}" style="width:100%;padding:6px"><br><br>
 
-    const link =
-    window.location.origin + "/aluno.html?id=" + idAplicacao;
+            <button onclick="copiar()">📋 Copiar Link</button>
+        `;
 
-    document.getElementById("status").innerHTML =
-    `<b>Aplicação criada!</b><br><br>
-    <input value="${link}" style="width:100%" id="link">
-    <br><br>
-    <button onclick="copiar()">Copiar Link</button>`;
+        localStorage.removeItem("previewQuiz");
+
+    }catch(e){
+
+        publicado = false;
+        btn.disabled = false;
+        btn.innerText = "Publicar Aplicação";
+
+        alert("Erro ao publicar.");
+    }
 }
 
+
+// =========================
+// COPIAR LINK
+// =========================
 function copiar(){
-    const input=document.getElementById("link");
+
+    const input = document.getElementById("link");
     input.select();
     document.execCommand("copy");
+
     alert("Link copiado!");
 }
 
