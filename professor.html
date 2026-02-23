@@ -204,8 +204,6 @@ async function gerarQuiz(){
     embaralhar(filtradas);
     const selecionadas = filtradas.slice(0, quantidadeSel);
 
-    const idAplicacao = "APL_" + Date.now();
-
     document.getElementById("status").innerText = "Registrando aplicação...";
 
     await fetch(API, {
