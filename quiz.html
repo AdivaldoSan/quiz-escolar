@@ -37,6 +37,10 @@ function embaralharArray(arr){
 // ===========================
 let quiz = JSON.parse(localStorage.getItem("quizAtual"));
 
+// garante que os campos de identificação existam
+quiz.alunoNome = quiz.alunoNome || "";
+quiz.alunoTurma = quiz.alunoTurma || "";
+
 if(!quiz){
     document.body.innerHTML = "<h3>Quiz não encontrado.</h3>";
     throw new Error("quizAtual não existe");
@@ -187,13 +191,13 @@ async function finalizar(){
 
     // pacote que será enviado para API
     const envio = respostas.map(r => ({
-        aplicacao: quiz.nome,
-        aluno: quiz.aluno || "anonimo",
-        turma: quiz.turma || "sem turma",
-        questao: r.questao,
-        marcada: r.marcada,
-        correta: r.correta
-    }));
+    aplicacao: quiz.nome,
+    aluno: quiz.alunoNome,
+    turma: quiz.alunoTurma,
+    questao: r.questao,
+    marcada: r.marcada,
+    correta: r.correta
+}));
 
     try{
 
