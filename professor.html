@@ -57,7 +57,7 @@ async function iniciar(){
     const dados = await carregarBancoCompleto();
 
     banco = dados.questoes.filter(q => q.ATIVO === "SIM");
-
+    carregarTurmas();
     dados.descritores.forEach(d=>{
         mapaDescritores[d.CODIGO] = d.DESCRICAO;
     });
