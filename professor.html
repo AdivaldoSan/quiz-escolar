@@ -228,6 +228,16 @@ async function gerarQuiz(){
         Compartilhe com os alunos:<br><br>
         <a href="${link}" target="_blank">${link}</a>
     `;
+
+    // envia dados temporariamente para a tela de preview
+    localStorage.setItem("previewQuiz", JSON.stringify({
+    nome:nome,
+    professor:"professoradivaldo@gmail.com",
+    questoes:selecionadas
+}));
+
+// abre página de conferência antes de publicar
+window.location.href = "preview.html";
 }
 
 
