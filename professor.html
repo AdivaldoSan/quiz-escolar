@@ -228,9 +228,10 @@ async function gerarQuiz(){
         Compartilhe com os alunos:<br><br>
         <a href="${link}" target="_blank">${link}</a>
     `;
-
+    const idAplicacao = "APL_" + Date.now();
     // envia dados temporariamente para a tela de preview
     localStorage.setItem("previewQuiz", JSON.stringify({
+    id:idAplicacao,
     nome:nome,
     professor:"professoradivaldo@gmail.com",
     questoes:selecionadas
