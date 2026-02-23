@@ -57,7 +57,7 @@ async function iniciar(){
     const dados = await carregarBancoCompleto();
 
     banco = dados.questoes.filter(q => q.ATIVO === "SIM");
-    carregarTurmas();
+
     dados.descritores.forEach(d=>{
         mapaDescritores[d.CODIGO] = d.DESCRICAO;
     });
@@ -77,13 +77,12 @@ async function iniciar(){
 
     atualizarFiltros();
 
-    document.getElementById("status").innerText = "Banco de dados carregado.";
+    await carregarTurmas();
+
+    document.getElementById("status").innerText = "Banco carregado.";
 }
 
 
-
-// =============================
-// Atualiza lista ao trocar disciplina
 // =============================
 function atualizarFiltros(){
 
@@ -109,15 +108,11 @@ function atualizarFiltros(){
 
     assunto.disabled = false;
     descritor.disabled = false;
-
     infoAssunto.innerHTML="";
     infoDescritor.innerHTML="";
 }
 
 
-
-// =============================
-// Quando escolhe ASSUNTO
 // =============================
 function relacionarAssuntoComDescritor(){
 
@@ -141,9 +136,6 @@ function relacionarAssuntoComDescritor(){
 }
 
 
-
-// =============================
-// Quando escolhe DESCRITOR
 // =============================
 function relacionarDescritorComAssunto(){
 
@@ -166,7 +158,6 @@ function relacionarDescritorComAssunto(){
 }
 
 
-
 // =============================
 function preencherSelect(id, lista){
 
@@ -182,17 +173,23 @@ function preencherSelect(id, lista){
 }
 
 
-
 // =============================
-function gerarQuiz(){
+// 🚀 GERAR APLICAÇÃO (AGORA É OFICIAL)
+// =============================
+async function gerarQuiz(){
 
     const disciplinaSel = document.getElementById("disciplina").value;
     const assuntoSel    = document.getElementById("assunto").value;
     const descritorSel  = document.getElementById("descritor").value;
     const quantidadeSel = parseInt(document.getElementById("quantidade").value);
-    const nome          = document.getElementById("nomeQuiz").value || "Quiz sem nome";
+    const nome          = document.getElementById("nomeQuiz").value || "Quiz";
     const turma         = document.getElementById("turma").value;
-    
+
+    if(!turma){
+        alert("Selecione a turma.");
+        return;
+    }
+
     const filtradas = banco.filter(q =>
         (disciplinaSel === "" || q.DISCIPLINA === disciplinaSel) &&
         (assuntoSel === "" || q.ASSUNTO === assuntoSel) &&
@@ -200,50 +197,57 @@ function gerarQuiz(){
     );
 
     if(filtradas.length === 0){
-        alert("Nenhuma questão encontrada com esse filtro.");
+        alert("Nenhuma questão encontrada.");
         return;
     }
 
     embaralhar(filtradas);
-
     const selecionadas = filtradas.slice(0, quantidadeSel);
 
-    // ✅ CRIA O ID DA APLICAÇÃO (FALTAVA ISSO)
-    const idAplicacao = "QUIZ_" + Date.now();
+    const idAplicacao = "APL_" + Date.now();
 
-    localStorage.setItem("quizAtual", JSON.stringify({
-        id: idAplicacao,
-        nome: nome,
-        professor: "professoradivaldo@gmail.com",
-        turma: turma,
-        questoes: selecionadas
-    }));
+    document.getElementById("status").innerText = "Registrando aplicação...";
 
-    window.location.href = "quiz.html";
+    await fetch(API, {
+        method:"POST",
+        body: JSON.stringify({
+            tipo:"aplicacao",
+            id:idAplicacao,
+            nome:nome,
+            professor:"professoradivaldo@gmail.com",
+            qtd:selecionadas.length,
+            questoes:selecionadas
+        })
+    });
+
+    const link =
+    window.location.origin + "/aluno.html?id=" + idAplicacao;
+
+    document.getElementById("status").innerHTML = `
+        <b>Aplicação criada!</b><br><br>
+        Compartilhe com os alunos:<br><br>
+        <a href="${link}" target="_blank">${link}</a>
+    `;
 }
 
+
+// =============================
 async function carregarTurmas(){
 
-    const professorEmail = "professoradivaldo@gmail.com"; // depois vamos dinamizar
-
-    const resp = await fetch(API + "?tipo=turmas&professor=" + professorEmail);
+    const resp = await fetch(API+"?tipo=turmas&professor=professoradivaldo@gmail.com");
     const linhas = await resp.json();
 
     const select = document.getElementById("turma");
-    select.innerHTML = "";
-
-    if(linhas.length <= 1){
-        select.innerHTML = "<option value=''>Nenhuma turma cadastrada</option>";
-        return;
-    }
+    select.innerHTML="";
 
     linhas.slice(1).forEach(l=>{
-        const op = document.createElement("option");
-        op.value = l[2];      // NOME_TURMA
-        op.textContent = l[2];
+        let op=document.createElement("option");
+        op.value=l[2];
+        op.textContent=l[2];
         select.appendChild(op);
     });
 }
+
 
 // =============================
 function embaralhar(a){
