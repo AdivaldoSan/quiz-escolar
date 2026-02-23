@@ -31,6 +31,12 @@
 <input type="text" id="nomeQuiz" placeholder="Ex: Revisão Funções 3ºA">
 <br><br>
 
+<label>Turma:</label>
+<select id="turma">
+    <option value="">Carregando turmas...</option>
+</select>
+<br><br>
+
 <button onclick="gerarQuiz()">Gerar Quiz</button>
 
 <p id="status"></p>
@@ -216,7 +222,28 @@ function gerarQuiz(){
     window.location.href = "quiz.html";
 }
 
+async function carregarTurmas(){
 
+    const professorEmail = "professoradivaldo@gmail.com"; // depois vamos dinamizar
+
+    const resp = await fetch(API + "?tipo=turmas&professor=" + professorEmail);
+    const linhas = await resp.json();
+
+    const select = document.getElementById("turma");
+    select.innerHTML = "";
+
+    if(linhas.length <= 1){
+        select.innerHTML = "<option value=''>Nenhuma turma cadastrada</option>";
+        return;
+    }
+
+    linhas.slice(1).forEach(l=>{
+        const op = document.createElement("option");
+        op.value = l[2];      // NOME_TURMA
+        op.textContent = l[2];
+        select.appendChild(op);
+    });
+}
 
 // =============================
 function embaralhar(a){
