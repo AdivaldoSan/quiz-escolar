@@ -56,6 +56,7 @@ if(!quiz.embaralhado){
 // ===========================
 // RESTAURA PROGRESSO
 // ===========================
+let enviando = false;
 let atual = quiz.atual || 0;
 let respostas = quiz.respostas || [];
 
@@ -170,39 +171,56 @@ function avancar(){
 // ===========================
 // FINALIZAR QUIZ
 // ===========================
+let enviando = false; // coloque essa linha no topo do script (fora da função)
+
 async function finalizar(){
+
+    // 🔒 impede envio duplicado
+    if(enviando) return;
+    enviando = true;
+
+    const btn = document.getElementById("btnAvancar");
+    btn.disabled = true;
+    btn.innerText = "Enviando...";
 
     let acertos = respostas.filter(r=>r.marcada===r.correta).length;
 
-    // limpa tentativa
-    localStorage.removeItem("quizAtual");
-
+    // pacote que será enviado para API
     const envio = respostas.map(r => ({
         aplicacao: quiz.nome,
-       aluno: quiz.alunoNome,
-turma: quiz.alunoTurma,
+        aluno: quiz.aluno || "anonimo",
+        turma: quiz.turma || "sem turma",
         questao: r.questao,
         marcada: r.marcada,
         correta: r.correta
     }));
 
     try{
+
         await fetch(API, {
             method:"POST",
             body: JSON.stringify(envio)
         });
+
+        // pequeno delay visual (UX)
+        await new Promise(r => setTimeout(r, 600));
+
+        // agora sim limpa o estado salvo
+        localStorage.removeItem("quizAtual");
 
         document.body.innerHTML = `
             <h2>Quiz finalizado</h2>
             <p>Acertos: ${acertos} de ${respostas.length}</p>
             <p>Respostas registradas com sucesso.</p>
         `;
+
     }catch(e){
-        document.body.innerHTML = `
-            <h2>Quiz finalizado</h2>
-            <p>Acertos: ${acertos} de ${respostas.length}</p>
-            <p style="color:red;">Erro ao registrar respostas.</p>
-        `;
+
+        btn.disabled = false;
+        btn.innerText = "Tentar novamente";
+        enviando = false;
+
+        alert("Erro ao enviar respostas. Verifique a conexão e tente novamente.");
     }
 }
 
