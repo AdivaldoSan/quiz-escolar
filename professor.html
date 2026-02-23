@@ -174,9 +174,9 @@ function preencherSelect(id, lista){
 
 
 // =============================
-// 🚀 GERAR APLICAÇÃO (AGORA É OFICIAL)
+// 🚀 GERAR QUIZ (APENAS MONTA — NÃO SALVA AINDA)
 // =============================
-async function gerarQuiz(){
+function gerarQuiz(){
 
     const disciplinaSel = document.getElementById("disciplina").value;
     const assuntoSel    = document.getElementById("assunto").value;
@@ -204,41 +204,22 @@ async function gerarQuiz(){
     embaralhar(filtradas);
     const selecionadas = filtradas.slice(0, quantidadeSel);
 
-    document.getElementById("status").innerText = "Registrando aplicação...";
-
-    await fetch(API, {
-        method:"POST",
-        body: JSON.stringify({
-            tipo:"aplicacao",
-            id:idAplicacao,
-            nome:nome,
-            professor:"professoradivaldo@gmail.com",
-            qtd:selecionadas.length,
-            questoes:selecionadas
-        })
-    });
-
-    const link =
-    window.location.origin + "/aluno.html?id=" + idAplicacao;
-
-    document.getElementById("status").innerHTML = `
-        <b>Aplicação criada!</b><br><br>
-        Compartilhe com os alunos:<br><br>
-        <a href="${link}" target="_blank">${link}</a>
-    `;
+    // ✅ cria o ID AQUI (única vez!)
     const idAplicacao = "APL_" + Date.now();
-    // envia dados temporariamente para a tela de preview
+
+    // ✅ salva TEMPORARIAMENTE para a tela de conferência
     localStorage.setItem("previewQuiz", JSON.stringify({
-    id:idAplicacao,
-    nome:nome,
-    professor:"professoradivaldo@gmail.com",
-    questoes:selecionadas
-}));
+        id: idAplicacao,
+        nome: nome,
+        turma: turma,
+        professor: "professoradivaldo@gmail.com",
+        qtd: selecionadas.length,
+        questoes: selecionadas
+    }));
 
-// abre página de conferência antes de publicar
-window.location.href = "preview.html";
+    // 👉 vai para a tela de preview (ainda NÃO publicou)
+    window.location.href = "preview.html";
 }
-
 
 // =============================
 async function carregarTurmas(){
