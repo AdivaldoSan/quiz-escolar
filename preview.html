@@ -41,7 +41,7 @@ async function publicar(){
 
     document.getElementById("status").innerText="Publicando...";
 
-    const idAplicacao = "APL_"+Date.now();
+    const idAplicacao = dados.id;
 
     await fetch(dados.API,{
         method:"POST",
@@ -53,6 +53,26 @@ async function publicar(){
             qtd:dados.questoes.length,
             questoes:dados.questoes
         })
+
+        let publicando = false;
+
+    async function publicar(){
+
+    if(publicando) return;
+    publicando = true;
+    document.querySelector("button").disabled = true;
+
+    if(dados.publicado){
+    document.getElementById("status").innerText =
+    "Esta aplicação já foi publicada.";
+    return;
+}  
+
+      if(dados.publicado){
+    document.getElementById("status").innerText =
+    "Esta aplicação já foi publicada.";
+    return;
+}  
     });
 
     const link =
