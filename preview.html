@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Pré-visualização</title>
+</head>
+
+<body style="font-family:Arial;max-width:800px;margin:auto;">
+
+<h2>Pré-visualização do Quiz</h2>
+
+<div id="conteudo"></div>
+
+<br>
+<button onclick="publicar()">Publicar Aplicação</button>
+
+<p id="status"></p>
+
+<script>
+
+const dados = JSON.parse(localStorage.getItem("previewQuiz"));
+
+if(!dados){
+    document.body.innerHTML = "Prévia não encontrada.";
+}
+
+const div = document.getElementById("conteudo");
+
+dados.questoes.forEach((q,i)=>{
+    div.innerHTML += `
+        <p><b>${i+1}) ${q.ENUNCIADO}</b></p>
+        <p>a) ${q.ALT_A}</p>
+        <p>b) ${q.ALT_B}</p>
+        <p>c) ${q.ALT_C}</p>
+        <p>d) ${q.ALT_D}</p>
+        <hr>
+    `;
+});
+
+async function publicar(){
+
+    document.getElementById("status").innerText="Publicando...";
+
+    const idAplicacao = "APL_"+Date.now();
+
+    await fetch(dados.API,{
+        method:"POST",
+        body:JSON.stringify({
+            tipo:"aplicacao",
+            id:idAplicacao,
+            nome:dados.nome,
+            professor:dados.professor,
+            qtd:dados.questoes.length,
+            questoes:dados.questoes
+        })
+    });
+
+    const link =
+    window.location.origin + "/aluno.html?id=" + idAplicacao;
+
+    document.getElementById("status").innerHTML =
+    `<b>Aplicação criada!</b><br><br>
+    <input value="${link}" style="width:100%" id="link">
+    <br><br>
+    <button onclick="copiar()">Copiar Link</button>`;
+}
+
+function copiar(){
+    const input=document.getElementById("link");
+    input.select();
+    document.execCommand("copy");
+    alert("Link copiado!");
+}
+
+</script>
+
+</body>
+</html>
