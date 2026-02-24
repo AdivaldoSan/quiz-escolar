@@ -113,25 +113,33 @@ function montarTabela(dados, contagem){
 // =============================
 async function abrirRelatorio(id, linkExistente){
 
-    if(linkExistente && linkExistente.startsWith("http")){
-        window.open(linkExistente, "_blank");
-        return;
+    let linkFinal = linkExistente;
+
+    if(!linkFinal || !linkFinal.startsWith("http")){
+
+        const resp = await fetch(
+            API + "?tipo=gerarRelatorio&id=" + id
+        );
+
+        const dados = await resp.json();
+
+        if(dados.erro){
+            alert("Erro ao gerar relatório.");
+            return;
+        }
+
+        linkFinal = dados.link;
     }
 
-    const resp = await fetch(
-        API + "?tipo=gerarRelatorio&id=" + id
-    );
+    // abre sem bloqueio
+    const a = document.createElement("a");
+    a.href = linkFinal;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
-    const dados = await resp.json();
-
-    if(dados.erro){
-        alert("Erro ao gerar relatório.");
-        return;
-    }
-
-    window.open(dados.link, "_blank");
-
-    setTimeout(()=>location.reload(), 1000);
+    // opcional: remover reload automático
 }
 
 carregarAplicacoes();
