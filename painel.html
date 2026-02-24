@@ -19,27 +19,39 @@ const professorEmail = "professoradivaldo@gmail.com";
 
 async function carregarAplicacoes(){
 
-    const [respAplicacoes, respContagem] = await Promise.all([
-        fetch(API + "?tipo=listarAplicacoes&professor=" + professorEmail),
-        fetch(API + "?tipo=contarRespostas")
-    ]);
+    try{
 
-    const dados = await respAplicacoes.json();
-    const contagem = await respContagem.json();
+        const respAplicacoes = await fetch(
+            API + "?tipo=listarAplicacoes&professor=" + professorEmail
+        );
 
-    if(dados.erro){
+        const dados = await respAplicacoes.json();
+
+        const respContagem = await fetch(
+            API + "?tipo=contarRespostas"
+        );
+
+        const contagem = await respContagem.json();
+
+        if(dados.erro){
+            document.getElementById("conteudo").innerText =
+                "Erro ao carregar aplicações.";
+            return;
+        }
+
+        if(dados.length <= 1){
+            document.getElementById("conteudo").innerText =
+                "Nenhuma aplicação encontrada.";
+            return;
+        }
+
+        montarTabela(dados, contagem);
+
+    }catch(e){
+
         document.getElementById("conteudo").innerText =
-            "Erro ao carregar aplicações.";
-        return;
+            "Erro de conexão com o servidor.";
     }
-
-    if(dados.length <= 1){
-        document.getElementById("conteudo").innerText =
-            "Nenhuma aplicação encontrada.";
-        return;
-    }
-
-    montarTabela(dados, contagem);
 }
 
 function montarTabela(dados, contagem){
