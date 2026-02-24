@@ -17,6 +17,9 @@
 
 const professorEmail = "professoradivaldo@gmail.com";
 
+// =============================
+// CARREGAR APLICAÇÕES
+// =============================
 async function carregarAplicacoes(){
 
     try{
@@ -54,6 +57,10 @@ async function carregarAplicacoes(){
     }
 }
 
+
+// =============================
+// MONTAR TABELA
+// =============================
 function montarTabela(dados, contagem){
 
     const linhas = dados.slice(1);
@@ -73,38 +80,37 @@ function montarTabela(dados, contagem){
 
     linhas.forEach(l=>{
 
-        linhas.forEach(l=>{
+        const id = l[0];
+        const totalRespostas = contagem[id] || 0;
+        const linkRelatorio = l[5]; // coluna PARAMETROS
 
-    const id = l[0];
-    const totalRespostas = contagem[id] || 0;
-    const linkRelatorio = l[5]; // coluna PARAMETROS
-
-    html += `
-        <tr>
-            <td>${id}</td>
-            <td>${l[1]}</td>
-            <td>${l[3]}</td>
-            <td>${l[4]}</td>
-            <td>${totalRespostas}</td>
-            <td>
-                <button onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
-                    📥 Relatório
-                </button>
-            </td>
-            <td>${l[6]}</td>
-        </tr>
-    `;
-});
+        html += `
+            <tr>
+                <td>${id}</td>
+                <td>${l[1]}</td>
+                <td>${l[3]}</td>
+                <td>${l[4]}</td>
+                <td>${totalRespostas}</td>
+                <td>
+                    <button onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
+                        📥 Relatório
+                    </button>
+                </td>
+                <td>${l[6]}</td>
+            </tr>
+        `;
+    });
 
     html += "</table>";
 
     document.getElementById("conteudo").innerHTML = html;
-
-    }
-carregarAplicacoes();
 }
-                   
-    async function abrirRelatorio(id, linkExistente){
+
+
+// =============================
+// ABRIR OU GERAR RELATÓRIO
+// =============================
+async function abrirRelatorio(id, linkExistente){
 
     if(linkExistente && linkExistente.startsWith("http")){
         window.open(linkExistente, "_blank");
@@ -124,9 +130,13 @@ carregarAplicacoes();
 
     window.open(dados.link, "_blank");
 
-    // Atualiza página para mostrar link salvo
+    // Atualiza página após gerar
     setTimeout(()=>location.reload(), 1000);
 }
+
+
+// =============================
+carregarAplicacoes();
 
 </script>
 
