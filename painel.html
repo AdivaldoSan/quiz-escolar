@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Painel do Professor</title>
+</head>
 
+<body style="font-family:Arial; max-width:1000px; margin:auto;">
+
+<h2>📊 Painel de Aplicações</h2>
+
+<div id="conteudo">Carregando aplicações...</div>
+
+<script src="./js/conexao.js"></script>
+
+<script>
+
+const professorEmail = "professoradivaldo@gmail.com";
+
+async function carregarAplicacoes(){
+
+    const resp = await fetch(
+        API + "?tipo=listarAplicacoes&professor=" + professorEmail
+    );
+
+    const dados = await resp.json();
+
+    if(dados.erro){
+        document.getElementById("conteudo").innerText =
+            "Erro ao carregar aplicações.";
+        return;
+    }
+
+    if(dados.length <= 1){
+        document.getElementById("conteudo").innerText =
+            "Nenhuma aplicação encontrada.";
+        return;
+    }
+
+    montarTabela(dados);
+}
+
+function montarTabela(dados){
+
+    const linhas = dados.slice(1); // remove cabeçalho
+
+    let html = `
+        <table border="1" cellpadding="8" cellspacing="0" width="100%">
+        <tr style="background:#f0f0f0;">
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Data</th>
+            <th>Qtd</th>
+            <th>Ativa</th>
+        </tr>
+    `;
+
+    linhas.forEach(l=>{
+        html += `
+            <tr>
+                <td>${l[0]}</td>
+                <td>${l[1]}</td>
+                <td>${l[3]}</td>
+                <td>${l[4]}</td>
+                <td>${l[6]}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById("conteudo").innerHTML = html;
+}
+
+carregarAplicacoes();
+
+</script>
+
+</body>
+</html>
