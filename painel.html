@@ -19,11 +19,13 @@ const professorEmail = "professoradivaldo@gmail.com";
 
 async function carregarAplicacoes(){
 
-    const resp = await fetch(
-        API + "?tipo=listarAplicacoes&professor=" + professorEmail
-    );
+    const [respAplicacoes, respContagem] = await Promise.all([
+        fetch(API + "?tipo=listarAplicacoes&professor=" + professorEmail),
+        fetch(API + "?tipo=contarRespostas")
+    ]);
 
-    const dados = await resp.json();
+    const dados = await respAplicacoes.json();
+    const contagem = await respContagem.json();
 
     if(dados.erro){
         document.getElementById("conteudo").innerText =
@@ -37,12 +39,12 @@ async function carregarAplicacoes(){
         return;
     }
 
-    montarTabela(dados);
+    montarTabela(dados, contagem);
 }
 
-function montarTabela(dados){
+function montarTabela(dados, contagem){
 
-    const linhas = dados.slice(1); // remove cabeçalho
+    const linhas = dados.slice(1);
 
     let html = `
         <table border="1" cellpadding="8" cellspacing="0" width="100%">
@@ -51,17 +53,23 @@ function montarTabela(dados){
             <th>Nome</th>
             <th>Data</th>
             <th>Qtd</th>
+            <th>Respostas</th>
             <th>Ativa</th>
         </tr>
     `;
 
     linhas.forEach(l=>{
+
+        const id = l[0];
+        const totalRespostas = contagem[id] || 0;
+
         html += `
             <tr>
-                <td>${l[0]}</td>
+                <td>${id}</td>
                 <td>${l[1]}</td>
                 <td>${l[3]}</td>
                 <td>${l[4]}</td>
+                <td>${totalRespostas}</td>
                 <td>${l[6]}</td>
             </tr>
         `;
