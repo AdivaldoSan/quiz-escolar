@@ -82,7 +82,7 @@ function montarTabela(dados, contagem){
 
         const id = l[0];
         const totalRespostas = contagem[id] || 0;
-        const linkRelatorio = l[5]; // coluna PARAMETROS
+        const linkRelatorio = l[7]; // coluna LINK_RELATORIO
 
         html += `
             <tr>
@@ -104,6 +104,15 @@ function montarTabela(dados, contagem){
     html += "</table>";
 
     document.getElementById("conteudo").innerHTML = html;
+
+    <td>
+    ${totalRespostas > 0 
+      ? `<button onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
+           📥 Relatório
+         </button>`
+      : "—"}
+</td>
+    
 }
 
 
