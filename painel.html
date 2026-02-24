@@ -54,26 +54,35 @@ function montarTabela(dados, contagem){
             <th>Data</th>
             <th>Qtd</th>
             <th>Respostas</th>
+            <th>Relatório</th>
             <th>Ativa</th>
         </tr>
     `;
 
     linhas.forEach(l=>{
 
-        const id = l[0];
-        const totalRespostas = contagem[id] || 0;
+        linhas.forEach(l=>{
 
-        html += `
-            <tr>
-                <td>${id}</td>
-                <td>${l[1]}</td>
-                <td>${l[3]}</td>
-                <td>${l[4]}</td>
-                <td>${totalRespostas}</td>
-                <td>${l[6]}</td>
-            </tr>
-        `;
-    });
+    const id = l[0];
+    const totalRespostas = contagem[id] || 0;
+    const linkRelatorio = l[5]; // coluna PARAMETROS
+
+    html += `
+        <tr>
+            <td>${id}</td>
+            <td>${l[1]}</td>
+            <td>${l[3]}</td>
+            <td>${l[4]}</td>
+            <td>${totalRespostas}</td>
+            <td>
+                <button onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
+                    📥 Relatório
+                </button>
+            </td>
+            <td>${l[6]}</td>
+        </tr>
+    `;
+});
 
     html += "</table>";
 
@@ -81,6 +90,30 @@ function montarTabela(dados, contagem){
 }
 
 carregarAplicacoes();
+
+    async function abrirRelatorio(id, linkExistente){
+
+    if(linkExistente && linkExistente.startsWith("http")){
+        window.open(linkExistente, "_blank");
+        return;
+    }
+
+    const resp = await fetch(
+        API + "?tipo=gerarRelatorio&id=" + id
+    );
+
+    const dados = await resp.json();
+
+    if(dados.erro){
+        alert("Erro ao gerar relatório.");
+        return;
+    }
+
+    window.open(dados.link, "_blank");
+
+    // Atualiza página para mostrar link salvo
+    setTimeout(()=>location.reload(), 1000);
+}
 
 </script>
 
