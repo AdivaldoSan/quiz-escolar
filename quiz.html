@@ -39,6 +39,11 @@ function embaralharArray(arr){
 // ===========================
 let quiz = JSON.parse(localStorage.getItem("quizAtual"));
 
+if(!quiz){
+    document.body.innerHTML = "<h3>Atividade finalizada ou inválida.</h3>";
+    throw new Error("quiz não encontrado");
+}    
+
 // garante que os campos de identificação existam
 quiz.alunoNome = quiz.alunoNome || "";
 quiz.alunoTurma = quiz.alunoTurma || "";
@@ -81,6 +86,7 @@ function mostrarQuestao(){
     document.getElementById("contador").innerText =
         "Questão " + (atual+1) + " de " + quiz.questoes.length;
 
+    document.getElementById("btnAvancar").style.display = "inline-block";
 
     // ===============================
     // EMBARALHA ALTERNATIVAS UMA VEZ
@@ -180,6 +186,7 @@ function avancar(){
 
 
 async function finalizar(){
+    document.getElementById("btnAvancar").style.display = "none";
 
     // 🔒 impede envio duplicado
     if(enviando) return;
@@ -234,6 +241,7 @@ async function finalizar(){
 }
 
 async function iniciarIdentificacao(){
+    document.getElementById("btnAvancar").style.display = "none";
 
     if(quiz.alunoNome){
         mostrarQuestao();
