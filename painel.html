@@ -32,7 +32,7 @@ async function carregarAplicacoes(){
 
         const contagem = await respContagem.json();
 
-        if(dados.erro){
+        if(dados.erro && dados.erro){
             document.getElementById("conteudo").innerText =
                 "Erro ao carregar aplicações.";
             return;
