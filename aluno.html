@@ -1,1 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Carregando Quiz...</title>
+</head>
 
+<body style="font-family:Arial; text-align:center; margin-top:60px;">
+
+<h2>Carregando atividade...</h2>
+
+<script src="./js/conexao.js"></script>
+
+<script>
+
+// pega o ID da URL
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+if(!id){
+    document.body.innerHTML = "<h3>Link inválido.</h3>";
+    throw new Error("ID não informado");
+}
+
+// busca aplicação no Apps Script
+fetch(API + "?tipo=abrirAplicacao&id=" + id)
+.then(r => r.json())
+.then(d => {
+
+    if(d.erro){
+        document.body.innerHTML = "<h3>Aplicação não encontrada.</h3>";
+        return;
+    }
+
+    // salva aplicação para o quiz usar
+    localStorage.setItem("quizAtual", JSON.stringify(d));
+
+    // redireciona para página que aplica a prova
+    window.location.href = "quiz.html";
+})
+.catch(()=>{
+    document.body.innerHTML = "<h3>Erro ao carregar aplicação.</h3>";
+});
+
+</script>
+
+</body>
+</html>
