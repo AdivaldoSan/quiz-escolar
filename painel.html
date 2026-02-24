@@ -97,7 +97,12 @@ function montarTabela(dados, contagem){
                         : "—"
                     }
                 </td>
-                <td>${l[6]}</td>
+                <td>
+                <select onchange="alterarStatus('${id}', this.value)">
+                <option value="SIM" ${l[6]==="SIM"?"selected":""}>SIM</option>
+                <option value="NAO" ${l[6]==="NAO"?"selected":""}>NÃO</option>
+                </select>
+                </td>
             </tr>
         `;
     });
@@ -140,6 +145,18 @@ async function abrirRelatorio(id, linkExistente){
     document.body.removeChild(a);
 
     // opcional: remover reload automático
+}
+    async function alterarStatus(id, status){
+
+    await fetch(API, {
+        method:"POST",
+        body: JSON.stringify({
+            tipo:"alterarStatus",
+            id:id,
+            status:status
+        })
+    });
+
 }
 
 carregarAplicacoes();
