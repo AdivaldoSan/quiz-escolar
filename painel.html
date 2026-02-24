@@ -17,9 +17,6 @@
 
 const professorEmail = "professoradivaldo@gmail.com";
 
-// =============================
-// CARREGAR APLICAÇÕES
-// =============================
 async function carregarAplicacoes(){
 
     try{
@@ -82,7 +79,7 @@ function montarTabela(dados, contagem){
 
         const id = l[0];
         const totalRespostas = contagem[id] || 0;
-        const linkRelatorio = l[7]; // coluna LINK_RELATORIO
+        const linkRelatorio = l[7]; // LINK_RELATORIO
 
         html += `
             <tr>
@@ -92,9 +89,13 @@ function montarTabela(dados, contagem){
                 <td>${l[4]}</td>
                 <td>${totalRespostas}</td>
                 <td>
-                    <button onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
-                        📥 Relatório
-                    </button>
+                    ${
+                        totalRespostas > 0
+                        ? `<button onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
+                               📥 Relatório
+                           </button>`
+                        : "—"
+                    }
                 </td>
                 <td>${l[6]}</td>
             </tr>
@@ -104,15 +105,6 @@ function montarTabela(dados, contagem){
     html += "</table>";
 
     document.getElementById("conteudo").innerHTML = html;
-
-    <td>
-    ${totalRespostas > 0 
-      ? `<button onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
-           📥 Relatório
-         </button>`
-      : "—"}
-</td>
-    
 }
 
 
@@ -139,12 +131,9 @@ async function abrirRelatorio(id, linkExistente){
 
     window.open(dados.link, "_blank");
 
-    // Atualiza página após gerar
     setTimeout(()=>location.reload(), 1000);
 }
 
-
-// =============================
 carregarAplicacoes();
 
 </script>
