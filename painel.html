@@ -15,7 +15,9 @@
 
 <script>
 
-const professorEmail = "professoradivaldo@gmail.com";
+const respAplicacoes = await fetch(
+    API + "?tipo=listarAplicacoes"
+);
 
 async function carregarAplicacoes(){
 
