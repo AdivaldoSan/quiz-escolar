@@ -92,7 +92,7 @@ async function publicar(){
         });
 
         // gera link real
-        const link = window.location.origin + "/aluno.html?id=" + preview.id;
+        const link = window.location.href.replace("preview.html","aluno.html?id="+preview.id);
 
         document.getElementById("status").innerHTML = `
             ✅ Aplicação publicada!<br><br>
