@@ -24,7 +24,7 @@ async function carregarAplicacoes(){
     try{
 
         const respAplicacoes = await fetch(
-            API + "?tipo=listarAplicacoes&professor=" + professorEmail
+            API + "?tipo=listarAplicacoes"
         );
 
         const dados = await respAplicacoes.json();
