@@ -200,7 +200,8 @@ async function finalizar(){
 
     // pacote que será enviado para API
     const envio = respostas.map(r => ({
-    aplicacao: quiz.nome,
+    aplicacao: quiz.id,   // 🔥 usar ID, não nome
+    nomeQuiz: quiz.nome,  // opcional, só informativo
     aluno: quiz.alunoNome,
     turma: quiz.alunoTurma,
     questao: r.questao,
