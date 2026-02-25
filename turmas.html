@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Minhas Turmas</title>
+</head>
+
+<body style="font-family:Arial;max-width:600px;margin:auto;">
+
+<h2>📚 Minhas Turmas</h2>
+
+<div>
+    <input id="novaTurma" placeholder="Ex: 3º A" style="padding:6px;width:70%">
+    <button onclick="adicionar()">Adicionar</button>
+</div>
+
+<hr>
+
+<div id="listaTurmas">Carregando...</div>
+
+<script src="./js/conexao.js"></script>
+
+<script>
+
+const email = "professoradivaldo@gmail.com";
+
+async function carregar(){
+
+    const r = await fetch(API+"?tipo=turmas&professor="+email);
+    const dados = await r.json();
+
+    const div = document.getElementById("listaTurmas");
+    div.innerHTML = "";
+
+    if(dados.length <= 1){
+        div.innerHTML = "Nenhuma turma cadastrada.";
+        return;
+    }
+
+    dados.slice(1).forEach(l=>{
+
+        const nome = l[2];
+
+        div.innerHTML += `
+            <div style="margin-bottom:8px;">
+                ${nome}
+                <button onclick="excluir('${nome}')">Excluir</button>
+            </div>
+        `;
+    });
+}
+
+
+async function adicionar(){
+
+    const nome = document.getElementById("novaTurma").value.trim();
+
+    if(!nome){
+        alert("Digite o nome da turma.");
+        return;
+    }
+
+    const r = await fetch(API,{
+        method:"POST",
+        body:JSON.stringify({
+            tipo:"addTurma",
+            email:email,
+            nomeTurma:nome
+        })
+    });
+
+    const resp = await r.json();
+
+    if(resp.erro){
+        alert(resp.erro);
+        return;
+    }
+
+    document.getElementById("novaTurma").value="";
+    carregar();
+}
+
+
+async function excluir(nome){
+
+    if(!confirm("Deseja desativar esta turma?")) return;
+
+    await fetch(API,{
+        method:"POST",
+        body:JSON.stringify({
+            tipo:"excluirTurma",
+            email:email,
+            nomeTurma:nome
+        })
+    });
+
+    carregar();
+}
+
+carregar();
+
+</script>
+
+</body>
+</html>
