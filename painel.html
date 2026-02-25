@@ -15,44 +15,50 @@
 
 <script>
 
-
 async function carregarAplicacoes(){
 
     try{
 
         const respAplicacoes = await fetch(
-            API + "?tipo=listarAplicacoes"
+            API + "?tipo=listarAplicacoes",
+            {
+                method: "GET",
+                mode: "cors",
+                credentials: "include"
+            }
         );
 
-        //const dados = await respAplicacoes.json();
-
         const dados = await respAplicacoes.json();
-        console.log("RETORNO APLICACOES:", dados);
-        console.log("TIPO:", typeof dados);
-        console.log("IS ARRAY:", Array.isArray(dados));
+
+        if(!Array.isArray(dados)){
+            document.getElementById("conteudo").innerText =
+                "Erro ao carregar aplicações.";
+            console.log("Resposta inesperada:", dados);
+            return;
+        }
+
+        if(dados.length <= 1){
+            document.getElementById("conteudo").innerText =
+                "Nenhuma aplicação encontrada.";
+            return;
+        }
 
         const respContagem = await fetch(
-            API + "?tipo=contarRespostas"
+            API + "?tipo=contarRespostas",
+            {
+                method: "GET",
+                mode: "cors",
+                credentials: "include"
+            }
         );
 
         const contagem = await respContagem.json();
 
-        if(!Array.isArray(dados)){
-        document.getElementById("conteudo").innerText =
-        "Erro ao carregar aplicações.";
-        console.log("Resposta inesperada:", dados);
-        return;
-}
-
-        if(dados.length <= 1){
-        document.getElementById("conteudo").innerText =
-        "Nenhuma aplicação encontrada.";
-        return;
-}
-
         montarTabela(dados, contagem);
 
     }catch(e){
+
+        console.error("Erro:", e);
 
         document.getElementById("conteudo").innerText =
             "Erro de conexão com o servidor.";
@@ -85,6 +91,7 @@ function montarTabela(dados, contagem){
         const id = l[0];
         const totalRespostas = contagem[id] || 0;
         const linkRelatorio = l[8]; // LINK_RELATORIO
+        const status = l[7];        // ATIVA
 
         html += `
             <tr>
@@ -103,10 +110,10 @@ function montarTabela(dados, contagem){
                     }
                 </td>
                 <td>
-                <select onchange="alterarStatus('${id}', this.value)">
-                <option value="SIM" ${l[7]==="SIM"?"selected":""}>SIM</option>
-                <option value="NAO" ${l[7]==="NAO"?"selected":""}>NÃO</option>
-                </select>
+                    <select onchange="alterarStatus('${id}', this.value)">
+                        <option value="SIM" ${status==="SIM"?"selected":""}>SIM</option>
+                        <option value="NAO" ${status==="NAO"?"selected":""}>NÃO</option>
+                    </select>
                 </td>
             </tr>
         `;
@@ -128,7 +135,12 @@ async function abrirRelatorio(id, linkExistente){
     if(!linkFinal || !linkFinal.startsWith("http")){
 
         const resp = await fetch(
-            API + "?tipo=gerarRelatorio&id=" + id
+            API + "?tipo=gerarRelatorio&id=" + id,
+            {
+                method: "GET",
+                mode: "cors",
+                credentials: "include"
+            }
         );
 
         const dados = await resp.json();
@@ -141,20 +153,19 @@ async function abrirRelatorio(id, linkExistente){
         linkFinal = dados.link;
     }
 
-    // abre sem bloqueio
-    const a = document.createElement("a");
-    a.href = linkFinal;
-    a.target = "_blank";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    // opcional: remover reload automático
+    window.open(linkFinal, "_blank");
 }
-    async function alterarStatus(id, status){
+
+
+// =============================
+// ALTERAR STATUS
+// =============================
+async function alterarStatus(id, status){
 
     await fetch(API, {
         method:"POST",
+        mode:"cors",
+        credentials:"include",
         body: JSON.stringify({
             tipo:"alterarStatus",
             id:id,
