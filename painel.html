@@ -15,41 +15,32 @@
 
 <script>
 
+const email = "professoradivaldo@gmail.com";
+
 async function carregarAplicacoes(){
 
     try{
 
         const respAplicacoes = await fetch(
-            API + "?tipo=listarAplicacoes",
-            {
-                method: "GET",
-                mode: "cors",
-                credentials: "include"
-            }
+            API + "?tipo=listarAplicacoes&email=" + email
         );
 
         const dados = await respAplicacoes.json();
 
-        if(!Array.isArray(dados)){
+        if(dados.erro){
             document.getElementById("conteudo").innerText =
-                "Erro ao carregar aplicações.";
-            console.log("Resposta inesperada:", dados);
+                "Erro: " + dados.erro;
             return;
         }
 
-        if(dados.length <= 1){
+        if(!Array.isArray(dados) || dados.length <= 1){
             document.getElementById("conteudo").innerText =
                 "Nenhuma aplicação encontrada.";
             return;
         }
 
         const respContagem = await fetch(
-            API + "?tipo=contarRespostas",
-            {
-                method: "GET",
-                mode: "cors",
-                credentials: "include"
-            }
+            API + "?tipo=contarRespostas"
         );
 
         const contagem = await respContagem.json();
@@ -80,6 +71,7 @@ function montarTabela(dados, contagem){
             <th>Nome</th>
             <th>Data</th>
             <th>Qtd</th>
+            <th>Turmas</th>
             <th>Respostas</th>
             <th>Relatório</th>
             <th>Ativa</th>
@@ -90,15 +82,17 @@ function montarTabela(dados, contagem){
 
         const id = l[0];
         const totalRespostas = contagem[id] || 0;
-        const linkRelatorio = l[8]; // LINK_RELATORIO
-        const status = l[7];        // ATIVA
+        const turmas = l[6] ? JSON.parse(l[6]) : [];
+        const status = l[7];
+        const linkRelatorio = l[8];
 
         html += `
             <tr>
                 <td>${id}</td>
                 <td>${l[1]}</td>
-                <td>${l[3]}</td>
+                <td>${new Date(l[3]).toLocaleString()}</td>
                 <td>${l[4]}</td>
+                <td>${turmas.join(", ")}</td>
                 <td>${totalRespostas}</td>
                 <td>
                     ${
@@ -126,7 +120,7 @@ function montarTabela(dados, contagem){
 
 
 // =============================
-// ABRIR OU GERAR RELATÓRIO
+// ABRIR RELATÓRIO
 // =============================
 async function abrirRelatorio(id, linkExistente){
 
@@ -135,12 +129,7 @@ async function abrirRelatorio(id, linkExistente){
     if(!linkFinal || !linkFinal.startsWith("http")){
 
         const resp = await fetch(
-            API + "?tipo=gerarRelatorio&id=" + id,
-            {
-                method: "GET",
-                mode: "cors",
-                credentials: "include"
-            }
+            API + "?tipo=gerarRelatorio&id=" + id
         );
 
         const dados = await resp.json();
@@ -164,12 +153,11 @@ async function alterarStatus(id, status){
 
     await fetch(API, {
         method:"POST",
-        mode:"cors",
-        credentials:"include",
         body: JSON.stringify({
             tipo:"alterarStatus",
             id:id,
-            status:status
+            status:status,
+            email: email
         })
     });
 
