@@ -24,7 +24,12 @@ async function carregarAplicacoes(){
             API + "?tipo=listarAplicacoes"
         );
 
+        //const dados = await respAplicacoes.json();
+
         const dados = await respAplicacoes.json();
+        console.log("RETORNO APLICACOES:", dados);
+        console.log("TIPO:", typeof dados);
+        console.log("IS ARRAY:", Array.isArray(dados));
 
         const respContagem = await fetch(
             API + "?tipo=contarRespostas"
@@ -32,17 +37,18 @@ async function carregarAplicacoes(){
 
         const contagem = await respContagem.json();
 
-        if(dados.erro && dados.erro){
-            document.getElementById("conteudo").innerText =
-                "Erro ao carregar aplicações.";
-            return;
-        }
+        if(!Array.isArray(dados)){
+        document.getElementById("conteudo").innerText =
+        "Erro ao carregar aplicações.";
+        console.log("Resposta inesperada:", dados);
+        return;
+}
 
         if(dados.length <= 1){
-            document.getElementById("conteudo").innerText =
-                "Nenhuma aplicação encontrada.";
-            return;
-        }
+        document.getElementById("conteudo").innerText =
+        "Nenhuma aplicação encontrada.";
+        return;
+}
 
         montarTabela(dados, contagem);
 
