@@ -78,19 +78,24 @@ async function publicar(){
 
     try{
 
-        await fetch(API, {
-            method:"POST",
-            body: JSON.stringify({
-                tipo:"aplicacao",
-                id:preview.id,
-                nome:preview.nome,
-                turma:preview.turma,
-                professor:preview.professor,
-                qtd:preview.qtd,
-                questoes:preview.questoes
-            })
-        });
+       const resposta = await fetch(API, {
+        method:"POST",
+        body: JSON.stringify({
+        tipo:"aplicacao",
+        id:preview.id,
+        nome:preview.nome,
+        email:preview.professor, // ✅ AGORA CORRETO
+        qtd:preview.qtd,
+        questoes:preview.questoes,
+        turmas:[preview.turma]
+    })
+});
 
+        const retorno = await resposta.json();
+
+        if(retorno.erro){
+            throw new Error(retorno.erro);
+}
         // gera link real
         const link = window.location.href.replace("preview.html","aluno.html?id="+preview.id);
 
