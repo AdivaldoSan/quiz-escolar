@@ -129,51 +129,58 @@ function montarTabela(dados, contagem){
 // =============================
 async function gerarPDF(id){
 
-    const resp = await fetch(API+"?tipo=abrirAplicacao&id="+id);
-    const dados = await resp.json();
+    const novaJanela = window.open("", "_blank");
 
-    if(dados.erro){
-        alert("Erro ao carregar aplicação.");
+    if(!novaJanela){
+        alert("Permita popups para gerar o PDF.");
         return;
     }
 
-    const novaJanela = window.open("", "_blank");
+    novaJanela.document.write("<p>Carregando prova...</p>");
 
-    novaJanela.document.write(`
-        <html>
-        <head>
-        <title>${dados.nome}</title>
-        <style>
-            body{font-family:Arial; margin:50px;}
-            h2{text-align:center;}
-            .questao{margin-bottom:25px;}
-        </style>
-        </head>
-        <body>
+    try{
 
-        <h2>${dados.nome}</h2>
-        <p>Aluno: ___________________________________________</p>
-        <p>Turma: _________Série:_________</p>
-        <hr>
+        const resp = await fetch(API+"?tipo=abrirAplicacao&id="+id);
+        const dados = await resp.json();
 
-        ${
-            dados.questoes.map((q,i)=>`
-                <div class="questao">
-                    <b>${i+1}) ${q.ENUNCIADO}</b><br><br>
-                    A) ${q.ALT_A}<br>
-                    B) ${q.ALT_B}<br>
-                    C) ${q.ALT_C}<br>
-                    D) ${q.ALT_D}<br>
-                </div>
-            `).join("")
+        if(dados.erro){
+            novaJanela.close();
+            alert("Erro ao carregar aplicação.");
+            return;
         }
 
-        </body>
-        </html>
-    `);
+        novaJanela.document.body.innerHTML = `
+            <style>
+                body{font-family:Arial;margin:50px;}
+                h2{text-align:center;}
+                .questao{margin-bottom:25px;}
+            </style>
 
-    novaJanela.document.close();
-    novaJanela.print();
+            <h2>${dados.nome}</h2>
+            <p>Aluno: ___________________________________________</p>
+            <hr>
+
+            ${
+                dados.questoes.map((q,i)=>`
+                    <div class="questao">
+                        <b>${i+1}) ${q.ENUNCIADO}</b><br><br>
+                        A) ${q.ALT_A}<br>
+                        B) ${q.ALT_B}<br>
+                        C) ${q.ALT_C}<br>
+                        D) ${q.ALT_D}<br>
+                    </div>
+                `).join("")
+            }
+        `;
+
+        novaJanela.document.close();
+        novaJanela.focus();
+        novaJanela.print();
+
+    }catch(e){
+        novaJanela.close();
+        alert("Erro ao gerar PDF.");
+    }
 }
 
 
@@ -182,36 +189,49 @@ async function gerarPDF(id){
 // =============================
 async function gerarGabarito(id){
 
-    const resp = await fetch(API+"?tipo=abrirAplicacao&id="+id);
-    const dados = await resp.json();
-
     const novaJanela = window.open("", "_blank");
 
-    novaJanela.document.write(`
-        <html>
-        <head>
-        <title>Gabarito</title>
-        <style>
-            body{font-family:Arial; margin:50px;}
-        </style>
-        </head>
-        <body>
+    if(!novaJanela){
+        alert("Permita popups para gerar o gabarito.");
+        return;
+    }
 
-        <h2>Gabarito – ${dados.nome}</h2>
-        <hr>
+    novaJanela.document.write("<p>Carregando gabarito...</p>");
 
-        ${
-            dados.questoes.map((q,i)=>`
-                ${i+1}) ${q.GABARITO}<br>
-            `).join("")
+    try{
+
+        const resp = await fetch(API+"?tipo=abrirAplicacao&id="+id);
+        const dados = await resp.json();
+
+        if(dados.erro){
+            novaJanela.close();
+            alert("Erro ao carregar aplicação.");
+            return;
         }
 
-        </body>
-        </html>
-    `);
+        novaJanela.document.body.innerHTML = `
+            <style>
+                body{font-family:Arial;margin:50px;}
+            </style>
 
-    novaJanela.document.close();
-    novaJanela.print();
+            <h2>Gabarito – ${dados.nome}</h2>
+            <hr>
+
+            ${
+                dados.questoes.map((q,i)=>`
+                    ${i+1}) ${q.GABARITO}<br>
+                `).join("")
+            }
+        `;
+
+        novaJanela.document.close();
+        novaJanela.focus();
+        novaJanela.print();
+
+    }catch(e){
+        novaJanela.close();
+        alert("Erro ao gerar gabarito.");
+    }
 }
 
 
@@ -220,25 +240,40 @@ async function gerarGabarito(id){
 // =============================
 async function abrirRelatorio(id, linkExistente){
 
-    let linkFinal = linkExistente;
+    const novaJanela = window.open("", "_blank");
 
-    if(!linkFinal || !linkFinal.startsWith("http")){
-
-        const resp = await fetch(
-            API + "?tipo=gerarRelatorio&id=" + id
-        );
-
-        const dados = await resp.json();
-
-        if(dados.erro){
-            alert("Erro ao gerar relatório.");
-            return;
-        }
-
-        linkFinal = dados.link;
+    if(!novaJanela){
+        alert("Permita popups para abrir relatório.");
+        return;
     }
 
-    window.open(linkFinal, "_blank");
+    try{
+
+        let linkFinal = linkExistente;
+
+        if(!linkFinal || !linkFinal.startsWith("http")){
+
+            const resp = await fetch(
+                API + "?tipo=gerarRelatorio&id=" + id
+            );
+
+            const dados = await resp.json();
+
+            if(dados.erro){
+                novaJanela.close();
+                alert("Erro ao gerar relatório.");
+                return;
+            }
+
+            linkFinal = dados.link;
+        }
+
+        novaJanela.location.href = linkFinal;
+
+    }catch(e){
+        novaJanela.close();
+        alert("Erro ao abrir relatório.");
+    }
 }
 
 
