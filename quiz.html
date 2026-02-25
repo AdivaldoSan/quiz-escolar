@@ -243,6 +243,7 @@ async function finalizar(){
 }
 
 async function iniciarIdentificacao(){
+
     document.getElementById("btnAvancar").style.display = "none";
 
     if(quiz.alunoNome){
@@ -250,9 +251,7 @@ async function iniciarIdentificacao(){
         return;
     }
 
-    const r = await fetch(API+"?tipo=turmas&professor="+quiz.professor);
-    const dados = await r.json();
-    const turmas = dados.slice(1);
+    const turmasPermitidas = quiz.turmas || [];
 
     document.body.innerHTML = `
         <h2>${quiz.nome}</h2>
@@ -262,7 +261,13 @@ async function iniciarIdentificacao(){
 
         <label>Sua turma:</label><br>
         <select id="turmaAluno" style="width:100%;padding:8px">
-            ${turmas.map(t=>`<option value="${t[2]}">${t[2]}</option>`).join("")}
+            ${
+                turmasPermitidas.length === 0
+                ? `<option value="">Turma não definida</option>`
+                : turmasPermitidas
+                    .map(t=>`<option value="${t}">${t}</option>`)
+                    .join("")
+            }
         </select><br><br>
 
         <button onclick="confirmarAluno()">Iniciar</button>
