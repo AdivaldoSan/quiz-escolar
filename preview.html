@@ -78,33 +78,32 @@ async function publicar(){
 
     try{
 
-       const resposta = await fetch(API, {
-        method:"POST",
-        body: JSON.stringify({
-        tipo:"aplicacao",
-        id:preview.id,
-        nome:preview.nome,
-        email:preview.professor, // ✅ AGORA CORRETO
-        qtd:preview.qtd,
-        questoes:preview.questoes,
-        turmas:[preview.turma]
-    })
-});
+        const resposta = await fetch(API, {
+            method:"POST",
+            body: JSON.stringify({
+                tipo:"aplicacao",
+                id:preview.id,
+                nome:preview.nome,
+                email:preview.professor,
+                qtd:preview.qtd,
+                questoes:preview.questoes,
+                turmas:preview.turmas   // ✅ agora envia array correto
+            })
+        });
 
         const retorno = await resposta.json();
 
         if(retorno.erro){
             throw new Error(retorno.erro);
-}
-        // gera link real
-        const link = window.location.href.replace("preview.html","aluno.html?id="+preview.id);
+        }
+
+        const link = window.location.href
+            .replace("preview.html","aluno.html?id="+preview.id);
 
         document.getElementById("status").innerHTML = `
             ✅ Aplicação publicada!<br><br>
-
             <b>Link para os alunos:</b><br>
             <input id="link" value="${link}" style="width:100%;padding:6px"><br><br>
-
             <button onclick="copiar()">📋 Copiar Link</button>
         `;
 
@@ -116,7 +115,7 @@ async function publicar(){
         btn.disabled = false;
         btn.innerText = "Publicar Aplicação";
 
-        alert("Erro ao publicar.");
+        alert("Erro ao publicar: " + e.message);
     }
 }
 
