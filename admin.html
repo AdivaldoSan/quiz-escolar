@@ -52,34 +52,47 @@ function montarTabela(dados){
   const tabela = document.getElementById("tabelaProf");
   tabela.innerHTML = "";
 
-  const cabecalho = document.createElement("tr");
+  const cab = dados[0];
 
-  dados[0].forEach(col=>{
-    const th = document.createElement("th");
-    th.innerText = col;
-    cabecalho.appendChild(th);
-  });
+  // índices importantes
+  const idxID = cab.indexOf("ID");
+  const idxNome = cab.indexOf("NOME");
+  const idxEmail = cab.indexOf("EMAIL");
+  const idxPerfil = cab.indexOf("PERFIL");
+  const idxStatus = cab.indexOf("STATUS");
+  const idxData = cab.indexOf("DATA_CADASTRO");
 
-  const thAcoes = document.createElement("th");
-  thAcoes.innerText = "AÇÕES";
-  cabecalho.appendChild(thAcoes);
+  // Cabeçalho
+  const header = document.createElement("tr");
 
-  tabela.appendChild(cabecalho);
+  ["ID","NOME","EMAIL","PERFIL","STATUS","DATA_CADASTRO","AÇÕES"]
+    .forEach(texto=>{
+      const th = document.createElement("th");
+      th.innerText = texto;
+      header.appendChild(th);
+    });
 
+  tabela.appendChild(header);
+
+  // Linhas
   for(let i=1;i<dados.length;i++){
 
     const linha = document.createElement("tr");
 
-    dados[i].forEach(col=>{
+    const id = dados[i][idxID];
+    const nome = dados[i][idxNome];
+    const email = dados[i][idxEmail];
+    const perfil = dados[i][idxPerfil];
+    const status = dados[i][idxStatus];
+    const data = dados[i][idxData];
+
+    [id,nome,email,perfil,status,data].forEach(valor=>{
       const td = document.createElement("td");
-      td.innerText = col;
+      td.innerText = valor;
       linha.appendChild(td);
     });
 
     const tdAcoes = document.createElement("td");
-
-    const email = dados[i][2];
-    const status = dados[i][5];
 
     if(status === "PENDENTE"){
       tdAcoes.innerHTML =
