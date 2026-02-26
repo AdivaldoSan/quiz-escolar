@@ -2,22 +2,84 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Sistema de Avaliações</title>
+  <title>Sistema Web Quiz - Login</title>
 </head>
-<body style="font-family: Arial; text-align:center; margin-top:50px;">
 
-<h1>📚 Banco conectado</h1>
-<p>Carregando questões...</p>
+<body style="font-family: Arial; text-align:center; margin-top:80px;">
 
-<div id="resultado"></div>
+<h2>📚 Sistema Web Quiz</h2>
+
+<div style="margin-top:30px;">
+  <input type="email" id="email" placeholder="Email"
+         style="padding:8px; width:250px;"><br><br>
+
+  <input type="password" id="senha" placeholder="Senha"
+         style="padding:8px; width:250px;"><br><br>
+
+  <button onclick="fazerLogin()" style="padding:10px 20px;">
+    Entrar
+  </button>
+</div>
+
+<br>
+
+<a href="cadastro.html">Primeiro acesso</a>
+
+<p id="msg" style="margin-top:20px; color:red;"></p>
 
 <script src="js/conexao.js"></script>
 
 <script>
-carregarQuestoes().then(questoes => {
-    document.getElementById("resultado").innerHTML =
-        "Total de questões carregadas: <b>" + questoes.length + "</b>";
-});
+async function fazerLogin(){
+
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+
+  if(!email || !senha){
+    document.getElementById("msg").innerText =
+      "Preencha todos os campos.";
+    return;
+  }
+
+  const resposta = await fetch(URL_API, {
+    method: "POST",
+    body: JSON.stringify({
+      tipo:"login",
+      email:email,
+      senha:senha
+    })
+  });
+
+  const dados = await resposta.json();
+
+  if(dados.autorizado){
+
+    localStorage.setItem("TOKEN", dados.token);
+    localStorage.setItem("NOME", dados.nome);
+    localStorage.setItem("PERFIL", dados.perfil);
+
+    if(dados.perfil === "ADMIN"){
+      window.location.href = "admin.html";
+    }else{
+      window.location.href = "painel.html";
+    }
+
+  }else{
+
+    if(dados.erro === "usuario_pendente"){
+      document.getElementById("msg").innerText =
+        "Cadastro aguardando aprovação.";
+    }
+    else if(dados.erro === "usuario_bloqueado"){
+      document.getElementById("msg").innerText =
+        "Usuário bloqueado.";
+    }
+    else{
+      document.getElementById("msg").innerText =
+        "Email ou senha incorretos.";
+    }
+  }
+}
 </script>
 
 </body>
