@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Administrativo</title>
+</head>
+
+<body style="font-family: Arial; margin:40px;">
+
+<h2>👨‍💼 Painel Administrativo</h2>
+
+<div style="margin-bottom:20px;">
+  <span id="usuario"></span>
+  <button onclick="logout()" style="margin-left:20px;">Sair</button>
+</div>
+
+<hr>
+
+<h3>Professores Cadastrados</h3>
+
+<table border="1" cellpadding="8" cellspacing="0" width="100%" id="tabelaProf">
+</table>
+
+<script src="js/conexao.js"></script>
+
+<script>
+
+const token = localStorage.getItem("TOKEN");
+
+if(!token){
+  window.location.href = "index.html";
+}
+
+async function validarAdmin(){
+
+  const resposta = await fetch(API + "?tipo=listarProfessores&token=" + token);
+  const dados = await resposta.json();
+
+  if(dados.erro){
+    window.location.href = "index.html";
+    return;
+  }
+
+  document.getElementById("usuario").innerText =
+    "Logado como ADMIN";
+
+  montarTabela(dados);
+}
+
+function montarTabela(dados){
+
+  const tabela = document.getElementById("tabelaProf");
+  tabela.innerHTML = "";
+
+  const cabecalho = document.createElement("tr");
+
+  dados[0].forEach(col=>{
+    const th = document.createElement("th");
+    th.innerText = col;
+    cabecalho.appendChild(th);
+  });
+
+  const thAcoes = document.createElement("th");
+  thAcoes.innerText = "AÇÕES";
+  cabecalho.appendChild(thAcoes);
+
+  tabela.appendChild(cabecalho);
+
+  for(let i=1;i<dados.length;i++){
+
+    const linha = document.createElement("tr");
+
+    dados[i].forEach(col=>{
+      const td = document.createElement("td");
+      td.innerText = col;
+      linha.appendChild(td);
+    });
+
+    const tdAcoes = document.createElement("td");
+
+    const email = dados[i][2];
+    const status = dados[i][5];
+
+    if(status === "PENDENTE"){
+      tdAcoes.innerHTML =
+        `<button onclick="alterarStatus('${email}','APROVADO')">Aprovar</button>`;
+    }
+    else if(status === "APROVADO"){
+      tdAcoes.innerHTML =
+        `<button onclick="alterarStatus('${email}','BLOQUEADO')">Bloquear</button>`;
+    }
+    else if(status === "BLOQUEADO"){
+      tdAcoes.innerHTML =
+        `<button onclick="alterarStatus('${email}','APROVADO')">Reativar</button>`;
+    }
+
+    linha.appendChild(tdAcoes);
+    tabela.appendChild(linha);
+  }
+}
+
+async function alterarStatus(email, novoStatus){
+
+  const resposta = await fetch(API, {
+    method:"POST",
+    body: JSON.stringify({
+      tipo:"alterarStatusProfessor",
+      token:token,
+      emailProfessor:email,
+      novoStatus:novoStatus
+    })
+  });
+
+  const dados = await resposta.json();
+
+  if(dados.mensagem){
+    alert("Status atualizado.");
+    validarAdmin();
+  }else{
+    alert("Erro ao atualizar.");
+  }
+}
+
+function logout(){
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+
+validarAdmin();
+
+</script>
+
+</body>
+</html>
