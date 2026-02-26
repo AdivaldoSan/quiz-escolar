@@ -79,17 +79,17 @@ async function publicar(){
     try{
 
         const resposta = await fetch(API, {
-            method:"POST",
-            body: JSON.stringify({
-                tipo:"aplicacao",
-                id:preview.id,
-                nome:preview.nome,
-                email:preview.professor,
-                qtd:preview.qtd,
-                questoes:preview.questoes,
-                turmas:preview.turmas   // ✅ agora envia array correto
-            })
-        });
+    method:"POST",
+    body: JSON.stringify({
+        tipo:"aplicacao",
+        token: localStorage.getItem("TOKEN"),   // 🔐 obrigatório agora
+        id: preview.id,
+        nome: preview.nome,
+        qtd: preview.qtd,
+        questoes: preview.questoes,
+        turmas: preview.turmas
+    })
+});
 
         const retorno = await resposta.json();
 
