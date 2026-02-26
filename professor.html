@@ -228,11 +228,18 @@ function gerarQuiz(){
 // =============================
 async function carregarTurmas(){
 
-    const resp = await fetch(API+"?tipo=turmas&professor=professoradivaldo@gmail.com");
+    const token = localStorage.getItem("TOKEN");
+
+    const resp = await fetch(API + "?tipo=turmas&token=" + token);
     const linhas = await resp.json();
 
     const div = document.getElementById("listaTurmas");
     div.innerHTML = "";
+
+    if(linhas.erro){
+        div.innerHTML = "Erro ao carregar turmas.";
+        return;
+    }
 
     if(!Array.isArray(linhas) || linhas.length <= 1){
         div.innerHTML = "Nenhuma turma encontrada.";
