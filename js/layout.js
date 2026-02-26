@@ -23,7 +23,7 @@ function criarLayout(){
         <div>
             <b>📘 Sistema Web Quiz</b> |
             <a href="painel.html">Painel</a> |
-            <a href="quiz.html">Gerar Quiz</a> |
+            <a href="professor.html">Gerar Quiz</a> |
             <a href="turmas.html">Turmas</a>
     `;
 
