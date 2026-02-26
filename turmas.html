@@ -22,15 +22,25 @@
 
 <script>
 
-const email = "professoradivaldo@gmail.com";
-
 async function carregar(){
 
-    const r = await fetch(API+"?tipo=turmas&professor="+email);
+    const token = localStorage.getItem("TOKEN");
+
+    if(!token){
+        window.location.href = "index.html";
+        return;
+    }
+
+    const r = await fetch(API + "?tipo=turmas&token=" + token);
     const dados = await r.json();
 
     const div = document.getElementById("listaTurmas");
     div.innerHTML = "";
+
+    if(dados.erro){
+        div.innerHTML = "Erro ao carregar turmas.";
+        return;
+    }
 
     if(dados.length <= 1){
         div.innerHTML = "Nenhuma turma cadastrada.";
@@ -53,6 +63,7 @@ async function carregar(){
 
 async function adicionar(){
 
+    const token = localStorage.getItem("TOKEN");
     const nome = document.getElementById("novaTurma").value.trim();
 
     if(!nome){
@@ -64,8 +75,8 @@ async function adicionar(){
         method:"POST",
         body:JSON.stringify({
             tipo:"addTurma",
-            email:email,
-            nomeTurma:nome
+            token: token,
+            nomeTurma: nome
         })
     });
 
@@ -83,16 +94,25 @@ async function adicionar(){
 
 async function excluir(nome){
 
+    const token = localStorage.getItem("TOKEN");
+
     if(!confirm("Deseja desativar esta turma?")) return;
 
-    await fetch(API,{
+    const r = await fetch(API,{
         method:"POST",
         body:JSON.stringify({
             tipo:"excluirTurma",
-            email:email,
-            nomeTurma:nome
+            token: token,
+            nomeTurma: nome
         })
     });
+
+    const resp = await r.json();
+
+    if(resp.erro){
+        alert(resp.erro);
+        return;
+    }
 
     carregar();
 }
