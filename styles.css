@@ -789,3 +789,71 @@ body {
   text-align: center;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
+
+/* ===== IDENTIFICAÇÃO ALUNO ===== */
+
+.ident-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-gradient);
+  padding: 20px;
+}
+
+.ident-card {
+  background: white;
+  padding: 60px 50px;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.ident-titulo {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.ident-sub {
+  color: #6B7280;
+  margin-bottom: 35px;
+}
+
+.ident-campo {
+  margin-bottom: 20px;
+}
+
+.ident-campo input,
+.ident-campo select {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+}
+
+.ident-campo input:focus,
+.ident-campo select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.btn-iniciar {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-iniciar:hover {
+  background: var(--primary-dark);
+}
