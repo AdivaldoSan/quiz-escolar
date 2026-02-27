@@ -122,7 +122,7 @@ function montarTabela(dados){
         <td>${disciplina || ""}</td>
         <td>${perfil}</td>
         <td>${status}</td>
-        <td>${data}</td>
+        <td>${formatarData(data)}</td>
         <td>
           ${gerarBotaoAcao(email, status)}
         </td>
@@ -192,6 +192,11 @@ async function alterarStatus(email, novoStatus, botao){
   }
 }
 
+function formatarData(dataISO){
+  const d = new Date(dataISO);
+  return d.toLocaleDateString("pt-BR") + " " +
+         d.toLocaleTimeString("pt-BR");
+}  
 </script>
 
 </body>
