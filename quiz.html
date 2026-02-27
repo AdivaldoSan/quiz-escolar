@@ -51,9 +51,18 @@ function embaralharArray(arr){
 // RECUPERA QUIZ
 // ===========================
 let quiz = JSON.parse(localStorage.getItem("quizAtual"));
-
 if(!quiz){
-    document.body.innerHTML = "<h3>Atividade finalizada ou inválida.</h3>";
+    document.body.innerHTML = `
+        <div class="final-card">
+            <h2>Atividade indisponível</h2>
+            <p>
+                Esta atividade já foi finalizada ou o link não é mais válido.
+            </p>
+            <p>
+                Se acredita que isso é um erro, procure seu professor.
+            </p>
+        </div>
+    `;
     throw new Error("quiz não encontrado");
 }
 
