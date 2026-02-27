@@ -615,3 +615,46 @@ body {
 .tabela tbody tr:hover td {
   background-color: #d6dde3 !important;
 }
+
+/* ===== TURMAS PAGE ===== */
+
+.turma-form {
+  display: flex;
+  gap: 10px;
+}
+
+.turma-form input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+}
+
+.turma-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #F9FAFB;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: background 0.2s ease;
+}
+
+.turma-item:hover {
+  background: #EEF2F7;
+}
+
+.btn-danger {
+  background: #DC2626;
+  border: none;
+  padding: 6px 12px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
