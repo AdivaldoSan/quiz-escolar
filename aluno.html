@@ -2,45 +2,95 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Carregando Quiz...</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carregando Atividade</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="font-family:Arial; text-align:center; margin-top:60px;">
+<body class="aluno-page">
 
-<h2>Carregando atividade...</h2>
+<div class="aluno-header">
+    📘 WebQuiz
+</div>
+
+<div class="aluno-container">
+
+    <div class="aluno-card" id="areaMensagem">
+
+        <div class="loader-grande"></div>
+
+        <h2>Preparando sua atividade...</h2>
+
+        <p>
+            Aguarde alguns instantes enquanto organizamos
+            sua avaliação.
+        </p>
+
+    </div>
+
+</div>
 
 <script src="./js/conexao.js"></script>
 
 <script>
 
-// pega o ID da URL
+// =============================
+// CAPTURA ID DA URL
+// =============================
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
 if(!id){
-    document.body.innerHTML = "<h3>Link inválido.</h3>";
+    mostrarErro(
+        "Link inválido.",
+        "Verifique se o endereço foi copiado corretamente ou solicite novamente ao professor."
+    );
     throw new Error("ID não informado");
 }
 
-// busca aplicação no Apps Script
+// =============================
+// BUSCA APLICAÇÃO
+// =============================
 fetch(API + "?tipo=abrirAplicacao&id=" + id)
 .then(r => r.json())
 .then(d => {
 
     if(d.erro){
-        document.body.innerHTML = "<h3>Aplicação não encontrada.</h3>";
+        mostrarErro(
+            "Atividade indisponível.",
+            "Esta atividade pode ter sido desativada ou o link não é mais válido. Procure seu professor."
+        );
         return;
     }
 
-    // salva aplicação para o quiz usar
+    // salva para quiz.html
     localStorage.setItem("quizAtual", JSON.stringify(d));
 
-    // redireciona para página que aplica a prova
-    window.location.href = "quiz.html";
+    // pequeno delay só para UX visual
+    setTimeout(()=>{
+        window.location.href = "quiz.html";
+    }, 800);
+
 })
 .catch(()=>{
-    document.body.innerHTML = "<h3>Erro ao carregar aplicação.</h3>";
+    mostrarErro(
+        "Erro ao carregar atividade.",
+        "Verifique sua conexão com a internet e tente novamente."
+    );
 });
+
+
+// =============================
+// FUNÇÃO DE ERRO PEDAGÓGICO
+// =============================
+function mostrarErro(titulo, mensagem){
+
+    document.getElementById("areaMensagem").innerHTML = `
+        <div class="erro-icone">⚠</div>
+        <h2>${titulo}</h2>
+        <p>${mensagem}</p>
+    `;
+}
 
 </script>
 
