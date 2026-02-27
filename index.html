@@ -3,84 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <title>Sistema Web Quiz - Login</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="font-family: Arial; text-align:center; margin-top:80px;">
+<body>
 
-<h2>📚 Sistema Web Quiz</h2>
+  <div class="login-box">
 
-<div style="margin-top:30px;">
-  <input type="email" id="email" placeholder="Email"
-         style="padding:8px; width:250px;"><br><br>
+    <h2>📚 Sistema Web Quiz</h2>
 
-  <input type="password" id="senha" placeholder="Senha"
-         style="padding:8px; width:250px;"><br><br>
+    <div class="form-group">
+      <input type="email" id="email" placeholder="Email">
+    </div>
 
-  <button onclick="fazerLogin()" style="padding:10px 20px;">
-    Entrar
-  </button>
-</div>
+    <div class="form-group">
+      <input type="password" id="senha" placeholder="Senha">
+    </div>
 
-<br>
+    <button class="btn-login" id="btnLogin" onclick="fazerLogin()">
+      Entrar
+    </button>
 
-<a href="cadastro.html">Primeiro acesso</a>
+    <a href="cadastro.html" class="link">Primeiro acesso</a>
 
-<p id="msg" style="margin-top:20px; color:red;"></p>
+    <div id="msg" class="msg-error"></div>
 
-<script src="./js/conexao.js"></script>
+  </div>
 
-<script>
-async function fazerLogin(){
+  <script src="./js/conexao.js"></script>
 
-  const email = document.getElementById("email").value.trim();
-  const senha = document.getElementById("senha").value.trim();
+  <script>
+  async function fazerLogin(){
 
-  if(!email || !senha){
-    document.getElementById("msg").innerText =
-      "Preencha todos os campos.";
-    return;
-  }
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value.trim();
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("btnLogin");
 
-  const resposta = await fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      tipo:"login",
-      email:email,
-      senha:senha
-    })
-  });
+    msg.style.display = "none";
 
-  const dados = await resposta.json();
+    if(!email || !senha){
+      msg.innerText = "Preencha todos os campos.";
+      msg.style.display = "block";
+      return;
+    }
 
-  if(dados.autorizado){
+    // loading visual
+    btn.innerHTML = '<div class="loader"></div>';
+    btn.disabled = true;
 
-    localStorage.setItem("TOKEN", dados.token);
-    localStorage.setItem("NOME", dados.nome);
-    localStorage.setItem("PERFIL", dados.perfil);
+    const resposta = await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        tipo:"login",
+        email:email,
+        senha:senha
+      })
+    });
 
-    if(dados.perfil === "ADMIN"){
-      window.location.href = "admin.html";
+    const dados = await resposta.json();
+
+    if(dados.autorizado){
+
+      localStorage.setItem("TOKEN", dados.token);
+      localStorage.setItem("NOME", dados.nome);
+      localStorage.setItem("PERFIL", dados.perfil);
+
+      if(dados.perfil === "ADMIN"){
+        window.location.href = "admin.html";
+      }else{
+        window.location.href = "painel.html";
+      }
+
     }else{
-      window.location.href = "painel.html";
-    }
 
-  }else{
+      btn.innerHTML = "Entrar";
+      btn.disabled = false;
 
-    if(dados.erro === "usuario_pendente"){
-      document.getElementById("msg").innerText =
-        "Cadastro aguardando aprovação.";
-    }
-    else if(dados.erro === "usuario_bloqueado"){
-      document.getElementById("msg").innerText =
-        "Usuário bloqueado.";
-    }
-    else{
-      document.getElementById("msg").innerText =
-        "Email ou senha incorretos.";
+      if(dados.erro === "usuario_pendente"){
+        msg.innerText = "Cadastro aguardando aprovação.";
+      }
+      else if(dados.erro === "usuario_bloqueado"){
+        msg.innerText = "Usuário bloqueado.";
+      }
+      else{
+        msg.innerText = "Email ou senha incorretos.";
+      }
+
+      msg.style.display = "block";
     }
   }
-}
-</script>
+  </script>
 
 </body>
 </html>
