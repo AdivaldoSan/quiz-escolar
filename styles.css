@@ -587,3 +587,7 @@ body {
 .text-center {
   text-align: center;
 }
+
+.tabela th.text-center {
+  text-align: center;
+}
