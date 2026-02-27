@@ -1026,7 +1026,9 @@ animation: spin 0.8s linear infinite;
 /* ===== LOGO AVALIA+ ===== */
 
 .logo-area {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .logo {
