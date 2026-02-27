@@ -21,6 +21,9 @@ function criarLayout(){
             ${perfil === "ADMIN" ? `<a href="admin.html">Admin</a>` : ``}
         </div>
 
+        <!-- OVERLAY FORA DA SIDEBAR -->
+        <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
         <div class="main">
 
             <div class="topbar">
@@ -40,7 +43,11 @@ function criarLayout(){
 }
 
 function toggleMenu(){
-    document.getElementById("sidebar").classList.toggle("open");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("open");
 }
 
 function logout(){
