@@ -59,27 +59,39 @@ function montarTabela(dados){
 
   const cab = dados[0];
 
-  // índices importantes
   const idxID = cab.indexOf("ID");
   const idxNome = cab.indexOf("NOME");
   const idxEmail = cab.indexOf("EMAIL");
   const idxPerfil = cab.indexOf("PERFIL");
   const idxStatus = cab.indexOf("STATUS");
   const idxData = cab.indexOf("DATA_CADASTRO");
+  const idxEscola = cab.indexOf("ESCOLA");
+  const idxCidade = cab.indexOf("CIDADE");
+  const idxEstado = cab.indexOf("ESTADO");
+  const idxDisciplina = cab.indexOf("DISCIPLINA");
 
-  // Cabeçalho
   const header = document.createElement("tr");
 
-  ["ID","NOME","EMAIL","PERFIL","STATUS","DATA_CADASTRO","AÇÕES"]
-    .forEach(texto=>{
-      const th = document.createElement("th");
-      th.innerText = texto;
-      header.appendChild(th);
-    });
+  [
+    "ID",
+    "NOME",
+    "EMAIL",
+    "ESCOLA",
+    "CIDADE",
+    "ESTADO",
+    "DISCIPLINA",
+    "PERFIL",
+    "STATUS",
+    "DATA_CADASTRO",
+    "AÇÕES"
+  ].forEach(texto=>{
+    const th = document.createElement("th");
+    th.innerText = texto;
+    header.appendChild(th);
+  });
 
   tabela.appendChild(header);
 
-  // Linhas
   for(let i=1;i<dados.length;i++){
 
     const linha = document.createElement("tr");
@@ -87,13 +99,28 @@ function montarTabela(dados){
     const id = dados[i][idxID];
     const nome = dados[i][idxNome];
     const email = dados[i][idxEmail];
+    const escola = dados[i][idxEscola];
+    const cidade = dados[i][idxCidade];
+    const estado = dados[i][idxEstado];
+    const disciplina = dados[i][idxDisciplina];
     const perfil = dados[i][idxPerfil];
     const status = dados[i][idxStatus];
     const data = dados[i][idxData];
 
-    [id,nome,email,perfil,status,data].forEach(valor=>{
+    [
+      id,
+      nome,
+      email,
+      escola,
+      cidade,
+      estado,
+      disciplina,
+      perfil,
+      status,
+      data
+    ].forEach(valor=>{
       const td = document.createElement("td");
-      td.innerText = valor;
+      td.innerText = valor || "";
       linha.appendChild(td);
     });
 
@@ -101,15 +128,15 @@ function montarTabela(dados){
 
     if(status === "PENDENTE"){
       tdAcoes.innerHTML =
-        `<button onclick="alterarStatus('${email}','APROVADO')">Aprovar</button>`;
+        `<button onclick="alterarStatus('${email}','APROVADO', this)">Aprovar</button>`;
     }
     else if(status === "APROVADO"){
       tdAcoes.innerHTML =
-        `<button onclick="alterarStatus('${email}','BLOQUEADO')">Bloquear</button>`;
+        `<button onclick="alterarStatus('${email}','BLOQUEADO', this)">Bloquear</button>`;
     }
     else if(status === "BLOQUEADO"){
       tdAcoes.innerHTML =
-        `<button onclick="alterarStatus('${email}','APROVADO')">Reativar</button>`;
+        `<button onclick="alterarStatus('${email}','APROVADO', this)">Reativar</button>`;
     }
 
     linha.appendChild(tdAcoes);
@@ -117,7 +144,7 @@ function montarTabela(dados){
   }
 }
 
-async function alterarStatus(email, novoStatus){
+async function alterarStatus(email, novoStatus, botao){
 
   const resposta = await fetch(API, {
     method:"POST",
@@ -132,16 +159,26 @@ async function alterarStatus(email, novoStatus){
   const dados = await resposta.json();
 
   if(dados.mensagem){
-    alert("Status atualizado.");
-    validarAdmin();
+
+    const linha = botao.closest("tr");
+    linha.children[8].innerText = novoStatus; // coluna STATUS
+
+    if(novoStatus === "APROVADO"){
+      botao.innerText = "Bloquear";
+      botao.setAttribute("onclick",
+        `alterarStatus('${email}','BLOQUEADO', this)`
+      );
+    }
+    else if(novoStatus === "BLOQUEADO"){
+      botao.innerText = "Reativar";
+      botao.setAttribute("onclick",
+        `alterarStatus('${email}','APROVADO', this)`
+      );
+    }
+
   }else{
     alert("Erro ao atualizar.");
   }
-}
-
-function logout(){
-  localStorage.clear();
-  window.location.href = "index.html";
 }
 
 validarAdmin();
