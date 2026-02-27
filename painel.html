@@ -87,7 +87,18 @@ function montarTabela(dados, contagem){
     linhas.forEach(l=>{
 
         const id = l[0];
-        const disciplina = l[2] || "-";
+
+        
+        let disciplina = "-";
+
+        try {
+        const parametros = l[5] ? JSON.parse(l[5]) : null;
+        disciplina = parametros?.DISCIPLINA || "-";
+        } catch(e){
+        disciplina = "-";
+        }
+
+        
         const totalRespostas = contagem[id] || 0;
         const turmas = l[6] ? JSON.parse(l[6]) : [];
         const status = l[7];
