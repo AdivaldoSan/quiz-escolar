@@ -1020,3 +1020,16 @@ animation: spin 0.8s linear infinite;
   font-size: 14px;
   color: #6B7280;
 }
+
+/* ===== MARCA AVALIA+ ===== */
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.logo-plus {
+  color: var(--primary);
+  font-weight: 900;
+}
