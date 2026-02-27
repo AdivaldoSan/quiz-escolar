@@ -1,0 +1,121 @@
+:root {
+  --primary: #2563EB;
+  --primary-dark: #1E40AF;
+  --bg-gradient: linear-gradient(135deg, #1E3A8A, #2563EB);
+  --card: #FFFFFF;
+  --text: #111827;
+  --gray: #6B7280;
+  --border: #E5E7EB;
+  --danger: #DC2626;
+  --radius: 14px;
+  --shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: var(--bg-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-box {
+  background: var(--card);
+  padding: 40px;
+  width: 100%;
+  max-width: 380px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: var(--text);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.btn-login {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-login:hover {
+  background: var(--primary-dark);
+}
+
+.btn-login:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.link {
+  display: block;
+  margin-top: 15px;
+  text-align: center;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.msg-error {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: #FEE2E2;
+  color: var(--danger);
+  font-size: 14px;
+  display: none;
+}
+
+.loader {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
