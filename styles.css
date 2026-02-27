@@ -462,3 +462,29 @@ body {
   color: white;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
 }
+
+/* ===== PREVIEW ===== */
+
+.preview-questao {
+  margin-bottom: 18px;
+  padding: 15px;
+  background: #F9FAFB;
+  border-radius: 10px;
+}
+
+.preview-info p {
+  margin-bottom: 6px;
+}
+
+.publicado-box {
+  background: #ECFDF5;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.input-link {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+}
