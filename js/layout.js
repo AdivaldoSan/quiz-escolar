@@ -19,7 +19,9 @@ function criarLayout(){
         <div class="sidebar" id="sidebar">
            <h2 class="logo">
               Avalia<span class="logo-plus">+</span>
+              <p class="logo-sub">Plataforma de Avaliação Digital</p>
             </h2>
+            
 
             <a href="painel.html"
                class="${paginaAtual==='painel.html'?'active':''}">
