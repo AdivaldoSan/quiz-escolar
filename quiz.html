@@ -246,24 +246,44 @@ function iniciarIdentificacao(){
 
     const turmasPermitidas = quiz.turmas || [];
 
-    document.querySelector(".quiz-container").innerHTML = `
-        <div class="card">
-            <h2>${quiz.nome}</h2>
+    document.body.innerHTML = `
+        <div class="ident-page">
 
-            <input id="nomeAluno" placeholder="Seu nome">
-            <select id="turmaAluno">
-                ${
-                    turmasPermitidas
-                    .map(t=>`<option value="${t}">${t}</option>`)
-                    .join("")
-                }
-            </select>
+            <div class="ident-card">
 
-            <button onclick="confirmarAluno()">Iniciar</button>
+                <h1 class="ident-titulo">${quiz.nome}</h1>
+
+                <p class="ident-sub">
+                    Informe seus dados para iniciar a atividade.
+                </p>
+
+                <div class="ident-campo">
+                    <input id="nomeAluno"
+                           placeholder="Digite seu nome completo">
+                </div>
+
+                <div class="ident-campo">
+                    <select id="turmaAluno">
+                        ${
+                            turmasPermitidas.length === 0
+                            ? `<option value="">Turma não definida</option>`
+                            : turmasPermitidas
+                                .map(t=>`<option value="${t}">${t}</option>`)
+                                .join("")
+                        }
+                    </select>
+                </div>
+
+                <button class="btn-iniciar"
+                        onclick="confirmarAluno()">
+                    Iniciar Atividade
+                </button>
+
+            </div>
+
         </div>
     `;
 }
-
 function confirmarAluno(){
 
     const nome = document.getElementById("nomeAluno").value.trim();
