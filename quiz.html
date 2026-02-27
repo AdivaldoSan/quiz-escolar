@@ -234,6 +234,8 @@ async function finalizar(){
 
     if(enviando) return;
     enviando = true;
+    
+    mostrarOverlayEnvio();
 
     let acertos = respostas.filter(r=>r.marcada===r.correta).length;
 
@@ -257,6 +259,28 @@ async function finalizar(){
             })
         });
 
+        await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+        tipo:"respostas",
+        payload: envio
+    })
+});
+
+// 🔥 REMOVER OVERLAY AQUI
+const overlay = document.getElementById("overlayEnvio");
+if(overlay) overlay.remove();
+
+localStorage.removeItem("quizAtual");
+
+document.body.innerHTML = `
+    <div class="final-card">
+        <h2>🎉 Atividade Concluída!</h2>
+        <p>Você acertou <b>${acertos}</b> de <b>${respostas.length}</b> questões.</p>
+        <p>Suas respostas foram registradas com sucesso.</p>
+    </div>
+`;
+        
         localStorage.removeItem("quizAtual");
 
         document.body.innerHTML = `
@@ -343,6 +367,23 @@ function confirmarAluno(){
     localStorage.setItem("quizAtual", JSON.stringify(quiz));
     location.reload();
 }
+
+function mostrarOverlayEnvio(){
+
+  const overlay = document.createElement("div");
+  overlay.className = "overlay-envio";
+  overlay.id = "overlayEnvio";
+
+  overlay.innerHTML = `
+    <div class="overlay-box">
+      <div class="overlay-spinner"></div>
+      <h3>Registrando suas respostas...</h3>
+      <p>Aguarde enquanto salvamos sua atividade.</p>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+}    
 
 </script>
 </body>
