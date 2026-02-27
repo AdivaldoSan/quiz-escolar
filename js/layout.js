@@ -17,7 +17,9 @@ function criarLayout(){
     <div class="app">
 
         <div class="sidebar" id="sidebar">
-            <h2>📘 Avalia+ </h2>
+           <h2 class="logo">
+              Avalia<span class="logo-plus">+</span>
+            </h2>
 
             <a href="painel.html"
                class="${paginaAtual==='painel.html'?'active':''}">
