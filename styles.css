@@ -873,3 +873,37 @@ body {
   font-size: 18px;
   line-height: 1.6;
 }
+
+/* ===== RODAPÉ QUIZ ===== */
+
+.quiz-rodape {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.contador-questao {
+  font-size: 14px;
+  color: #6B7280;
+  margin-bottom: 15px;
+}
+
+.btn-avancar {
+  padding: 14px 40px;
+  background: var(--primary);
+  border: none;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-avancar:hover {
+  background: var(--primary-dark);
+}
+
+.btn-avancar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
