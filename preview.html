@@ -12,6 +12,9 @@
 <script src="./js/conexao.js"></script>
 <script src="./js/layout.js"></script>
 
+<!-- Biblioteca QR Code (leve) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
 <script>
 
 let publicado = false;
@@ -43,15 +46,13 @@ function iniciarPagina(){
 
             <div id="listaQuestoes"></div>
 
-            <div style="margin-top:25px;">
+            <div id="areaPublicacao" style="margin-top:25px;">
                 <button class="btn-primary"
                         id="btnPublicar"
                         onclick="publicar()">
                     Publicar Aplicação
                 </button>
             </div>
-
-            <p id="status" style="margin-top:15px;"></p>
 
         </div>
     `;
@@ -87,11 +88,9 @@ async function publicar(){
     publicado = true;
 
     const btn = document.getElementById("btnPublicar");
-    const status = document.getElementById("status");
 
     btn.disabled = true;
-    btn.innerText = "Publicando...";
-    status.innerText = "Registrando aplicação...";
+    btn.innerHTML = `<div class="loader"></div>`;
 
     const preview =
         JSON.parse(localStorage.getItem("previewQuiz"));
@@ -121,19 +120,39 @@ async function publicar(){
             .replace("preview.html",
                      "aluno.html?id="+preview.id);
 
-        status.innerHTML = `
-            <div class="publicado-box">
-                ✅ Aplicação publicada!<br><br>
-                <strong>Link para os alunos:</strong><br>
-                <input id="link"
-                       value="${link}"
-                       class="input-link"><br><br>
-                <button class="btn-primary"
-                        onclick="copiar()">
-                    📋 Copiar Link
-                </button>
-            </div>
-        `;
+        // Remove botão
+        document.getElementById("areaPublicacao").innerHTML = `
+        <div class="publicado-box">
+
+        <h3 style="margin-bottom:10px;">
+            Aplicação publicada ✔
+        </h3>
+
+        <div class="link-box">
+            <input id="link"
+                   value="${link}"
+                   readonly>
+            <button onclick="copiar()">Copiar</button>
+        </div>
+
+        <div id="qrcode" style="margin-top:20px;"></div>
+
+        <div class="instrucao-impressao">
+            📌 Para gerar a versão impressa
+            (prova e gabarito),
+            acesse o menu <strong>Painel</strong>
+            no lado esquerdo.
+        </div>
+
+    </div>
+`;
+
+        // Gerar QR Code
+        new QRCode(document.getElementById("qrcode"), {
+            text: link,
+            width: 180,
+            height: 180
+        });
 
         localStorage.removeItem("previewQuiz");
 
@@ -156,8 +175,6 @@ function copiar(){
     const input = document.getElementById("link");
     input.select();
     document.execCommand("copy");
-
-    alert("Link copiado!");
 }
 
 </script>
