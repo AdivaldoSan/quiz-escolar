@@ -1023,10 +1023,16 @@ animation: spin 0.8s linear infinite;
 
 /* ===== MARCA AVALIA+ ===== */
 
+/* ===== LOGO AVALIA+ ===== */
+
+.logo-area {
+  margin-bottom: 30px;
+}
+
 .logo {
   font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  margin: 0;
 }
 
 .logo-plus {
@@ -1037,6 +1043,6 @@ animation: spin 0.8s linear infinite;
 .logo-sub {
   font-size: 11px;
   color: #94A3B8;
-  margin-top: -10px;
-  margin-bottom: 25px;
+  margin: 4px 0 0 0;
+  line-height: 1.2;
 }
