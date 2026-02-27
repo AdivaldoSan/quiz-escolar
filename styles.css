@@ -907,3 +907,18 @@ body {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.termo-box {
+  background: #F9FAFB;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 20px;
+}
+
+.checkbox-termo {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+    }
