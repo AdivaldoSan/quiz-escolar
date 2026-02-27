@@ -20,11 +20,7 @@
 
 body {
   min-height: 100vh;
-  background: var(--bg-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  margin: 0;
 }
 
 .login-box {
@@ -250,4 +246,14 @@ body {
     cursor: pointer;
   }
 
+}
+
+/* ===== LOGIN PAGE ===== */
+
+.login-page {
+  background: var(--bg-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
