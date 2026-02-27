@@ -2,31 +2,53 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Minhas Turmas</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="font-family:Arial;max-width:600px;margin:auto;">
-
-<h2>📚 Minhas Turmas</h2>
-
-<div>
-    <input id="novaTurma" placeholder="Ex: 3º A" style="padding:6px;width:70%">
-    <button onclick="adicionar()">Adicionar</button>
-</div>
-
-<hr>
-
-<div id="listaTurmas">Carregando...</div>
+<body>
 
 <script src="./js/conexao.js"></script>
-
 <script src="./js/layout.js"></script>
-<script>
-criarLayout();
-</script>
 
 <script>
 
+function iniciarPagina(){
+    criarLayout();
+
+    document.getElementById("conteudo").innerHTML = `
+        <h2 style="margin-bottom:20px;">📚 Minhas Turmas</h2>
+
+        <div class="card">
+
+            <div class="turma-form">
+                <input id="novaTurma"
+                       placeholder="Ex: 3º A">
+                <button class="btn-primary"
+                        onclick="adicionar()">
+                        Adicionar
+                </button>
+            </div>
+
+            <hr style="margin:20px 0;">
+
+            <div id="listaTurmas">
+                Carregando...
+            </div>
+
+        </div>
+    `;
+
+    carregar();
+}
+
+window.onload = iniciarPagina;
+
+
+// =============================
+// CARREGAR TURMAS
+// =============================
 async function carregar(){
 
     const token = localStorage.getItem("TOKEN");
@@ -57,15 +79,23 @@ async function carregar(){
         const nome = l[2];
 
         div.innerHTML += `
-            <div style="margin-bottom:8px;">
-                ${nome}
-                <button onclick="excluir('${nome}')">Excluir</button>
+            <div class="turma-item">
+                <span>${nome}</span>
+
+                <button class="btn-danger"
+                        title="Desativar turma"
+                        onclick="excluir('${nome}')">
+                        Desativar
+                </button>
             </div>
         `;
     });
 }
 
 
+// =============================
+// ADICIONAR TURMA
+// =============================
 async function adicionar(){
 
     const token = localStorage.getItem("TOKEN");
@@ -97,6 +127,9 @@ async function adicionar(){
 }
 
 
+// =============================
+// DESATIVAR TURMA
+// =============================
 async function excluir(nome){
 
     const token = localStorage.getItem("TOKEN");
@@ -121,9 +154,6 @@ async function excluir(nome){
 
     carregar();
 }
-
-carregar();
-    
 
 </script>
 
