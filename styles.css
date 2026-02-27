@@ -613,5 +613,5 @@ body {
 /* ===== HOVER FORÇADO LINHA ===== */
 
 .tabela tbody tr:hover td {
-  background-color: #F1F5F9;
+  background-color: #F1F5F9 !important;
 }
