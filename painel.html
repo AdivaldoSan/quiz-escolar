@@ -72,12 +72,13 @@ function montarTabela(dados, contagem){
         <thead>
             <tr>
                 <th>Nome</th>
+                <th>Disciplina</th>
                 <th>Data</th>
-                <th>Qtd</th>
+                <th class="text-center">Qtd. Questões</th>
                 <th>Turmas</th>
-                <th>Respostas</th>
+                <th class="text-center">Respostas</th>
                 <th>Ações</th>
-                <th>Ativo</th>
+                <th class="text-center">Ativo</th>
             </tr>
         </thead>
         <tbody>
@@ -86,10 +87,14 @@ function montarTabela(dados, contagem){
     linhas.forEach(l=>{
 
         const id = l[0];
+        const disciplina = l[2] || "-";
         const totalRespostas = contagem[id] || 0;
         const turmas = l[6] ? JSON.parse(l[6]) : [];
         const status = l[7];
         const linkRelatorio = l[8];
+
+        const dataFormatada =
+            new Date(l[3]).toLocaleDateString("pt-BR");
 
         const linkAluno =
             window.location.origin +
@@ -101,10 +106,11 @@ function montarTabela(dados, contagem){
         html += `
             <tr>
                 <td>${l[1]}</td>
-                <td>${new Date(l[3]).toLocaleString()}</td>
-                <td>${l[4]}</td>
+                <td>${disciplina}</td>
+                <td>${dataFormatada}</td>
+                <td class="text-center">${l[4]}</td>
                 <td>${turmas.join(", ")}</td>
-                <td>${totalRespostas}</td>
+                <td class="text-center">${totalRespostas}</td>
 
                 <td>
                     <div class="acoes">
@@ -140,7 +146,7 @@ function montarTabela(dados, contagem){
                     </div>
                 </td>
 
-                <td>
+                <td class="text-center">
                     <label class="switch">
                         <input type="checkbox"
                                ${status==="SIM"?"checked":""}
@@ -163,9 +169,7 @@ function montarTabela(dados, contagem){
 // COPIAR LINK
 // =============================
 function copiarLink(link){
-
     navigator.clipboard.writeText(link);
-
 }
 
 
@@ -185,16 +189,7 @@ async function alterarStatus(id, ativo){
             status: ativo ? "SIM" : "NAO"
         })
     });
-
 }
-
-
-// =============================
-// RESTANTE (PDF, GABARITO, RELATORIO)
-// =============================
-async function gerarPDF(id){ /* mantém seu código anterior */ }
-async function gerarGabarito(id){ /* mantém */ }
-async function abrirRelatorio(id, linkExistente){ /* mantém */ }
 
 </script>
 
