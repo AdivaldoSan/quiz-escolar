@@ -425,3 +425,40 @@ body {
 .btn-primary:hover {
   background: var(--primary-dark);
 }
+
+
+/* ===== TURMAS ESTILO TAG ===== */
+
+.turmas-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.turmas-grid label {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Esconde o checkbox real */
+.turmas-grid input[type="checkbox"] {
+  display: none;
+}
+
+/* Visual da tag */
+.turmas-grid label span {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: #E5E7EB;
+  color: #111827;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+/* Quando selecionado */
+.turmas-grid input[type="checkbox"]:checked + span {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
