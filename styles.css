@@ -599,7 +599,7 @@ body {
 }
 
 .tabela tbody tr:hover {
-  background: #9faab5;
+  background: #d6dde3;
 }
 
 /* ===== CENTRALIZAR AÇÕES ===== */
@@ -613,5 +613,5 @@ body {
 /* ===== HOVER FORÇADO LINHA ===== */
 
 .tabela tbody tr:hover td {
-  background-color: #9faab5 !important;
+  background-color: #d6dde3 !important;
 }
