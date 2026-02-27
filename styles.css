@@ -857,3 +857,19 @@ body {
 .btn-iniciar:hover {
   background: var(--primary-dark);
 }
+
+.enunciado {
+  margin-bottom: 25px;
+}
+
+.questao-numero {
+  font-size: 14px;
+  color: var(--primary);
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.questao-texto {
+  font-size: 18px;
+  line-height: 1.6;
+}
