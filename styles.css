@@ -581,3 +581,9 @@ body {
 .switch input:checked + .slider:before {
   transform: translateX(22px);
 }
+
+/* ===== CENTRALIZAÇÃO COLUNAS ===== */
+
+.text-center {
+  text-align: center;
+}
