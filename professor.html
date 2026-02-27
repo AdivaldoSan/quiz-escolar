@@ -305,11 +305,11 @@ async function carregarTurmas(){
         const label =
             document.createElement("label");
 
-        label.innerHTML = `
+      label.innerHTML = `
             <input type="checkbox"
                    value="${nomeTurma}"
                    class="chkTurma">
-            ${nomeTurma}
+            <span>${nomeTurma}</span>
         `;
 
         div.appendChild(label);
