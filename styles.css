@@ -609,3 +609,9 @@ body {
   justify-content: center;
   gap: 6px;
 }
+
+/* ===== HOVER FORÇADO LINHA ===== */
+
+.tabela tbody tr:hover td {
+  background-color: #F1F5F9;
+}
