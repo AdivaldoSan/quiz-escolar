@@ -19,25 +19,41 @@
     <div class="barra-progresso">
         <div class="barra-preenchimento" id="barra"></div>
     </div>
-
+    
+    <div id="alertaQuiz" class="alerta" style="display:none;"></div>
+    
     <div id="areaQuestao" class="card questao-card"></div>
 
-   <div class="quiz-rodape">
-    <div id="contador" class="contador-questao"></div>
+    <div class="quiz-rodape">
+        <div id="contador" class="contador-questao"></div>
 
-    <button id="btnAvancar"
-            class="btn-avancar"
-            onclick="avancar()"
-            style="display:none;">
-        Avançar
-    </button>
-</div>
+        <button id="btnAvancar"
+                class="btn-avancar"
+                onclick="avancar()"
+                style="display:none;">
+            Avançar
+        </button>
+    </div>
 
 </div>
 
 <script src="./js/conexao.js"></script>
 
 <script>
+
+// ===========================
+// ALERTA INTERNO
+// ===========================
+function mostrarAlerta(mensagem){
+    const box = document.getElementById("alertaQuiz");
+    box.innerText = mensagem;
+    box.style.display = "block";
+
+    setTimeout(()=>{
+        box.style.display = "none";
+    }, 3000);
+}
+
 
 // ===========================
 // EMBARALHAR
@@ -55,6 +71,7 @@ function embaralharArray(arr){
 // RECUPERA QUIZ
 // ===========================
 let quiz = JSON.parse(localStorage.getItem("quizAtual"));
+
 if(!quiz){
     document.body.innerHTML = `
         <div class="final-card">
@@ -104,7 +121,7 @@ function mostrarQuestao(){
     const q = quiz.questoes[atual];
 
     document.getElementById("contador").innerHTML =
-    `Questão <b>${atual+1}</b> de <b>${quiz.questoes.length}</b>`;
+        `Questão <b>${atual+1}</b> de <b>${quiz.questoes.length}</b>`;
 
     document.getElementById("btnAvancar").style.display = "inline-block";
 
@@ -132,12 +149,12 @@ function mostrarQuestao(){
     document.getElementById("areaQuestao").innerHTML = `
         <div class="enunciado">
             <div class="questao-numero">
-            Questão ${atual+1}
+                Questão ${atual+1}
             </div>
             <div class="questao-texto">
-            ${q.ENUNCIADO}
+                ${q.ENUNCIADO}
+            </div>
         </div>
-</div>
 
         <div class="alternativas">
             ${alternativas.map((alt,i)=>`
@@ -172,10 +189,8 @@ function atualizarBarra(){
 
 // ===========================
 function atualizarCabecalho(){
-
-    document.getElementById("infoAluno").innerHTML = `
-        ${quiz.alunoNome} • ${quiz.alunoTurma}
-    `;
+    document.getElementById("infoAluno").innerHTML =
+        `${quiz.alunoNome} • ${quiz.alunoTurma}`;
 }
 
 
@@ -185,7 +200,7 @@ function avancar(){
     const marcada = document.querySelector('input[name="resp"]:checked');
 
     if(!marcada){
-        alert("Marque uma alternativa.");
+        mostrarAlerta("Selecione uma alternativa para continuar.");
         return;
     }
 
@@ -232,23 +247,30 @@ async function finalizar(){
         correta: r.correta
     }));
 
-    await fetch(API,{
-        method:"POST",
-        body: JSON.stringify({
-            tipo:"respostas",
-            payload: envio
-        })
-    });
+    try {
 
-    localStorage.removeItem("quizAtual");
+        await fetch(API,{
+            method:"POST",
+            body: JSON.stringify({
+                tipo:"respostas",
+                payload: envio
+            })
+        });
 
-    document.body.innerHTML = `
-        <div class="final-card">
-            <h2>🎉 Atividade Concluída!</h2>
-            <p>Você acertou <b>${acertos}</b> de <b>${respostas.length}</b> questões.</p>
-            <p>Suas respostas foram registradas com sucesso.</p>
-        </div>
-    `;
+        localStorage.removeItem("quizAtual");
+
+        document.body.innerHTML = `
+            <div class="final-card">
+                <h2>🎉 Atividade Concluída!</h2>
+                <p>Você acertou <b>${acertos}</b> de <b>${respostas.length}</b> questões.</p>
+                <p>Suas respostas foram registradas com sucesso.</p>
+            </div>
+        `;
+
+    } catch(e){
+        enviando = false;
+        mostrarAlerta("Erro ao enviar respostas. Verifique sua conexão.");
+    }
 }
 
 
@@ -274,6 +296,8 @@ function iniciarIdentificacao(){
                 <p class="ident-sub">
                     Informe seus dados para iniciar a atividade.
                 </p>
+
+                <div id="alertaQuiz" class="alerta" style="display:none;"></div>
 
                 <div class="ident-campo">
                     <input id="nomeAluno"
@@ -302,13 +326,14 @@ function iniciarIdentificacao(){
         </div>
     `;
 }
+
 function confirmarAluno(){
 
     const nome = document.getElementById("nomeAluno").value.trim();
     const turma = document.getElementById("turmaAluno").value;
 
     if(!nome){
-        alert("Digite seu nome.");
+        mostrarAlerta("Por favor, informe seu nome para iniciar.");
         return;
     }
 
