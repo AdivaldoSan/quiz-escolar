@@ -1,5 +1,3 @@
-// js/layout.js
-
 function criarLayout(){
 
     const token = localStorage.getItem("TOKEN");
@@ -11,37 +9,38 @@ function criarLayout(){
         return;
     }
 
-    const nav = document.createElement("div");
-    nav.style.padding = "12px";
-    nav.style.marginBottom = "20px";
-    nav.style.background = "#f2f2f2";
-    nav.style.display = "flex";
-    nav.style.justifyContent = "space-between";
-    nav.style.alignItems = "center";
+    document.body.innerHTML = `
+    <div class="app">
 
-    let menu = `
-        <div>
-            <b>📘 Sistema Web Quiz</b> |
-            <a href="painel.html">Painel</a> |
-            <a href="professor.html">Gerar Quiz</a> |
+        <div class="sidebar" id="sidebar">
+            <h2>📘 WebQuiz</h2>
+
+            <a href="painel.html">Painel</a>
+            <a href="professor.html">Gerar Quiz</a>
             <a href="turmas.html">Turmas</a>
+            ${perfil === "ADMIN" ? `<a href="admin.html">Admin</a>` : ``}
+        </div>
+
+        <div class="main">
+
+            <div class="topbar">
+                <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+                <div class="user-info">
+                    ${nome} (${perfil})
+                    <button class="btn-logout" onclick="logout()">Sair</button>
+                </div>
+            </div>
+
+            <div class="page-content" id="conteudo"></div>
+
+        </div>
+    </div>
     `;
 
-    if(perfil === "ADMIN"){
-        menu += ` | <a href="admin.html">Admin</a>`;
-    }
+}
 
-    menu += `
-        </div>
-        <div>
-            ${nome} (${perfil})
-            <button onclick="logout()">Sair</button>
-        </div>
-    `;
-
-    nav.innerHTML = menu;
-
-    document.body.insertBefore(nav, document.body.firstChild);
+function toggleMenu(){
+    document.getElementById("sidebar").classList.toggle("open");
 }
 
 function logout(){
