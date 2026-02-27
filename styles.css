@@ -348,3 +348,9 @@ body {
   white-space: nowrap;
   font-size: 12px;
 }
+
+/* ===== ALINHAR CABEÇALHO À ESQUERDA ===== */
+
+.tabela th {
+  text-align: left;
+}
