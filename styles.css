@@ -118,18 +118,34 @@ body {
 }
 
 /* RESPONSIVO CELULAR */
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+
+  body {
+    padding: 15px;
+    align-items: flex-start;
+  }
+
   .login-box {
-    padding: 40px 25px;
+    margin-top: 40px;
+    max-width: 100%;
+    padding: 35px 25px;
   }
 
   .login-box h2 {
     font-size: 22px;
   }
 
-  .form-group input,
+  .form-group input {
+    padding: 18px;
+    font-size: 17px;
+  }
+
   .btn-login {
-    font-size: 15px;
-    padding: 14px;
+    padding: 18px;
+    font-size: 17px;
+  }
+
+  .msg-error {
+    font-size: 16px;
   }
 }
