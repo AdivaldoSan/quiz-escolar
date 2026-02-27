@@ -89,15 +89,19 @@ function montarTabela(dados, contagem){
         const id = l[0];
 
         
-        let disciplina = "-";
-
-        try {
-        const parametros = l[5] ? JSON.parse(l[5]) : null;
-        disciplina = parametros?.DISCIPLINA || "-";
+         let disciplina = "-";
+        
+                try {
+        
+                        const parametros = l[5] ? JSON.parse(l[5]) : null;
+        
+                            if(Array.isArray(parametros) && parametros.length > 0){
+                            disciplina = parametros[0].DISCIPLINA || "-";
+                    }
+        
         } catch(e){
-        disciplina = "-";
+            disciplina = "-";
         }
-
         
         const totalRespostas = contagem[id] || 0;
         const turmas = l[6] ? JSON.parse(l[6]) : [];
