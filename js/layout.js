@@ -17,11 +17,15 @@ function criarLayout(){
     <div class="app">
 
         <div class="sidebar" id="sidebar">
-           <h2 class="logo">
-              Avalia<span class="logo-plus">+</span>
-              <p class="logo-sub">Plataforma de Avaliação Digital</p>
-            </h2>
-            
+           <div class="logo-area">
+              <h2 class="logo">
+                Avalia<span class="logo-plus">+</span>
+              </h2>
+              <p class="logo-sub">
+                Plataforma de Avaliação Digital
+              </p>
+            </div>
+                        
 
             <a href="painel.html"
                class="${paginaAtual==='painel.html'?'active':''}">
