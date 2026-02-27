@@ -17,16 +17,16 @@ function criarLayout(){
     <div class="app">
 
         <div class="sidebar" id="sidebar">
-            <h2>📘 WebQuiz</h2>
+            <h2>📘 Avalia+ </h2>
 
             <a href="painel.html"
                class="${paginaAtual==='painel.html'?'active':''}">
-               Painel
+               Relatórios
             </a>
 
             <a href="professor.html"
                class="${paginaAtual==='professor.html'?'active':''}">
-               Gerar Quiz
+               Gerar Simulado
             </a>
 
             <a href="turmas.html"
