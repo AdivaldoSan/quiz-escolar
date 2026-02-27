@@ -88,18 +88,17 @@ function montarTabela(dados, contagem){
     const linhas = dados.slice(1);
 
     let html = `
-        <div class="card">
+        <div class="table-wrapper">
         <table class="tabela">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Nome</th>
                 <th>Data</th>
                 <th>Qtd</th>
                 <th>Turmas</th>
                 <th>Respostas</th>
                 <th>Ações</th>
-                <th>Status</th>
+                <th>Ativo</th>
             </tr>
         </thead>
         <tbody>
@@ -115,25 +114,41 @@ function montarTabela(dados, contagem){
 
         html += `
             <tr>
-                <td>${id}</td>
                 <td>${l[1]}</td>
                 <td>${new Date(l[3]).toLocaleString()}</td>
                 <td>${l[4]}</td>
                 <td>${turmas.join(", ")}</td>
                 <td>${totalRespostas}</td>
+
                 <td>
                     <div class="acoes">
                         ${
                             totalRespostas > 0
-                            ? `<button class="btn-acao" onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">📊</button>`
+                            ? `<button class="btn-acao"
+                                       title="Abrir relatório de desempenho"
+                                       onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
+                                       📊
+                               </button>`
                             : "—"
                         }
-                        <button class="btn-acao" onclick="gerarPDF('${id}')">📄</button>
-                        <button class="btn-acao" onclick="gerarGabarito('${id}')">📑</button>
+
+                        <button class="btn-acao"
+                                title="Gerar versão impressa da prova"
+                                onclick="gerarPDF('${id}')">
+                                📄
+                        </button>
+
+                        <button class="btn-acao"
+                                title="Gerar gabarito para impressão"
+                                onclick="gerarGabarito('${id}')">
+                                📑
+                        </button>
                     </div>
                 </td>
+
                 <td>
                     <select class="select-status"
+                        title="Definir se a aplicação está ativa para os alunos"
                         onchange="alterarStatus('${id}', this.value)">
                         <option value="SIM" ${status==="SIM"?"selected":""}>SIM</option>
                         <option value="NAO" ${status==="NAO"?"selected":""}>NÃO</option>
@@ -214,7 +229,7 @@ async function gerarGabarito(id){
 
     const novaJanela = window.open("", "_blank");
     if(!novaJanela){
-        alert("Permita popups para gerar o gabarito.");
+        alert("Permita popups.");
         return;
     }
 
