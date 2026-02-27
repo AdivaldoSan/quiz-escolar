@@ -2,31 +2,41 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Responder Quiz</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="font-family:Arial;max-width:700px;margin:auto;">
+<body class="quiz-page">
 
-<h2 id="tituloQuiz"></h2>
+<div class="quiz-header">
+    <div class="quiz-titulo" id="tituloQuiz"></div>
+    <div class="quiz-info" id="infoAluno"></div>
+</div>
 
-<div id="areaQuestao"></div>
+<div class="quiz-container">
 
-<br>
-<button id="btnAvancar" onclick="avancar()" style="display:none;">
-    Avançar
-</button>
+    <div class="barra-progresso">
+        <div class="barra-preenchimento" id="barra"></div>
+    </div>
 
-<p id="contador"></p>
-    
+    <div id="areaQuestao" class="card questao-card"></div>
+
+    <div class="quiz-rodape">
+        <span id="contador"></span>
+        <button id="btnAvancar" onclick="avancar()" style="display:none;">
+            Avançar
+        </button>
+    </div>
+
+</div>
+
 <script src="./js/conexao.js"></script>
-
-
 
 <script>
 
-
 // ===========================
-// FUNÇÃO DE EMBARALHAR
+// EMBARALHAR
 // ===========================
 function embaralharArray(arr){
     for(let i = arr.length-1; i>0; i--){
@@ -45,20 +55,14 @@ let quiz = JSON.parse(localStorage.getItem("quizAtual"));
 if(!quiz){
     document.body.innerHTML = "<h3>Atividade finalizada ou inválida.</h3>";
     throw new Error("quiz não encontrado");
-}    
+}
 
-// garante que os campos de identificação existam
 quiz.alunoNome = quiz.alunoNome || "";
 quiz.alunoTurma = quiz.alunoTurma || "";
 
-if(!quiz){
-    document.body.innerHTML = "<h3>Quiz não encontrado.</h3>";
-    throw new Error("quizAtual não existe");
-}
-
 
 // ===========================
-// EMBARALHA QUESTÕES (UMA VEZ)
+// EMBARALHA QUESTÕES
 // ===========================
 if(!quiz.embaralhado){
     quiz.questoes = embaralharArray(quiz.questoes);
@@ -67,8 +71,6 @@ if(!quiz.embaralhado){
 }
 
 
-// ===========================
-// RESTAURA PROGRESSO
 // ===========================
 let enviando = false;
 let atual = quiz.atual || 0;
@@ -84,6 +86,8 @@ iniciarIdentificacao();
 // ===========================
 function mostrarQuestao(){
 
+    atualizarCabecalho();
+
     const q = quiz.questoes[atual];
 
     document.getElementById("contador").innerText =
@@ -91,9 +95,8 @@ function mostrarQuestao(){
 
     document.getElementById("btnAvancar").style.display = "inline-block";
 
-    // ===============================
-    // EMBARALHA ALTERNATIVAS UMA VEZ
-    // ===============================
+    atualizarBarra();
+
     let alternativas;
 
     if(!q.ordemExibida){
@@ -106,7 +109,6 @@ function mostrarQuestao(){
         ];
 
         alternativas = embaralharArray(alternativas);
-
         q.ordemExibida = alternativas;
         localStorage.setItem("quizAtual", JSON.stringify(quiz));
 
@@ -114,34 +116,28 @@ function mostrarQuestao(){
         alternativas = q.ordemExibida;
     }
 
-
-    // ===============================
-    // RENDERIZA QUESTÃO
-    // ===============================
     document.getElementById("areaQuestao").innerHTML = `
-        <p><b>${q.ENUNCIADO}</b></p>
+        <div class="enunciado">
+            ${q.ENUNCIADO}
+        </div>
 
-        ${alternativas.map((alt,i)=>`
-            <label>
-                <input type="radio" name="resp" value="${alt.letra}">
-                ${String.fromCharCode(97+i)}) ${alt.texto}
-            </label><br><br>
-        `).join("")}
+        <div class="alternativas">
+            ${alternativas.map((alt,i)=>`
+                <label class="alt-item">
+                    <input type="radio" name="resp" value="${alt.letra}">
+                    <span>${String.fromCharCode(97+i)}) ${alt.texto}</span>
+                </label>
+            `).join("")}
+        </div>
     `;
 
-
-    // ===============================
-    // RESTAURA RESPOSTA
-    // ===============================
     const respAnterior = respostas.find(r => r.questao === q.ID);
-
     if(respAnterior){
         const radio = document.querySelector(
             `input[name="resp"][value="${respAnterior.marcada}"]`
         );
         if(radio) radio.checked = true;
     }
-
 
     if(atual === quiz.questoes.length-1){
         document.getElementById("btnAvancar").innerText = "Finalizar";
@@ -150,7 +146,21 @@ function mostrarQuestao(){
 
 
 // ===========================
-// AVANÇAR QUESTÃO
+function atualizarBarra(){
+    const perc = ((atual) / quiz.questoes.length) * 100;
+    document.getElementById("barra").style.width = perc + "%";
+}
+
+
+// ===========================
+function atualizarCabecalho(){
+
+    document.getElementById("infoAluno").innerHTML = `
+        ${quiz.alunoNome} • ${quiz.alunoTurma}
+    `;
+}
+
+
 // ===========================
 function avancar(){
 
@@ -169,7 +179,6 @@ function avancar(){
 
     atual++;
 
-    // salva progresso
     quiz.atual = atual;
     quiz.respostas = respostas;
     localStorage.setItem("quizAtual", JSON.stringify(quiz));
@@ -184,69 +193,51 @@ function avancar(){
 
 
 // ===========================
-// FINALIZAR QUIZ
+// FINALIZAR
 // ===========================
-
-
 async function finalizar(){
+
     document.getElementById("btnAvancar").style.display = "none";
 
-    // 🔒 impede envio duplicado
     if(enviando) return;
     enviando = true;
 
-    const btn = document.getElementById("btnAvancar");
-    btn.disabled = true;
-    btn.innerText = "Enviando...";
-
     let acertos = respostas.filter(r=>r.marcada===r.correta).length;
 
-    // pacote que será enviado para API
     const envio = respostas.map(r => ({
-    aplicacao: quiz.id,   // 🔥 usar ID, não nome
-    nomeQuiz: quiz.nome,  // opcional, só informativo
-    aluno: quiz.alunoNome,
-    turma: quiz.alunoTurma,
-    questao: r.questao,
-    marcada: r.marcada,
-    correta: r.correta
-}));
+        aplicacao: quiz.id,
+        nomeQuiz: quiz.nome,
+        aluno: quiz.alunoNome,
+        turma: quiz.alunoTurma,
+        questao: r.questao,
+        marcada: r.marcada,
+        correta: r.correta
+    }));
 
-    try{
+    await fetch(API,{
+        method:"POST",
+        body: JSON.stringify({
+            tipo:"respostas",
+            payload: envio
+        })
+    });
 
-      await fetch(API, {
-    method:"POST",
-    body: JSON.stringify({
-        tipo:"respostas",
-        payload: envio
-    })
-});
+    localStorage.removeItem("quizAtual");
 
-        // pequeno delay visual (UX)
-        await new Promise(r => setTimeout(r, 600));
-
-        // agora sim limpa o estado salvo
-        localStorage.removeItem("quizAtual");
-
-        document.body.innerHTML = `
-            <h2>Quiz finalizado</h2>
-            <p>Acertos: ${acertos} de ${respostas.length}</p>
-            <p>Respostas registradas com sucesso.</p>
-        `;
-
-    }catch(e){
-
-        btn.disabled = false;
-        btn.innerText = "Tentar novamente";
-        enviando = false;
-
-        alert("Erro ao enviar respostas. Verifique a conexão e tente novamente.");
-    }
+    document.body.innerHTML = `
+        <div class="final-card">
+            <h2>🎉 Atividade Concluída!</h2>
+            <p>Você acertou <b>${acertos}</b> de <b>${respostas.length}</b> questões.</p>
+            <p>Suas respostas foram registradas com sucesso.</p>
+        </div>
+    `;
 }
 
-async function iniciarIdentificacao(){
 
-    document.getElementById("btnAvancar").style.display = "none";
+// ===========================
+// IDENTIFICAÇÃO
+// ===========================
+function iniciarIdentificacao(){
 
     if(quiz.alunoNome){
         mostrarQuestao();
@@ -255,24 +246,21 @@ async function iniciarIdentificacao(){
 
     const turmasPermitidas = quiz.turmas || [];
 
-    document.body.innerHTML = `
-        <h2>${quiz.nome}</h2>
+    document.querySelector(".quiz-container").innerHTML = `
+        <div class="card">
+            <h2>${quiz.nome}</h2>
 
-        <label>Seu nome:</label><br>
-        <input id="nomeAluno" style="width:100%;padding:8px"><br><br>
-
-        <label>Sua turma:</label><br>
-        <select id="turmaAluno" style="width:100%;padding:8px">
-            ${
-                turmasPermitidas.length === 0
-                ? `<option value="">Turma não definida</option>`
-                : turmasPermitidas
+            <input id="nomeAluno" placeholder="Seu nome">
+            <select id="turmaAluno">
+                ${
+                    turmasPermitidas
                     .map(t=>`<option value="${t}">${t}</option>`)
                     .join("")
-            }
-        </select><br><br>
+                }
+            </select>
 
-        <button onclick="confirmarAluno()">Iniciar</button>
+            <button onclick="confirmarAluno()">Iniciar</button>
+        </div>
     `;
 }
 
@@ -290,11 +278,9 @@ function confirmarAluno(){
     quiz.alunoTurma = turma;
 
     localStorage.setItem("quizAtual", JSON.stringify(quiz));
-
     location.reload();
-}    
-    
-</script>
+}
 
+</script>
 </body>
 </html>
