@@ -65,7 +65,8 @@ function montarTabela(dados){
   const container = document.getElementById("adminConteudo");
 
   let html = `
-    <table class="tabela">
+     <div class="table-wrapper">
+     <table class="tabela">
       <thead>
         <tr>
           <th>ID</th>
@@ -129,7 +130,7 @@ function montarTabela(dados){
     `;
   }
 
-  html += "</tbody></table>";
+  html += "</tbody></table></div>";
 
   container.innerHTML = html;
 }
