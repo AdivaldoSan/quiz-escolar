@@ -2,24 +2,37 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel do Professor</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="font-family:Arial; max-width:1100px; margin:auto;">
-
-<h2>📊 Painel de Aplicações</h2>
-
-<div id="conteudo">Carregando aplicações...</div>
+<body>
 
 <script src="./js/conexao.js"></script>
-
 <script src="./js/layout.js"></script>
-<script>
-criarLayout();
-</script>
 
 <script>
 
+function iniciarPagina(){
+    criarLayout();
+
+    document.getElementById("conteudo").innerHTML = `
+        <h2 style="margin-bottom:20px;">📊 Painel de Aplicações</h2>
+        <div id="listaAplicacoes" class="card">
+            Carregando aplicações...
+        </div>
+    `;
+
+    carregarAplicacoes();
+}
+
+window.onload = iniciarPagina;
+
+
+// =============================
+// CARREGAR APLICAÇÕES
+// =============================
 async function carregarAplicacoes(){
 
     try{
@@ -38,13 +51,13 @@ async function carregarAplicacoes(){
         const dados = await respAplicacoes.json();
 
         if(dados.erro){
-            document.getElementById("conteudo").innerText =
+            document.getElementById("listaAplicacoes").innerHTML =
                 "Erro: " + dados.erro;
             return;
         }
 
         if(!Array.isArray(dados) || dados.length <= 1){
-            document.getElementById("conteudo").innerText =
+            document.getElementById("listaAplicacoes").innerHTML =
                 "Nenhuma aplicação encontrada.";
             return;
         }
@@ -61,7 +74,7 @@ async function carregarAplicacoes(){
 
         console.error("Erro:", e);
 
-        document.getElementById("conteudo").innerText =
+        document.getElementById("listaAplicacoes").innerHTML =
             "Erro de conexão com o servidor.";
     }
 }
@@ -75,18 +88,21 @@ function montarTabela(dados, contagem){
     const linhas = dados.slice(1);
 
     let html = `
-        <table border="1" cellpadding="8" cellspacing="0" width="100%">
-        <tr style="background:#f0f0f0;">
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Data</th>
-            <th>Qtd</th>
-            <th>Turmas</th>
-            <th>Respostas</th>
-            <th>Relatório</th>
-            <th>PDF</th>
-            <th>Ativa</th>
-        </tr>
+        <div class="card">
+        <table class="tabela">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Data</th>
+                <th>Qtd</th>
+                <th>Turmas</th>
+                <th>Respostas</th>
+                <th>Ações</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
     `;
 
     linhas.forEach(l=>{
@@ -106,20 +122,19 @@ function montarTabela(dados, contagem){
                 <td>${turmas.join(", ")}</td>
                 <td>${totalRespostas}</td>
                 <td>
-                    ${
-                        totalRespostas > 0
-                        ? `<button onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">
-                               📊 Relatório
-                           </button>`
-                        : "—"
-                    }
+                    <div class="acoes">
+                        ${
+                            totalRespostas > 0
+                            ? `<button class="btn-acao" onclick="abrirRelatorio('${id}', '${linkRelatorio || ""}')">📊</button>`
+                            : "—"
+                        }
+                        <button class="btn-acao" onclick="gerarPDF('${id}')">📄</button>
+                        <button class="btn-acao" onclick="gerarGabarito('${id}')">📑</button>
+                    </div>
                 </td>
                 <td>
-                    <button onclick="gerarPDF('${id}')">📄 Prova</button>
-                    <button onclick="gerarGabarito('${id}')">📑 Gabarito</button>
-                </td>
-                <td>
-                    <select onchange="alterarStatus('${id}', this.value)">
+                    <select class="select-status"
+                        onchange="alterarStatus('${id}', this.value)">
                         <option value="SIM" ${status==="SIM"?"selected":""}>SIM</option>
                         <option value="NAO" ${status==="NAO"?"selected":""}>NÃO</option>
                     </select>
@@ -128,19 +143,18 @@ function montarTabela(dados, contagem){
         `;
     });
 
-    html += "</table>";
+    html += "</tbody></table></div>";
 
-    document.getElementById("conteudo").innerHTML = html;
+    document.getElementById("listaAplicacoes").innerHTML = html;
 }
 
 
 // =============================
-// GERAR PDF DA PROVA
+// GERAR PDF
 // =============================
 async function gerarPDF(id){
 
     const novaJanela = window.open("", "_blank");
-
     if(!novaJanela){
         alert("Permita popups para gerar o PDF.");
         return;
@@ -184,7 +198,6 @@ async function gerarPDF(id){
         `;
 
         novaJanela.document.close();
-        novaJanela.focus();
         novaJanela.print();
 
     }catch(e){
@@ -200,13 +213,10 @@ async function gerarPDF(id){
 async function gerarGabarito(id){
 
     const novaJanela = window.open("", "_blank");
-
     if(!novaJanela){
         alert("Permita popups para gerar o gabarito.");
         return;
     }
-
-    novaJanela.document.write("<p>Carregando gabarito...</p>");
 
     try{
 
@@ -235,7 +245,6 @@ async function gerarGabarito(id){
         `;
 
         novaJanela.document.close();
-        novaJanela.focus();
         novaJanela.print();
 
     }catch(e){
@@ -246,14 +255,13 @@ async function gerarGabarito(id){
 
 
 // =============================
-// ABRIR RELATÓRIO
+// RELATÓRIO
 // =============================
 async function abrirRelatorio(id, linkExistente){
 
     const novaJanela = window.open("", "_blank");
-
     if(!novaJanela){
-        alert("Permita popups para abrir relatório.");
+        alert("Permita popups.");
         return;
     }
 
@@ -313,9 +321,9 @@ async function alterarStatus(id, status){
         return;
     }
 
-carregarAplicacoes();
+    carregarAplicacoes();
 }
-carregarAplicacoes();
+
 </script>
 
 </body>
