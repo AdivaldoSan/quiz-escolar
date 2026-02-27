@@ -2,73 +2,84 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pré-visualização</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="font-family:Arial; max-width:900px; margin:auto;">
-
-<h2>📋 Pré-visualização do Quiz</h2>
-
-<div id="conteudo"></div>
-
-<br>
-<button id="btnPublicar" onclick="publicar()">Publicar Aplicação</button>
-
-<p id="status"></p>
+<body>
 
 <script src="./js/conexao.js"></script>
-
 <script src="./js/layout.js"></script>
-<script>
-criarLayout();
-</script>
 
 <script>
-
 
 let publicado = false;
 
-// =========================
-// CARREGA QUIZ TEMPORÁRIO
-// =========================
-const preview = JSON.parse(localStorage.getItem("previewQuiz"));
+function iniciarPagina(){
 
-if(!preview){
-    document.body.innerHTML = "<h3>Preview não encontrado.</h3>";
-    throw new Error("previewQuiz não existe");
-}
+    criarLayout();
 
-// =========================
-// MOSTRA INFORMAÇÕES
-// =========================
-document.getElementById("conteudo").innerHTML = `
-<b>Nome:</b> ${preview.nome}<br>
-<b>Turmas:</b> ${preview.turmas.join(", ")}<br>
-<b>Quantidade:</b> ${preview.qtd} questões<br>
-<hr>
-`;
+    const preview = JSON.parse(localStorage.getItem("previewQuiz"));
 
-// =========================
-// LISTA QUESTÕES
-// =========================
-preview.questoes.forEach((q,i)=>{
-    const div = document.createElement("div");
-    div.style.marginBottom = "18px";
+    if(!preview){
+        document.getElementById("conteudo").innerHTML =
+            "<h3>Preview não encontrado.</h3>";
+        return;
+    }
 
-    div.innerHTML = `
-        <b>${i+1}) ${q.ENUNCIADO}</b><br>
-        A) ${q.ALT_A}<br>
-        B) ${q.ALT_B}<br>
-        C) ${q.ALT_C}<br>
-        D) ${q.ALT_D}<br>
+    document.getElementById("conteudo").innerHTML = `
+        <h2 style="margin-bottom:20px;">📋 Pré-visualização do Quiz</h2>
+
+        <div class="card">
+
+            <div class="preview-info">
+                <p><strong>Nome:</strong> ${preview.nome}</p>
+                <p><strong>Turmas:</strong> ${preview.turmas.join(", ")}</p>
+                <p><strong>Quantidade:</strong> ${preview.qtd} questões</p>
+            </div>
+
+            <hr style="margin:20px 0;">
+
+            <div id="listaQuestoes"></div>
+
+            <div style="margin-top:25px;">
+                <button class="btn-primary"
+                        id="btnPublicar"
+                        onclick="publicar()">
+                    Publicar Aplicação
+                </button>
+            </div>
+
+            <p id="status" style="margin-top:15px;"></p>
+
+        </div>
     `;
 
-    document.getElementById("conteudo").appendChild(div);
-});
+    const container = document.getElementById("listaQuestoes");
+
+    preview.questoes.forEach((q,i)=>{
+
+        const div = document.createElement("div");
+        div.className = "preview-questao";
+
+        div.innerHTML = `
+            <strong>${i+1}) ${q.ENUNCIADO}</strong><br><br>
+            A) ${q.ALT_A}<br>
+            B) ${q.ALT_B}<br>
+            C) ${q.ALT_C}<br>
+            D) ${q.ALT_D}<br>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+window.onload = iniciarPagina;
 
 
 // =========================
-// PUBLICAR (SALVA NO BACKEND)
+// PUBLICAR
 // =========================
 async function publicar(){
 
@@ -76,25 +87,29 @@ async function publicar(){
     publicado = true;
 
     const btn = document.getElementById("btnPublicar");
+    const status = document.getElementById("status");
+
     btn.disabled = true;
     btn.innerText = "Publicando...";
+    status.innerText = "Registrando aplicação...";
 
-    document.getElementById("status").innerText = "Registrando aplicação...";
+    const preview =
+        JSON.parse(localStorage.getItem("previewQuiz"));
 
     try{
 
         const resposta = await fetch(API, {
-    method:"POST",
-    body: JSON.stringify({
-        tipo:"aplicacao",
-        token: localStorage.getItem("TOKEN"),   // 🔐 obrigatório agora
-        id: preview.id,
-        nome: preview.nome,
-        qtd: preview.qtd,
-        questoes: preview.questoes,
-        turmas: preview.turmas
-    })
-});
+            method:"POST",
+            body: JSON.stringify({
+                tipo:"aplicacao",
+                token: localStorage.getItem("TOKEN"),
+                id: preview.id,
+                nome: preview.nome,
+                qtd: preview.qtd,
+                questoes: preview.questoes,
+                turmas: preview.turmas
+            })
+        });
 
         const retorno = await resposta.json();
 
@@ -103,13 +118,21 @@ async function publicar(){
         }
 
         const link = window.location.href
-            .replace("preview.html","aluno.html?id="+preview.id);
+            .replace("preview.html",
+                     "aluno.html?id="+preview.id);
 
-        document.getElementById("status").innerHTML = `
-            ✅ Aplicação publicada!<br><br>
-            <b>Link para os alunos:</b><br>
-            <input id="link" value="${link}" style="width:100%;padding:6px"><br><br>
-            <button onclick="copiar()">📋 Copiar Link</button>
+        status.innerHTML = `
+            <div class="publicado-box">
+                ✅ Aplicação publicada!<br><br>
+                <strong>Link para os alunos:</strong><br>
+                <input id="link"
+                       value="${link}"
+                       class="input-link"><br><br>
+                <button class="btn-primary"
+                        onclick="copiar()">
+                    📋 Copiar Link
+                </button>
+            </div>
         `;
 
         localStorage.removeItem("previewQuiz");
