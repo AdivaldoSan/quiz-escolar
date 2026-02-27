@@ -707,3 +707,85 @@ body {
   font-size: 40px;
   margin-bottom: 15px;
 }
+
+
+/* ===== QUIZ PAGE ===== */
+
+.quiz-page {
+  margin: 0;
+  background: #F3F4F6;
+}
+
+.quiz-header {
+  background: var(--bg-gradient);
+  color: white;
+  padding: 15px 20px;
+}
+
+.quiz-titulo {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.quiz-info {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.quiz-container {
+  max-width: 750px;
+  margin: 30px auto;
+  padding: 0 15px;
+}
+
+.barra-progresso {
+  height: 8px;
+  background: #E5E7EB;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.barra-preenchimento {
+  height: 100%;
+  background: var(--primary);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.questao-card img {
+  max-width: 100%;
+  height: auto;
+  margin: 15px 0;
+  border-radius: 8px;
+}
+
+.alt-item {
+  display: block;
+  padding: 10px;
+  background: #F9FAFB;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.alt-item:hover {
+  background: #E5E7EB;
+}
+
+.quiz-rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.final-card {
+  max-width: 500px;
+  margin: 100px auto;
+  padding: 40px;
+  background: white;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
