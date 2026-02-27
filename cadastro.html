@@ -251,7 +251,12 @@ btn.classList.remove("btn-loading");
 btn.innerText = "Cadastro realizado ✔";
 btn.disabled = true;
 
-mostrarSucesso("Aguarde aprovação do administrador!");
+mostrarSucesso("Aguarde aprovação do administrador. Você será redirecionado em instantes...");
+
+// ⏳ Atualiza após 5 segundos
+setTimeout(()=>{
+    window.location.href = "index.html";
+}, 5000);
 
 return;
 
