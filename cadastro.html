@@ -14,92 +14,81 @@
 <h2>📋 Primeiro Acesso</h2>
 
 <div class="form-group">
-<input type="text" id="nome" placeholder="Nome completo" required>
+<input type="text" id="nome" placeholder="Nome completo">
 </div>
 
 <div class="form-group">
-<input type="email" id="email" placeholder="Email institucional" required>
+<input type="email" id="email" placeholder="Email institucional">
 </div>
 
 <div class="form-group">
-<input type="password" id="senha" placeholder="Senha" required>
+<input type="password" id="senha" placeholder="Senha">
 </div>
 
 <div class="form-group">
-<input type="text" id="escola" placeholder="Escola" required>
+<input type="text" id="escola" placeholder="Escola">
 </div>
 
 <div class="form-group">
-<select id="estado" required onchange="verificarEstado()">
-  <option value="">Selecione o Estado</option>
-  <option value="RO">RO</option>
-  <option value="AC">AC</option>
-  <option value="AM">AM</option>
-  <option value="AP">AP</option>
-  <option value="BA">BA</option>
-  <option value="CE">CE</option>
-  <option value="DF">DF</option>
-  <option value="ES">ES</option>
-  <option value="GO">GO</option>
-  <option value="MA">MA</option>
-  <option value="MG">MG</option>
-  <option value="MS">MS</option>
-  <option value="MT">MT</option>
-  <option value="PA">PA</option>
-  <option value="PB">PB</option>
-  <option value="PE">PE</option>
-  <option value="PI">PI</option>
-  <option value="PR">PR</option>
-  <option value="RJ">RJ</option>
-  <option value="RN">RN</option>
-  <option value="RS">RS</option>
-  <option value="RR">RR</option>
-  <option value="SC">SC</option>
-  <option value="SE">SE</option>
-  <option value="SP">SP</option>
-  <option value="TO">TO</option>
+<select id="estado" onchange="verificarEstado()">
+<option value="">Selecione o Estado</option>
+<option value="RO">RO</option>
+<option value="AC">AC</option>
+<option value="AM">AM</option>
+<option value="BA">BA</option>
+<option value="CE">CE</option>
+<option value="DF">DF</option>
+<option value="ES">ES</option>
+<option value="GO">GO</option>
+<option value="MG">MG</option>
+<option value="MT">MT</option>
+<option value="PA">PA</option>
+<option value="PR">PR</option>
+<option value="RJ">RJ</option>
+<option value="RS">RS</option>
+<option value="SC">SC</option>
+<option value="SP">SP</option>
 </select>
 </div>
 
 <div class="form-group" id="cidadeContainer">
-  <input type="text" id="cidadeManual" placeholder="Cidade" required>
+<input type="text" id="cidadeManual" placeholder="Cidade">
 </div>
 
 <div class="form-group">
-<select id="disciplina" required>
-  <option value="">Selecione a Disciplina</option>
-  <option value="Matemática">Matemática</option>
-  <option value="Português">Português</option>
-  <option value="Física">Física</option>
-  <option value="Química">Química</option>
-  <option value="Biologia">Biologia</option>
-  <option value="História">História</option>
-  <option value="Geografia">Geografia</option>
-  <option value="Inglês">Inglês</option>
-  <option value="Outra">Outra</option>
+<select id="disciplina">
+<option value="">Selecione a Disciplina</option>
+<option value="Matemática">Matemática</option>
+<option value="Português">Português</option>
+<option value="Física">Física</option>
+<option value="Química">Química</option>
+<option value="Biologia">Biologia</option>
+<option value="História">História</option>
+<option value="Geografia">Geografia</option>
+<option value="Inglês">Inglês</option>
+<option value="Outra">Outra</option>
 </select>
 </div>
 
 <div class="termo-box">
 <p>
-Ao realizar o cadastro, você concorda que seus dados (nome, email,
-instituição e disciplina) serão utilizados exclusivamente para fins
-educacionais dentro do sistema, incluindo gestão de turmas,
-aplicação de avaliações e relatórios pedagógicos.
+Ao realizar o cadastro, seus dados (nome, email, escola,
+cidade e disciplina) serão utilizados exclusivamente
+para fins educacionais dentro do sistema.
 </p>
-
 <p>
-Os dados não são compartilhados com terceiros e podem ser
-solicitados para exclusão mediante pedido ao administrador.
+Os dados não são compartilhados com terceiros.
 </p>
 
 <label class="checkbox-termo">
 <input type="checkbox" id="aceite">
-Declaro que li e concordo com os termos de uso.
+Declaro que li e concordo com os termos.
 </label>
 </div>
 
-<button class="btn-login" onclick="cadastrar()">Cadastrar</button>
+<button class="btn-login" onclick="cadastrar()">
+Cadastrar
+</button>
 
 <p id="msg" class="msg-error"></p>
 
@@ -109,64 +98,170 @@ Declaro que li e concordo com os termos de uso.
 
 <script>
 
-async function cadastrar(){
+// =========================
+// UTILITÁRIOS
+// =========================
+function limparErros(){
+document.querySelectorAll(".input-erro")
+.forEach(el=>el.classList.remove("input-erro"));
+}
 
-  const nome = document.getElementById("nome").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const senha = document.getElementById("senha").value.trim();
-  const escola = document.getElementById("escola").value.trim();
-  const estado = document.getElementById("estado").value;
-  const disciplina = document.getElementById("disciplina").value;
-  const aceitou = document.getElementById("aceite").checked;
-
-  let cidade = "";
-
-  if(estado === "RO"){
-    cidade = document.getElementById("cidadeSelect")?.value || "";
-  }else{
-    cidade = document.getElementById("cidadeManual").value.trim();
-  }
-
-  if(!nome || !email || !senha || !escola || !estado || !cidade || !disciplina){
-    mostrarErro("Preencha todos os campos.");
-    return;
-  }
-
-  if(!aceitou){
-    mostrarErro("É necessário aceitar os termos de uso.");
-    return;
-  }
-
-  const resposta = await fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      tipo:"cadastro",
-      nome:nome,
-      email:email,
-      senha:senha,
-      escola:escola,
-      cidade:cidade,
-      estado:estado,
-      disciplina:disciplina
-    })
-  });
-
-  const dados = await resposta.json();
-
-  if(dados.mensagem){
-    mostrarErro("Cadastro realizado. Aguarde aprovação do administrador.");
-  }else{
-    mostrarErro(dados.erro || "Erro no cadastro.");
-  }
+function validarCampo(id, mensagem){
+const campo = document.getElementById(id);
+if(!campo || !campo.value.trim()){
+campo.classList.add("input-erro");
+campo.focus();
+mostrarErro(mensagem);
+return false;
+}
+return true;
 }
 
 function mostrarErro(msg){
-  const el = document.getElementById("msg");
-  el.style.display = "block";
-  el.innerText = msg;
+const el = document.getElementById("msg");
+el.style.display = "block";
+el.innerText = msg;
+}
+
+function mostrarSucesso(msg){
+const el = document.getElementById("msg");
+el.classList.remove("msg-error");
+el.classList.add("msg-sucesso");
+el.style.display = "block";
+el.innerText = msg;
+}
+
+// =========================
+// CIDADES RO
+// =========================
+async function verificarEstado(){
+
+const estado = document.getElementById("estado").value;
+const container = document.getElementById("cidadeContainer");
+
+if(estado === "RO"){
+
+container.innerHTML = `
+<select id="cidadeSelect">
+<option>Carregando cidades...</option>
+</select>`;
+
+try{
+
+const resp = await fetch(
+"https://servicodados.ibge.gov.br/api/v1/localidades/estados/RO/municipios"
+);
+
+const cidades = await resp.json();
+const select = document.getElementById("cidadeSelect");
+
+select.innerHTML = `<option value="">Selecione a Cidade</option>`;
+
+cidades.sort((a,b)=>a.nome.localeCompare(b.nome));
+
+cidades.forEach(c=>{
+select.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
+});
+
+}catch(e){
+
+container.innerHTML = `
+<input type="text" id="cidadeManual"
+placeholder="Cidade">`;
+}
+
+}else{
+
+container.innerHTML = `
+<input type="text" id="cidadeManual"
+placeholder="Cidade">`;
+}
+}
+
+// =========================
+// CADASTRO
+// =========================
+async function cadastrar(){
+
+limparErros();
+document.getElementById("msg").style.display="none";
+
+const nome = document.getElementById("nome").value.trim();
+const email = document.getElementById("email").value.trim();
+const senha = document.getElementById("senha").value.trim();
+const escola = document.getElementById("escola").value.trim();
+const estado = document.getElementById("estado").value;
+const disciplina = document.getElementById("disciplina").value;
+const aceitou = document.getElementById("aceite").checked;
+
+let cidade = "";
+
+if(estado === "RO"){
+cidade = document.getElementById("cidadeSelect")?.value || "";
+}else{
+cidade = document.getElementById("cidadeManual")?.value || "";
+}
+
+if(!validarCampo("nome","Informe seu nome.")) return;
+if(!validarCampo("email","Informe um email válido.")) return;
+if(!validarCampo("senha","Crie uma senha.")) return;
+if(!validarCampo("escola","Informe sua escola.")) return;
+if(!validarCampo("estado","Selecione o estado.")) return;
+
+if(estado==="RO"){
+if(!validarCampo("cidadeSelect","Selecione a cidade.")) return;
+}else{
+if(!validarCampo("cidadeManual","Informe a cidade.")) return;
+}
+
+if(!validarCampo("disciplina","Selecione a disciplina.")) return;
+
+if(!aceitou){
+mostrarErro("É necessário aceitar os termos.");
+return;
+}
+
+// ===== BOTÃO LOADING =====
+const btn = document.querySelector(".btn-login");
+btn.classList.add("btn-loading");
+btn.innerText = "Cadastrando...";
+btn.disabled = true;
+
+try{
+
+const resposta = await fetch(API,{
+method:"POST",
+body:JSON.stringify({
+tipo:"cadastro",
+nome:nome,
+email:email,
+senha:senha,
+escola:escola,
+cidade:cidade,
+estado:estado,
+disciplina:disciplina
+})
+});
+
+const dados = await resposta.json();
+
+if(dados.mensagem){
+mostrarSucesso("Cadastro realizado. Aguarde aprovação.");
+btn.innerText="Cadastro realizado";
+}else{
+throw new Error(dados.erro || "Erro no cadastro.");
+}
+
+}catch(e){
+
+btn.classList.remove("btn-loading");
+btn.innerText="Cadastrar";
+btn.disabled=false;
+mostrarErro(e.message);
+
+}
 }
 
 </script>
-
 </body>
 </html>
