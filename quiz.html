@@ -103,8 +103,8 @@ function mostrarQuestao(){
 
     const q = quiz.questoes[atual];
 
-    document.getElementById("contador").innerText =
-        "Questão " + (atual+1) + " de " + quiz.questoes.length;
+    document.getElementById("contador").innerHTML =
+    `Questão <b>${atual+1}</b> de <b>${quiz.questoes.length}</b>`;
 
     document.getElementById("btnAvancar").style.display = "inline-block";
 
