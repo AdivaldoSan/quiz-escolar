@@ -2,40 +2,47 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Administrativo</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="font-family: Arial; margin:40px;">
-
-<h2>👨‍💼 Painel Administrativo</h2>
-
-<div style="margin-bottom:20px;">
-  <span id="usuario"></span>
-  <button onclick="logout()" style="margin-left:20px;">Sair</button>
-</div>
-
-<hr>
-
-<h3>Professores Cadastrados</h3>
-
-<table border="1" cellpadding="8" cellspacing="0" width="100%" id="tabelaProf">
-</table>
+<body>
 
 <script src="js/conexao.js"></script>
-
-<script src="./js/layout.js"></script>
-<script>
-criarLayout();
-</script>
+<script src="js/layout.js"></script>
 
 <script>
 
+function iniciarPagina(){
+  criarLayout();
+
+  document.getElementById("conteudo").innerHTML = `
+      <h2 style="margin-bottom:20px;">👨‍💼 Painel Administrativo</h2>
+      <div id="adminConteudo" class="card">
+        Carregando professores...
+      </div>
+  `;
+
+  validarAdmin();
+}
+
+window.onload = iniciarPagina;
+
+
+// =============================
+// VALIDAÇÃO
+// =============================
 const token = localStorage.getItem("TOKEN");
 
 if(!token){
   window.location.href = "index.html";
 }
 
+
+// =============================
+// BUSCAR PROFESSORES
+// =============================
 async function validarAdmin(){
 
   const resposta = await fetch(API + "?tipo=listarProfessores&token=" + token);
@@ -46,16 +53,36 @@ async function validarAdmin(){
     return;
   }
 
-  document.getElementById("usuario").innerText =
-    "Logado como ADMIN";
-
   montarTabela(dados);
 }
 
+
+// =============================
+// MONTAR TABELA MODERNA
+// =============================
 function montarTabela(dados){
 
-  const tabela = document.getElementById("tabelaProf");
-  tabela.innerHTML = "";
+  const container = document.getElementById("adminConteudo");
+
+  let html = `
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>NOME</th>
+          <th>EMAIL</th>
+          <th>ESCOLA</th>
+          <th>CIDADE</th>
+          <th>ESTADO</th>
+          <th>DISCIPLINA</th>
+          <th>PERFIL</th>
+          <th>STATUS</th>
+          <th>DATA</th>
+          <th>AÇÕES</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
 
   const cab = dados[0];
 
@@ -70,31 +97,7 @@ function montarTabela(dados){
   const idxEstado = cab.indexOf("ESTADO");
   const idxDisciplina = cab.indexOf("DISCIPLINA");
 
-  const header = document.createElement("tr");
-
-  [
-    "ID",
-    "NOME",
-    "EMAIL",
-    "ESCOLA",
-    "CIDADE",
-    "ESTADO",
-    "DISCIPLINA",
-    "PERFIL",
-    "STATUS",
-    "DATA_CADASTRO",
-    "AÇÕES"
-  ].forEach(texto=>{
-    const th = document.createElement("th");
-    th.innerText = texto;
-    header.appendChild(th);
-  });
-
-  tabela.appendChild(header);
-
   for(let i=1;i<dados.length;i++){
-
-    const linha = document.createElement("tr");
 
     const id = dados[i][idxID];
     const nome = dados[i][idxNome];
@@ -107,43 +110,64 @@ function montarTabela(dados){
     const status = dados[i][idxStatus];
     const data = dados[i][idxData];
 
-    [
-      id,
-      nome,
-      email,
-      escola,
-      cidade,
-      estado,
-      disciplina,
-      perfil,
-      status,
-      data
-    ].forEach(valor=>{
-      const td = document.createElement("td");
-      td.innerText = valor || "";
-      linha.appendChild(td);
-    });
-
-    const tdAcoes = document.createElement("td");
-
-    if(status === "PENDENTE"){
-      tdAcoes.innerHTML =
-        `<button onclick="alterarStatus('${email}','APROVADO', this)">Aprovar</button>`;
-    }
-    else if(status === "APROVADO"){
-      tdAcoes.innerHTML =
-        `<button onclick="alterarStatus('${email}','BLOQUEADO', this)">Bloquear</button>`;
-    }
-    else if(status === "BLOQUEADO"){
-      tdAcoes.innerHTML =
-        `<button onclick="alterarStatus('${email}','APROVADO', this)">Reativar</button>`;
-    }
-
-    linha.appendChild(tdAcoes);
-    tabela.appendChild(linha);
+    html += `
+      <tr>
+        <td>${id}</td>
+        <td>${nome}</td>
+        <td>${email}</td>
+        <td>${escola || ""}</td>
+        <td>${cidade || ""}</td>
+        <td>${estado || ""}</td>
+        <td>${disciplina || ""}</td>
+        <td>${perfil}</td>
+        <td>${status}</td>
+        <td>${data}</td>
+        <td>
+          ${gerarBotaoAcao(email, status)}
+        </td>
+      </tr>
+    `;
   }
+
+  html += "</tbody></table>";
+
+  container.innerHTML = html;
 }
 
+
+// =============================
+// GERAR BOTÃO DE AÇÃO
+// =============================
+function gerarBotaoAcao(email, status){
+
+  if(status === "PENDENTE"){
+    return `<button class="btn-acao"
+              onclick="alterarStatus('${email}','APROVADO', this)">
+              Aprovar
+            </button>`;
+  }
+
+  if(status === "APROVADO"){
+    return `<button class="btn-acao"
+              onclick="alterarStatus('${email}','BLOQUEADO', this)">
+              Bloquear
+            </button>`;
+  }
+
+  if(status === "BLOQUEADO"){
+    return `<button class="btn-acao"
+              onclick="alterarStatus('${email}','APROVADO', this)">
+              Reativar
+            </button>`;
+  }
+
+  return "";
+}
+
+
+// =============================
+// ALTERAR STATUS
+// =============================
 async function alterarStatus(email, novoStatus, botao){
 
   const resposta = await fetch(API, {
@@ -160,28 +184,12 @@ async function alterarStatus(email, novoStatus, botao){
 
   if(dados.mensagem){
 
-    const linha = botao.closest("tr");
-    linha.children[8].innerText = novoStatus; // coluna STATUS
-
-    if(novoStatus === "APROVADO"){
-      botao.innerText = "Bloquear";
-      botao.setAttribute("onclick",
-        `alterarStatus('${email}','BLOQUEADO', this)`
-      );
-    }
-    else if(novoStatus === "BLOQUEADO"){
-      botao.innerText = "Reativar";
-      botao.setAttribute("onclick",
-        `alterarStatus('${email}','APROVADO', this)`
-      );
-    }
+    validarAdmin(); // recarrega tabela inteira
 
   }else{
     alert("Erro ao atualizar.");
   }
 }
-
-validarAdmin();
 
 </script>
 
