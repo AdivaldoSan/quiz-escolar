@@ -488,3 +488,49 @@ body {
   border-radius: 8px;
   border: 1px solid #E5E7EB;
 }
+
+/* ===== PUBLICAÇÃO ===== */
+
+.publicado-box {
+  background: #ECFDF5;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.link-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.link-box input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+}
+
+.link-box button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+}
+
+.link-box button:hover {
+  background: var(--primary-dark);
+}
+
+/* ===== INSTRUÇÃO IMPRESSÃO ===== */
+
+.instrucao-impressao {
+  margin-top: 18px;
+  padding: 12px;
+  background: #F0F9FF;
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1E293B;
+}
