@@ -118,8 +118,13 @@ function mostrarQuestao(){
 
     document.getElementById("areaQuestao").innerHTML = `
         <div class="enunciado">
+            <div class="questao-numero">
+            Questão ${atual+1}
+            </div>
+            <div class="questao-texto">
             ${q.ENUNCIADO}
         </div>
+</div>
 
         <div class="alternativas">
             ${alternativas.map((alt,i)=>`
