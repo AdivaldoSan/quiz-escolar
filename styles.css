@@ -591,3 +591,21 @@ body {
 .tabela th.text-center {
   text-align: center;
 }
+
+/* ===== HOVER LINHA TABELA ===== */
+
+.tabela tbody tr {
+  transition: background 0.2s ease;
+}
+
+.tabela tbody tr:hover {
+  background: #F1F5F9;
+}
+
+/* ===== CENTRALIZAR AÇÕES ===== */
+
+.acoes {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
