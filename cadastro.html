@@ -2,22 +2,35 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Cadastro - Sistema Web Quiz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro - WebQuiz</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="font-family: Arial; max-width:500px; margin:auto; margin-top:40px;">
+<body class="login-page">
+
+<div class="login-box">
 
 <h2>📋 Primeiro Acesso</h2>
 
-<input type="text" id="nome" placeholder="Nome completo" required style="padding:8px;width:100%"><br><br>
+<div class="form-group">
+<input type="text" id="nome" placeholder="Nome completo" required>
+</div>
 
-<input type="email" id="email" placeholder="Email" required style="padding:8px;width:100%"><br><br>
+<div class="form-group">
+<input type="email" id="email" placeholder="Email institucional" required>
+</div>
 
-<input type="password" id="senha" placeholder="Senha" required style="padding:8px;width:100%"><br><br>
+<div class="form-group">
+<input type="password" id="senha" placeholder="Senha" required>
+</div>
 
-<input type="text" id="escola" placeholder="Escola" required style="padding:8px;width:100%"><br><br>
+<div class="form-group">
+<input type="text" id="escola" placeholder="Escola" required>
+</div>
 
-<select id="estado" required style="padding:8px;width:100%" onchange="verificarEstado()">
+<div class="form-group">
+<select id="estado" required onchange="verificarEstado()">
   <option value="">Selecione o Estado</option>
   <option value="RO">RO</option>
   <option value="AC">AC</option>
@@ -45,13 +58,15 @@
   <option value="SE">SE</option>
   <option value="SP">SP</option>
   <option value="TO">TO</option>
-</select><br><br>
+</select>
+</div>
 
-<div id="cidadeContainer">
-  <input type="text" id="cidadeManual" placeholder="Cidade" required style="padding:8px;width:100%">
-</div><br>
+<div class="form-group" id="cidadeContainer">
+  <input type="text" id="cidadeManual" placeholder="Cidade" required>
+</div>
 
-<select id="disciplina" required style="padding:8px;width:100%">
+<div class="form-group">
+<select id="disciplina" required>
   <option value="">Selecione a Disciplina</option>
   <option value="Matemática">Matemática</option>
   <option value="Português">Português</option>
@@ -62,63 +77,37 @@
   <option value="Geografia">Geografia</option>
   <option value="Inglês">Inglês</option>
   <option value="Outra">Outra</option>
-</select><br><br>
+</select>
+</div>
 
-<button onclick="cadastrar()" style="padding:10px 20px;">Cadastrar</button>
+<div class="termo-box">
+<p>
+Ao realizar o cadastro, você concorda que seus dados (nome, email,
+instituição e disciplina) serão utilizados exclusivamente para fins
+educacionais dentro do sistema, incluindo gestão de turmas,
+aplicação de avaliações e relatórios pedagógicos.
+</p>
 
-<p id="msg" style="margin-top:20px;"></p>
+<p>
+Os dados não são compartilhados com terceiros e podem ser
+solicitados para exclusão mediante pedido ao administrador.
+</p>
+
+<label class="checkbox-termo">
+<input type="checkbox" id="aceite">
+Declaro que li e concordo com os termos de uso.
+</label>
+</div>
+
+<button class="btn-login" onclick="cadastrar()">Cadastrar</button>
+
+<p id="msg" class="msg-error"></p>
+
+</div>
 
 <script src="./js/conexao.js"></script>
 
 <script>
-
-async function verificarEstado(){
-
-  const estado = document.getElementById("estado").value;
-  const container = document.getElementById("cidadeContainer");
-
-  if(estado === "RO"){
-
-    container.innerHTML = `<select id="cidadeSelect" required style="padding:8px;width:100%">
-      <option>Carregando cidades...</option>
-    </select>`;
-
-    try{
-
-      const resp = await fetch(
-        "https://servicodados.ibge.gov.br/api/v1/localidades/estados/RO/municipios"
-      );
-
-      const cidades = await resp.json();
-
-      const select = document.getElementById("cidadeSelect");
-      select.innerHTML = `<option value="">Selecione a Cidade</option>`;
-
-      cidades.sort((a,b)=>a.nome.localeCompare(b.nome));
-
-      cidades.forEach(c=>{
-        select.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
-      });
-
-    }catch(e){
-
-      container.innerHTML = `
-        <input type="text" id="cidadeManual"
-        placeholder="Cidade"
-        required style="padding:8px;width:100%">
-      `;
-    }
-
-  }else{
-
-    container.innerHTML = `
-      <input type="text" id="cidadeManual"
-      placeholder="Cidade"
-      required style="padding:8px;width:100%">
-    `;
-  }
-}
-
 
 async function cadastrar(){
 
@@ -128,18 +117,23 @@ async function cadastrar(){
   const escola = document.getElementById("escola").value.trim();
   const estado = document.getElementById("estado").value;
   const disciplina = document.getElementById("disciplina").value;
+  const aceitou = document.getElementById("aceite").checked;
 
   let cidade = "";
 
   if(estado === "RO"){
-    cidade = document.getElementById("cidadeSelect").value;
+    cidade = document.getElementById("cidadeSelect")?.value || "";
   }else{
     cidade = document.getElementById("cidadeManual").value.trim();
   }
 
   if(!nome || !email || !senha || !escola || !estado || !cidade || !disciplina){
-    document.getElementById("msg").innerText =
-      "Preencha todos os campos.";
+    mostrarErro("Preencha todos os campos.");
+    return;
+  }
+
+  if(!aceitou){
+    mostrarErro("É necessário aceitar os termos de uso.");
     return;
   }
 
@@ -160,12 +154,16 @@ async function cadastrar(){
   const dados = await resposta.json();
 
   if(dados.mensagem){
-    document.getElementById("msg").innerText =
-      "Cadastro realizado. Aguarde aprovação do administrador.";
+    mostrarErro("Cadastro realizado. Aguarde aprovação do administrador.");
   }else{
-    document.getElementById("msg").innerText =
-      dados.erro || "Erro no cadastro.";
+    mostrarErro(dados.erro || "Erro no cadastro.");
   }
+}
+
+function mostrarErro(msg){
+  const el = document.getElementById("msg");
+  el.style.display = "block";
+  el.innerText = msg;
 }
 
 </script>
