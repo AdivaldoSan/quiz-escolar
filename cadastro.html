@@ -246,8 +246,15 @@ disciplina:disciplina
 const dados = await resposta.json();
 
 if(dados.mensagem){
-mostrarSucesso("Cadastro realizado. Aguarde aprovação.");
-btn.innerText="Cadastro realizado";
+
+btn.classList.remove("btn-loading");
+btn.innerText = "Cadastro realizado ✔";
+btn.disabled = true;
+
+mostrarSucesso("Cadastro realizado. Aguarde aprovação do administrador.");
+
+return;
+
 }else{
 throw new Error(dados.erro || "Erro no cadastro.");
 }
