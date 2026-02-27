@@ -257,3 +257,10 @@ body {
   justify-content: center;
   padding: 20px;
 }
+
+/* ===== WRAPPER RESPONSIVO DE TABELA ===== */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
