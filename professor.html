@@ -20,7 +20,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado..</h2>
 
         <div class="card form-card">
 
@@ -187,38 +187,63 @@ function atualizarFiltros(){
 }
 
 function listaAssuntosHTML(lista){
+
     const div = document.getElementById("listaAssuntos");
-    div.innerHTML="";
+    div.innerHTML = "";
+
     lista.forEach(nome=>{
-        div.innerHTML += `
-            <label>
-                <input type="checkbox"
-                       value="${nome}"
-                       class="chkAssunto"
-                       onchange="atualizarHeader('msAssunto','chkAssunto'); atualizarInfoAssunto();">
-                ${nome}
-            </label>`;
+
+        const item = document.createElement("div");
+        item.className = "multi-item";
+        item.dataset.value = nome;
+        item.innerText = nome;
+
+        item.addEventListener("click", function(){
+
+            this.classList.toggle("selected");
+            atualizarHeader("msAssunto","multi-item selected", true);
+            atualizarInfoAssunto();
+        });
+
+        div.appendChild(item);
     });
 }
-
 function listaDescritoresHTML(lista){
+
     const div = document.getElementById("listaDescritores");
-    div.innerHTML="";
+    div.innerHTML = "";
+
     lista.forEach(cod=>{
-        div.innerHTML += `
-            <label>
-                <input type="checkbox"
-                       value="${cod}"
-                       class="chkDescritor"
-                       onchange="atualizarHeader('msDescritor','chkDescritor'); atualizarInfoDescritor();">
-                ${cod} — ${mapaDescritores[cod]||""}
-            </label>`;
+
+        const item = document.createElement("div");
+        item.className = "multi-item";
+        item.dataset.value = cod;
+
+        item.innerHTML = `
+            <span class="descritor-codigo">${cod}</span>
+            <span class="descritor-texto">
+                ${mapaDescritores[cod]||""}
+            </span>
+        `;
+
+        item.addEventListener("click", function(){
+
+            this.classList.toggle("selected");
+            atualizarHeader("msDescritor","multi-item selected", true);
+            atualizarInfoDescritor();
+        });
+
+        div.appendChild(item);
     });
 }
 
-function atualizarHeader(id, classe){
+function atualizarHeader(id){
+
     const selecionados =
-        [...document.querySelectorAll("." + classe + ":checked")];
+        document.querySelectorAll(
+            "#"+id+" .multi-list .selected"
+        );
+
     const header =
         document.querySelector("#"+id+" .multi-header");
 
@@ -296,12 +321,13 @@ function gerarQuiz(){
     }
 
     const assuntos =
-        [...document.querySelectorAll(".chkAssunto:checked")]
-        .map(cb=>cb.value);
+    [...document.querySelectorAll("#listaAssuntos .selected")]
+    .map(el=>el.dataset.value);
 
     const descritores =
-        [...document.querySelectorAll(".chkDescritor:checked")]
-        .map(cb=>cb.value);
+    [...document.querySelectorAll("#listaDescritores .selected")]
+    .map(el=>el.dataset.value);
+    
 
     const filtradas = banco.filter(q => {
 
