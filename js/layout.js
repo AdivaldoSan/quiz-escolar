@@ -17,40 +17,48 @@ function criarLayout(){
     <div class="app">
 
         <div class="sidebar" id="sidebar">
-           <div class="logo-area">
-              <h2 class="logo">
-                Avalia<span class="logo-plus">+</span>
-              </h2>
-              <p class="logo-sub">
-                Plataforma de Avaliação Digital
-              </p>
-            </div>
-                        
 
-            <a href="painel.html"
-               class="${paginaAtual==='painel.html'?'active':''}">
-               Relatórios
-            </a>
+  <div class="logo-area">
+    <h2 class="logo">
+      Avalia<span class="logo-plus">+</span>
+    </h2>
+    <p class="logo-sub">
+      Plataforma de Avaliação Digital
+    </p>
+  </div>
 
-            <a href="professor.html"
-               class="${paginaAtual==='professor.html'?'active':''}">
-               Gerar Simulado
-            </a>
+  <div class="menu-principal">
+    <a href="painel.html"
+       class="${paginaAtual==='painel.html'?'active':''}">
+       Relatórios
+    </a>
 
-            <a href="turmas.html"
-               class="${paginaAtual==='turmas.html'?'active':''}">
-               Turmas
-            </a>
+    <a href="professor.html"
+       class="${paginaAtual==='professor.html'?'active':''}">
+       Gerar Simulado
+    </a>
 
-            ${
-                perfil === "ADMIN"
-                ? `<a href="admin.html"
-                     class="${paginaAtual==='admin.html'?'active':''}">
-                     Admin
-                   </a>`
-                : ""
-            }
-        </div>
+    <a href="turmas.html"
+       class="${paginaAtual==='turmas.html'?'active':''}">
+       Turmas
+    </a>
+
+    ${perfil === "ADMIN" ? `
+      <a href="admin.html"
+         class="${paginaAtual==='admin.html'?'active':''}">
+         Admin
+      </a>
+    ` : ``}
+  </div>
+
+  <div class="sidebar-bottom">
+    <a href="sobre.html"
+       class="${paginaAtual==='sobre.html'?'active':''}">
+       Sobre
+    </a>
+  </div>
+
+</div>
 
         <div class="overlay"
              id="overlay"
