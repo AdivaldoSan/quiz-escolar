@@ -309,6 +309,21 @@ function embaralhar(a){
     }
 }
 
+function preencherSelect(id, lista){
+
+    const sel = document.getElementById(id);
+
+    if(!sel) return;
+
+    sel.innerHTML = "<option value=''>Selecione</option>";
+
+    lista.forEach(v=>{
+        let op = document.createElement("option");
+        op.value = v;
+        op.textContent = v;
+        sel.appendChild(op);
+    });
+}
 </script>
 
 </body>
