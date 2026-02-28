@@ -30,6 +30,16 @@ function iniciarPagina(){
             </div>
 
             <div class="form-group">
+                <label>Nível:</label>
+                <select id="nivel">
+                    <option value="">Selecione</option>
+                    <option value="EF1">EF1</option>
+                    <option value="EF2">EF2</option>
+                    <option value="EM">EM</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label>Assunto:</label>
                 <select id="assunto"></select>
                 <div id="infoAssunto" class="info-text"></div>
@@ -76,7 +86,7 @@ window.onload = iniciarPagina;
 
 
 // =============================
-// LÓGICA ORIGINAL (INALTERADA)
+// LÓGICA
 // =============================
 
 let banco = [];
@@ -102,13 +112,14 @@ async function iniciar(){
     document.getElementById("disciplina")
         .addEventListener("change", atualizarFiltros);
 
+    document.getElementById("nivel")
+        .addEventListener("change", atualizarFiltros);
+
     document.getElementById("assunto")
         .addEventListener("change", relacionarAssuntoComDescritor);
 
     document.getElementById("descritor")
         .addEventListener("change", relacionarDescritorComAssunto);
-
-    atualizarFiltros();
 
     await carregarTurmas();
 
@@ -121,8 +132,18 @@ async function iniciar(){
 function atualizarFiltros(){
 
     const disc = disciplina.value;
+    const nivelSel = nivel.value;
 
-    const filtrado = banco.filter(q=>q.DISCIPLINA===disc);
+    if(!disc || !nivelSel){
+        assunto.innerHTML = "<option value=''>Selecione disciplina e nível</option>";
+        descritor.innerHTML = "<option value=''>Selecione disciplina e nível</option>";
+        return;
+    }
+
+    const filtrado = banco.filter(q=>
+        q.DISCIPLINA===disc &&
+        q.NIVEL===nivelSel
+    );
 
     preencherSelect("assunto",
         [...new Set(filtrado.map(q=>q.ASSUNTO))]
@@ -134,7 +155,13 @@ function atualizarFiltros(){
     const sel = document.getElementById("descritor");
     sel.innerHTML = "<option value=''>Todos</option>";
 
-    descritores.forEach(cod=>{
+    descritores
+      .sort((a,b)=>{
+          const n1=parseInt(a.replace(/\D/g,''));
+          const n2=parseInt(b.replace(/\D/g,''));
+          return n1-n2;
+      })
+      .forEach(cod=>{
         let op = document.createElement("option");
         op.value = cod;
         op.textContent =
@@ -162,8 +189,10 @@ function relacionarAssuntoComDescritor(){
 
     const descrs =
         [...new Set(
-            banco.filter(q=>q.ASSUNTO===assunto.value)
-                 .map(q=>q.DESCRITOR)
+            banco.filter(q=>
+                q.ASSUNTO===assunto.value &&
+                q.NIVEL===nivel.value
+            ).map(q=>q.DESCRITOR)
         )];
 
     infoAssunto.innerHTML =
@@ -186,8 +215,10 @@ function relacionarDescritorComAssunto(){
 
     const assuntos =
         [...new Set(
-            banco.filter(q=>q.DESCRITOR===descritor.value)
-                 .map(q=>q.ASSUNTO)
+            banco.filter(q=>
+                q.DESCRITOR===descritor.value &&
+                q.NIVEL===nivel.value
+            ).map(q=>q.ASSUNTO)
         )];
 
     infoDescritor.innerHTML =
@@ -215,6 +246,8 @@ function gerarQuiz(){
 
     const disciplinaSel =
         document.getElementById("disciplina").value;
+    const nivelSel =
+        document.getElementById("nivel").value;
     const assuntoSel =
         document.getElementById("assunto").value;
     const descritorSel =
@@ -223,6 +256,11 @@ function gerarQuiz(){
         parseInt(document.getElementById("quantidade").value);
     const nome =
         document.getElementById("nomeQuiz").value || "Quiz";
+
+    if(!disciplinaSel || !nivelSel){
+        alert("Selecione disciplina e nível.");
+        return;
+    }
 
     const turmasSelecionadas =
         [...document.querySelectorAll(".chkTurma:checked")]
@@ -234,8 +272,8 @@ function gerarQuiz(){
     }
 
     const filtradas = banco.filter(q =>
-        (disciplinaSel === "" ||
-         q.DISCIPLINA === disciplinaSel) &&
+        q.DISCIPLINA === disciplinaSel &&
+        q.NIVEL === nivelSel &&
         (assuntoSel === "" ||
          q.ASSUNTO === assuntoSel) &&
         (descritorSel === "" ||
