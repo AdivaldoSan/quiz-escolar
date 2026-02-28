@@ -20,7 +20,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
 
         <div class="card form-card">
 
@@ -360,6 +360,48 @@ function embaralhar(a){
         let j=Math.floor(Math.random()*(i+1));
         [a[i],a[j]]=[a[j],a[i]];
     }
+}
+
+    async function carregarTurmas(){
+
+    const token = localStorage.getItem("TOKEN");
+
+    const resp =
+        await fetch(API +
+        "?tipo=turmas&token=" + token);
+
+    const linhas = await resp.json();
+
+    const div =
+        document.getElementById("listaTurmas");
+
+    div.innerHTML = "";
+
+    if(linhas.erro){
+        div.innerHTML = "Erro ao carregar turmas.";
+        return;
+    }
+
+    if(!Array.isArray(linhas) || linhas.length <= 1){
+        div.innerHTML = "Nenhuma turma encontrada.";
+        return;
+    }
+
+    linhas.slice(1).forEach(l=>{
+
+        const nomeTurma = l[2];
+
+        const label = document.createElement("label");
+
+        label.innerHTML = `
+            <input type="checkbox"
+                   value="${nomeTurma}"
+                   class="chkTurma">
+            <span>${nomeTurma}</span>
+        `;
+
+        div.appendChild(label);
+    });
 }
 
 </script>
