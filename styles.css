@@ -1209,3 +1209,12 @@ animation: spin 0.8s linear infinite;
 html, body {
   overflow-x: hidden;
 }
+
+@media (max-width: 768px) {
+
+  .main {
+    margin-left: 0;   /* remove espaço da sidebar */
+    width: 100%;
+  }
+
+}
