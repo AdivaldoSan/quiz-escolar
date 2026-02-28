@@ -161,6 +161,7 @@ body {
   padding: 25px 20px;
   display: flex;
   flex-direction: column;
+  height: 100vh;   /* 🔥 ESSENCIAL */
 }
 
 .sidebar h2 {
