@@ -20,7 +20,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
 
         <div class="card form-card">
 
@@ -430,6 +430,64 @@ function embaralhar(a){
         let j=Math.floor(Math.random()*(i+1));
         [a[i],a[j]]=[a[j],a[i]];
     }
+}
+
+    // ================= CONSOLIDAÇÃO =================
+
+function atualizarInfoAssunto(){
+
+    const assuntos =
+        [...document.querySelectorAll("#listaAssuntos .selected")]
+        .map(el=>el.dataset.value);
+
+    let html = "";
+
+    assuntos.forEach(a=>{
+
+        const descrs =
+            [...new Set(
+                banco.filter(q =>
+                    q.ASSUNTO === a &&
+                    q.NIVEL_ENSINO === nivel.value
+                ).map(q=>q.DESCRITOR)
+            )];
+
+        html += "<div class='info-bloco'>";
+        html += "<div class='info-titulo'>" + a + "</div>";
+
+        descrs.forEach(d=>{
+            html +=
+                "<div class='info-item'>" +
+                "<span class='descritor-codigo'>" + d + "</span>" +
+                "<span class='descritor-texto'>" +
+                (mapaDescritores[d] || "") +
+                "</span></div>";
+        });
+
+        html += "</div>";
+    });
+
+    document.getElementById("infoAssunto").innerHTML = html;
+}
+
+function atualizarInfoDescritor(){
+
+    const descritores =
+        [...document.querySelectorAll("#listaDescritores .selected")]
+        .map(el=>el.dataset.value);
+
+    let html = "";
+
+    descritores.forEach(d=>{
+        html +=
+            "<div class='info-item'>" +
+            "<span class='descritor-codigo'>" + d + "</span>" +
+            "<span class='descritor-texto'>" +
+            (mapaDescritores[d] || "") +
+            "</span></div>";
+    });
+
+    document.getElementById("infoDescritor").innerHTML = html;
 }
 
 </script>
