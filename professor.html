@@ -105,9 +105,11 @@ async function iniciar(){
     preencherSelect("disciplina",
         [...new Set(banco.map(q=>q.DISCIPLINA))]
     );
+    document.getElementById("disciplina")
+    .addEventListener("change", atualizarFiltros);
 
-    disciplina.addEventListener("change", atualizarFiltros);
-    nivel.addEventListener("change", atualizarFiltros);
+    document.getElementById("nivel")
+    .addEventListener("change", atualizarFiltros);
 
     configurarMultiSelect("msAssunto");
     configurarMultiSelect("msDescritor");
@@ -287,7 +289,9 @@ function gerarQuiz(){
     localStorage.setItem("previewQuiz",
         JSON.stringify({
             id:"APL_"+Date.now(),
-            nome: nomeQuiz.value || "Quiz",
+            
+            nome: document.getElementById("nomeQuiz").value || "Quiz",
+            
             turmas:
               [...document.querySelectorAll(".chkTurma:checked")]
               .map(cb=>cb.value),
