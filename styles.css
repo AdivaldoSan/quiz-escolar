@@ -1265,3 +1265,43 @@ html, body {
     font-size: 13px;
     color: #475467;
 }
+
+.multi-select {
+    position: relative;
+}
+
+.multi-header {
+    padding: 8px 12px;
+    background: #f2f4f7;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.multi-list {
+    display: none;
+    position: absolute;
+    width: 100%;
+    max-height: 180px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    margin-top: 4px;
+    padding: 8px;
+    z-index: 100;
+}
+
+.multi-select.open .multi-list {
+    display: block;
+}
+
+.multi-list label {
+    display: block;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+
+.multi-list input {
+    margin-right: 6px;
+}
