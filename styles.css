@@ -150,8 +150,7 @@ body {
 
 .app {
   display: flex;
-  height: 100vh;          /* fixa altura */
-  overflow: hidden;       /* impede scroll geral */
+  min-height: 100vh;   /* em vez de height fixo */
   background: #F3F4F6;
 }
 
@@ -1205,4 +1204,8 @@ animation: spin 0.8s linear infinite;
     max-width: 160px;
   }
 
+}
+
+html, body {
+  overflow-x: hidden;
 }
