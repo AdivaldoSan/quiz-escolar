@@ -97,6 +97,8 @@ async function iniciar(){
     document.getElementById("status").innerText =
         "Carregando banco de dados...";
 
+    
+
     const dados = await carregarBancoCompleto();
 
     banco = dados.questoes.filter(q => q.ATIVO === "SIM");
@@ -121,6 +123,9 @@ async function iniciar(){
     document.getElementById("descritor")
         .addEventListener("change", relacionarDescritorComAssunto);
 
+    document.getElementById("assunto").disabled = true;
+    document.getElementById("descritor").disabled = true;
+
     await carregarTurmas();
 
     document.getElementById("status").innerText =
@@ -134,26 +139,40 @@ function atualizarFiltros(){
     const disc = disciplina.value;
     const nivelSel = nivel.value;
 
+    const selAssunto = document.getElementById("assunto");
+    const selDescritor = document.getElementById("descritor");
+
+    // Se não tem disciplina ou nível → bloqueia selects
     if(!disc || !nivelSel){
-        assunto.innerHTML = "<option value=''>Selecione disciplina e nível</option>";
-        descritor.innerHTML = "<option value=''>Selecione disciplina e nível</option>";
+
+        selAssunto.innerHTML = "<option value=''>Selecione disciplina e nível</option>";
+        selDescritor.innerHTML = "<option value=''>Selecione disciplina e nível</option>";
+
+        selAssunto.disabled = true;
+        selDescritor.disabled = true;
+
+        infoAssunto.innerHTML="";
+        infoDescritor.innerHTML="";
+
         return;
     }
 
-    const filtrado = banco.filter(q=>
-        q.DISCIPLINA===disc &&
-        q.NIVEL===nivelSel
+    // Filtra corretamente
+    const filtrado = banco.filter(q =>
+        q.DISCIPLINA === disc &&
+        q.NIVEL_ENSINO === nivelSel
     );
 
+    // Assuntos
     preencherSelect("assunto",
         [...new Set(filtrado.map(q=>q.ASSUNTO))]
     );
 
+    // Descritores
     const descritores =
         [...new Set(filtrado.map(q=>q.DESCRITOR))];
 
-    const sel = document.getElementById("descritor");
-    sel.innerHTML = "<option value=''>Todos</option>";
+    selDescritor.innerHTML = "<option value=''>Todos</option>";
 
     descritores
       .sort((a,b)=>{
@@ -166,15 +185,15 @@ function atualizarFiltros(){
         op.value = cod;
         op.textContent =
             cod + " — " + (mapaDescritores[cod]||"");
-        sel.appendChild(op);
+        selDescritor.appendChild(op);
     });
 
-    assunto.disabled = false;
-    descritor.disabled = false;
+    selAssunto.disabled = false;
+    selDescritor.disabled = false;
+
     infoAssunto.innerHTML="";
     infoDescritor.innerHTML="";
 }
-
 
 // =============================
 function relacionarAssuntoComDescritor(){
