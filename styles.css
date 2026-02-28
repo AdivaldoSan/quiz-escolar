@@ -330,46 +330,75 @@ body {
 
 }
 
-/* ===== MELHORIAS TABELA ===== */
+/* ===== TABELA DASHBOARD MODERNA ===== */
 
 .tabela {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+}
+
+/* CABEÇALHO */
+.tabela thead {
+  background: #F1F5F9;
 }
 
 .tabela th {
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.tabela td {
-  font-size: 14px;
-  vertical-align: top;
-  word-break: break-word;
-  max-width: 180px;
-}
-
-.tabela td:nth-child(3) { /* EMAIL */
-  max-width: 220px;
-}
-
-.tabela td:nth-child(4) { /* ESCOLA */
-  max-width: 200px;
-}
-
-.tabela td:nth-child(10) { /* DATA */
-  white-space: nowrap;
+  padding: 16px 18px;
   font-size: 12px;
-}
-
-/* ===== ALINHAR CABEÇALHO À ESQUERDA ===== */
-
-.tabela th {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #475569;
   text-align: left;
 }
 
+/* CORPO */
+.tabela td {
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #1F2937;
+  border-top: 1px solid #E5E7EB;
+  vertical-align: middle;
+}
+
+/* HOVER SUAVE */
+.tabela tbody tr {
+  transition: background 0.2s ease;
+}
+
+.tabela tbody tr:hover td {
+  background: #d6dde3;
+}
+
+/* CENTRALIZAÇÃO */
+.tabela th.text-center,
+.tabela td.text-center {
+  text-align: center;
+}
+
+/* AÇÕES */
+.acoes {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-acao {
+  background: #E2E8F0;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-acao:hover {
+  background: #CBD5E1;
+}
 
 /* ===== FORMULÁRIO MONTAGEM QUIZ ===== */
 
@@ -613,9 +642,7 @@ body {
   transition: background 0.2s ease;
 }
 
-.tabela tbody tr:hover {
-  background: #d6dde3;
-}
+
 
 /* ===== CENTRALIZAR AÇÕES ===== */
 
@@ -625,11 +652,6 @@ body {
   gap: 6px;
 }
 
-/* ===== HOVER FORÇADO LINHA ===== */
-
-.tabela tbody tr:hover td {
-  background-color: #d6dde3 !important;
-}
 
 /* ===== TURMAS PAGE ===== */
 
