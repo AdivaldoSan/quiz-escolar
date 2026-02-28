@@ -10,16 +10,19 @@
 <body>
 
 <script src="./js/layout.js"></script>
+
 <script>
 criarLayout();
 
+// ===============================
+// CONTEÚDO DA PÁGINA
+// ===============================
 document.getElementById("conteudo").innerHTML = `
 <div class="sobre-container">
 
 <h1 class="sobre-titulo">Sobre o Avalia+</h1>
 
 <div class="card sobre-card">
-
 <h3>📘 Apresentação</h3>
 <p>
 O <strong>Avalia+</strong> é uma plataforma digital de avaliação educacional
@@ -27,87 +30,78 @@ desenvolvida para apoiar professores na criação, aplicação e análise
 de atividades avaliativas. Seu objetivo é fortalecer o diagnóstico
 da aprendizagem e favorecer intervenções pedagógicas mais precisas.
 </p>
-
 </div>
 
 <div class="card sobre-card">
-
 <h3>🎯 Objetivo Pedagógico</h3>
 <p>
 A plataforma permite organizar avaliações por habilidades e descritores,
 possibilitando acompanhamento contínuo do desempenho dos estudantes.
 </p>
-
 <p>
 O Avalia+ foi estruturado para contribuir com a melhoria dos indicadores
 educacionais, especialmente no contexto das avaliações externas,
 com foco estratégico no SAERO 2026.
 </p>
-
 </div>
 
 <div class="card sobre-card">
-
 <h3>📊 Contribuição Educacional</h3>
 <p>
 Por meio de relatórios automatizados e organização por turma,
 o sistema facilita a análise de resultados, identificação de lacunas
 e planejamento de ações de recomposição de aprendizagem.
 </p>
-
 <p>
 O projeto tem caráter educacional e independente,
 não possuindo vínculo institucional formal com órgãos oficiais.
 </p>
-
 </div>
 
-<div class="card sobre-card">
-
+<div class="card sobre-card destaque">
 <h3>💙 Apoie o Projeto</h3>
-
 <p>
 O Avalia+ é um projeto educacional independente.
-Contribuições voluntárias auxiliam na manutenção da infraestrutura,
+Contribuições voluntárias ajudam na manutenção da infraestrutura,
 hospedagem e evolução contínua da plataforma.
 </p>
 
-<div class="pix-area">
-<img src="SEU_QR_AQUI.png" alt="QR Code Pix" class="pix-img">
+<button class="btn-doar" onclick="toggleDoacao()">
+🤝 Quero apoiar o projeto
+</button>
 
-<p class="pix-chave">
-Chave Pix: suporteavaliamais@gmail.com
-</p>
-
+<div id="areaDoacao" class="area-doacao">
+    <div class="pix-box">
+        <img src="qr-pix.png" alt="QR Code Pix" class="pix-img">
+        <p><strong>Chave Pix:</strong><br>
+        suporteavaliamais@gmail.com</p>
+    </div>
 </div>
-
 </div>
 
 <div class="card sobre-card">
-
 <h3>📩 Contato</h3>
-
-<p>
-Dúvidas, sugestões ou suporte:
-</p>
-
-<p>
-<strong>Email:</strong> suporteavaliamais@gmail.com
-</p>
-
+<p>Dúvidas, sugestões ou suporte:</p>
+<p><strong>Email:</strong> suporteavaliamais@gmail.com</p>
 <p>
 Desenvolvido por <strong>Adivaldo Santos</strong><br>
 Professor de Matemática e Tecnologia Educacional
 </p>
-
-<p class="versao">
-Versão 1.0 — 2026
-</p>
-
+<p class="versao">Versão 1.0 — 2026</p>
 </div>
 
 </div>
 `;
+
+
+// ===============================
+// TOGGLE DOAÇÃO
+// ===============================
+function toggleDoacao(){
+    const area = document.getElementById("areaDoacao");
+    area.classList.toggle("mostrar");
+}
+
 </script>
 
 </body>
