@@ -1048,3 +1048,40 @@ animation: spin 0.8s linear infinite;
   margin: 4px 0 0 0;
   line-height: 1.2;
 }
+
+
+/* ===== SOBRE PAGE ===== */
+
+.sobre-container {
+  max-width: 900px;
+  margin: auto;
+}
+
+.sobre-titulo {
+  margin-bottom: 25px;
+}
+
+.sobre-card {
+  margin-bottom: 20px;
+}
+
+.pix-area {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pix-img {
+  max-width: 200px;
+  margin-bottom: 10px;
+}
+
+.pix-chave {
+  font-size: 14px;
+  color: var(--gray);
+}
+
+.versao {
+  margin-top: 15px;
+  font-size: 12px;
+  color: var(--gray);
+}
