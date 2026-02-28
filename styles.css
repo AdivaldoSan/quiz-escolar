@@ -405,14 +405,18 @@ body {
   max-width: 900px;
 }
 
-.form-group {
-  margin-bottom: 18px;
+.form-card {
+    padding: 28px 32px;
 }
 
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 6px;
+.form-group {
+    margin-bottom: 22px;
+}
+
+input,
+select {
+    padding: 8px 12px;
+    font-size: 14px;
 }
 
 .form-group select,
@@ -1377,4 +1381,48 @@ label {
     color: #344054;
     margin-bottom: 6px;
     display: block;
+}
+
+.info-text {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid #e4e7ec;
+    border-radius: 8px;
+    background: #f9fafb;
+    font-size: 13px;
+    color: #475467;
+}
+
+.descritor-codigo {
+    font-weight: 600;
+    color: #2563eb;
+    margin-right: 6px;
+}
+
+.descritor-texto {
+    font-size: 13px;
+    color: #475467;
+}
+
+/* ================= ANIMAÇÕES ================= */
+
+#etapaModo,
+#etapaFiltro,
+#etapaFinal {
+    transition: all 0.3s ease;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
