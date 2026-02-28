@@ -20,7 +20,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado..</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
 
         <div class="card form-card">
 
@@ -225,6 +225,7 @@ function listaAssuntosHTML(lista){
         item.addEventListener("click", function(){
             this.classList.toggle("selected");
             atualizarHeader("msAssunto");
+            atualizarInfoAssunto();   
             verificarEtapaFinal();
         });
 
@@ -253,6 +254,7 @@ function listaDescritoresHTML(lista){
         item.addEventListener("click", function(){
             this.classList.toggle("selected");
             atualizarHeader("msDescritor");
+              atualizarInfoDescritor();  
             verificarEtapaFinal();
         });
 
