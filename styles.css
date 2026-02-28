@@ -150,7 +150,8 @@ body {
 
 .app {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;          /* fixa altura */
+  overflow: hidden;       /* impede scroll geral */
   background: #F3F4F6;
 }
 
@@ -161,7 +162,10 @@ body {
   padding: 25px 20px;
   display: flex;
   flex-direction: column;
-  height: 100vh;   /* 🔥 ESSENCIAL */
+  height: 100vh;          /* ocupa tela toda */
+  position: fixed;        /* 🔥 fixa */
+  left: 0;
+  top: 0;
 }
 
 .sidebar h2 {
@@ -197,8 +201,10 @@ body {
 
 .main {
   flex: 1;
+  margin-left: 240px;     /* espaço da sidebar */
   display: flex;
   flex-direction: column;
+  height: 100vh;
 }
 
 .topbar {
@@ -229,6 +235,8 @@ body {
 
 .page-content {
   padding: 25px;
+  overflow-y: auto;       /* scroll aqui */
+  flex: 1;
 }
 
 /* ===== RESPONSIVO ===== */
