@@ -20,7 +20,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
 
         <div class="card form-card">
 
@@ -436,9 +436,17 @@ function embaralhar(a){
 
 function atualizarInfoAssunto(){
 
+    const bloco = document.getElementById("infoAssunto");
+    bloco.innerHTML = "";
+
     const assuntos =
         [...document.querySelectorAll("#listaAssuntos .selected")]
         .map(el=>el.dataset.value);
+
+    if(assuntos.length === 0){
+        bloco.style.display = "none";
+        return;
+    }
 
     let html = "";
 
@@ -452,42 +460,54 @@ function atualizarInfoAssunto(){
                 ).map(q=>q.DESCRITOR)
             )];
 
-        html += "<div class='info-bloco'>";
-        html += "<div class='info-titulo'>" + a + "</div>";
+        html += `<div class="info-bloco">
+                    <div class="info-titulo">${a}</div>`;
 
         descrs.forEach(d=>{
-            html +=
-                "<div class='info-item'>" +
-                "<span class='descritor-codigo'>" + d + "</span>" +
-                "<span class='descritor-texto'>" +
-                (mapaDescritores[d] || "") +
-                "</span></div>";
+            html += `
+                <div class="info-item">
+                    <span class="descritor-codigo">${d}</span>
+                    <span class="descritor-texto">
+                        ${mapaDescritores[d] || ""}
+                    </span>
+                </div>`;
         });
 
-        html += "</div>";
+        html += `</div>`;
     });
 
-    document.getElementById("infoAssunto").innerHTML = html;
+    bloco.innerHTML = html;
+    bloco.style.display = "block";
 }
 
 function atualizarInfoDescritor(){
+
+    const bloco = document.getElementById("infoDescritor");
+    bloco.innerHTML = "";
 
     const descritores =
         [...document.querySelectorAll("#listaDescritores .selected")]
         .map(el=>el.dataset.value);
 
+    if(descritores.length === 0){
+        bloco.style.display = "none";
+        return;
+    }
+
     let html = "";
 
     descritores.forEach(d=>{
-        html +=
-            "<div class='info-item'>" +
-            "<span class='descritor-codigo'>" + d + "</span>" +
-            "<span class='descritor-texto'>" +
-            (mapaDescritores[d] || "") +
-            "</span></div>";
+        html += `
+            <div class="info-item">
+                <span class="descritor-codigo">${d}</span>
+                <span class="descritor-texto">
+                    ${mapaDescritores[d] || ""}
+                </span>
+            </div>`;
     });
 
-    document.getElementById("infoDescritor").innerHTML = html;
+    bloco.innerHTML = html;
+    bloco.style.display = "block";
 }
 
 </script>
