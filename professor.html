@@ -41,13 +41,13 @@ function iniciarPagina(){
 
             <div class="form-group">
                 <label>Assunto:</label>
-                <select id="assunto"></select>
+                <div id="listaAssuntos" class="turmas-grid"></div>
                 <div id="infoAssunto" class="info-text"></div>
             </div>
 
             <div class="form-group">
                 <label>Descritor (opcional):</label>
-                <select id="descritor"></select>
+                <div id="listaDescritores" class="turmas-grid"></div>
                 <div id="infoDescritor" class="info-text"></div>
             </div>
 
@@ -86,22 +86,27 @@ window.onload = iniciarPagina;
 
 
 // =============================
-// LÓGICA
+// VARIÁVEIS
 // =============================
 
 let banco = [];
 let mapaDescritores = {};
+
+
+// =============================
+// INICIALIZAÇÃO
+// =============================
 
 async function iniciar(){
 
     document.getElementById("status").innerText =
         "Carregando banco de dados...";
 
-    
-
     const dados = await carregarBancoCompleto();
 
-    banco = dados.questoes.filter(q => q.ATIVO === "SIM");
+    banco = dados.questoes.filter(q =>
+        String(q.ATIVO).trim().toUpperCase() === "SIM"
+    );
 
     dados.descritores.forEach(d=>{
         mapaDescritores[d.CODIGO] = d.DESCRICAO;
@@ -117,15 +122,6 @@ async function iniciar(){
     document.getElementById("nivel")
         .addEventListener("change", atualizarFiltros);
 
-    document.getElementById("assunto")
-        .addEventListener("change", relacionarAssuntoComDescritor);
-
-    document.getElementById("descritor")
-        .addEventListener("change", relacionarDescritorComAssunto);
-
-    document.getElementById("assunto").disabled = true;
-    document.getElementById("descritor").disabled = true;
-
     await carregarTurmas();
 
     document.getElementById("status").innerText =
@@ -134,45 +130,54 @@ async function iniciar(){
 
 
 // =============================
+// ATUALIZAR FILTROS
+// =============================
+
 function atualizarFiltros(){
 
     const disc = disciplina.value;
     const nivelSel = nivel.value;
 
-    const selAssunto = document.getElementById("assunto");
-    const selDescritor = document.getElementById("descritor");
+    const divAssunto =
+        document.getElementById("listaAssuntos");
+    const divDescritor =
+        document.getElementById("listaDescritores");
 
-    // Se não tem disciplina ou nível → bloqueia selects
-    if(!disc || !nivelSel){
+    divAssunto.innerHTML = "";
+    divDescritor.innerHTML = "";
+    infoAssunto.innerHTML = "";
+    infoDescritor.innerHTML = "";
 
-        selAssunto.innerHTML = "<option value=''>Selecione disciplina e nível</option>";
-        selDescritor.innerHTML = "<option value=''>Selecione disciplina e nível</option>";
+    if(!disc || !nivelSel) return;
 
-        selAssunto.disabled = true;
-        selDescritor.disabled = true;
-
-        infoAssunto.innerHTML="";
-        infoDescritor.innerHTML="";
-
-        return;
-    }
-
-    // Filtra corretamente
     const filtrado = banco.filter(q =>
         q.DISCIPLINA === disc &&
         q.NIVEL_ENSINO === nivelSel
     );
 
-    // Assuntos
-    preencherSelect("assunto",
-        [...new Set(filtrado.map(q=>q.ASSUNTO))]
-    );
+    // ================= ASSUNTOS MULTI
 
-    // Descritores
+    const listaAssuntos =
+        [...new Set(filtrado.map(q=>q.ASSUNTO))];
+
+    listaAssuntos.forEach(nome=>{
+        const label = document.createElement("label");
+
+        label.innerHTML = `
+            <input type="checkbox"
+                   value="${nome}"
+                   class="chkAssunto"
+                   onchange="relacionarAssuntoComDescritor()">
+            <span>${nome}</span>
+        `;
+
+        divAssunto.appendChild(label);
+    });
+
+    // ================= DESCRITORES MULTI
+
     const descritores =
         [...new Set(filtrado.map(q=>q.DESCRITOR))];
-
-    selDescritor.innerHTML = "<option value=''>Todos</option>";
 
     descritores
       .sort((a,b)=>{
@@ -181,105 +186,85 @@ function atualizarFiltros(){
           return n1-n2;
       })
       .forEach(cod=>{
-        let op = document.createElement("option");
-        op.value = cod;
-        op.textContent =
-            cod + " — " + (mapaDescritores[cod]||"");
-        selDescritor.appendChild(op);
+        const label = document.createElement("label");
+
+        label.innerHTML = `
+            <input type="checkbox"
+                   value="${cod}"
+                   class="chkDescritor">
+            <span>${cod} — ${mapaDescritores[cod]||""}</span>
+        `;
+
+        divDescritor.appendChild(label);
     });
-
-    selAssunto.disabled = false;
-    selDescritor.disabled = false;
-
-    infoAssunto.innerHTML="";
-    infoDescritor.innerHTML="";
 }
 
+
 // =============================
+// EMPILHAR DESCRITORES
+// =============================
+
 function relacionarAssuntoComDescritor(){
 
-    if(!assunto.value){
-        descritor.disabled=false;
+    const assuntosSelecionados =
+        [...document.querySelectorAll(".chkAssunto:checked")]
+        .map(cb => cb.value);
+
+    if(assuntosSelecionados.length === 0){
         infoAssunto.innerHTML="";
         return;
     }
 
-    descritor.disabled=true;
+    let descritores = new Set();
 
-    const descrs =
-        [...new Set(
-            banco.filter(q=>
-                q.ASSUNTO===assunto.value &&
-                q.NIVEL===nivel.value
-            ).map(q=>q.DESCRITOR)
-        )];
+    assuntosSelecionados.forEach(a=>{
+        banco
+          .filter(q =>
+              q.ASSUNTO===a &&
+              q.NIVEL_ENSINO===nivel.value
+          )
+          .forEach(q=> descritores.add(q.DESCRITOR));
+    });
 
     infoAssunto.innerHTML =
         "Descritores relacionados:<br>" +
-        descrs.map(c=>c+" — "+(mapaDescritores[c]||""))
-              .join("<br>");
+        [...descritores]
+          .sort()
+          .map(c=>c+" — "+(mapaDescritores[c]||""))
+          .join("<br>");
 }
 
 
 // =============================
-function relacionarDescritorComAssunto(){
-
-    if(!descritor.value){
-        assunto.disabled=false;
-        infoDescritor.innerHTML="";
-        return;
-    }
-
-    assunto.disabled=true;
-
-    const assuntos =
-        [...new Set(
-            banco.filter(q=>
-                q.DESCRITOR===descritor.value &&
-                q.NIVEL===nivel.value
-            ).map(q=>q.ASSUNTO)
-        )];
-
-    infoDescritor.innerHTML =
-        "Aparece nos assuntos: "+assuntos.join(", ");
-}
-
-
+// GERAR QUIZ
 // =============================
-function preencherSelect(id, lista){
 
-    const sel=document.getElementById(id);
-    sel.innerHTML="<option value=''>Todos</option>";
-
-    lista.forEach(v=>{
-        let op=document.createElement("option");
-        op.value=v;
-        op.textContent=v;
-        sel.appendChild(op);
-    });
-}
-
-
-// =============================
 function gerarQuiz(){
 
     const disciplinaSel =
         document.getElementById("disciplina").value;
+
     const nivelSel =
         document.getElementById("nivel").value;
-    const assuntoSel =
-        document.getElementById("assunto").value;
-    const descritorSel =
-        document.getElementById("descritor").value;
-    const quantidadeSel =
-        parseInt(document.getElementById("quantidade").value);
-    const nome =
-        document.getElementById("nomeQuiz").value || "Quiz";
 
     if(!disciplinaSel || !nivelSel){
         alert("Selecione disciplina e nível.");
         return;
     }
+
+    const assuntosSelecionados =
+        [...document.querySelectorAll(".chkAssunto:checked")]
+        .map(cb => cb.value);
+
+    const descritoresSelecionados =
+        [...document.querySelectorAll(".chkDescritor:checked")]
+        .map(cb => cb.value);
+
+    const quantidadeSel =
+        parseInt(document.getElementById("quantidade").value);
+
+    const nome =
+        document.getElementById("nomeQuiz").value || "Quiz";
 
     const turmasSelecionadas =
         [...document.querySelectorAll(".chkTurma:checked")]
@@ -292,11 +277,11 @@ function gerarQuiz(){
 
     const filtradas = banco.filter(q =>
         q.DISCIPLINA === disciplinaSel &&
-        q.NIVEL === nivelSel &&
-        (assuntoSel === "" ||
-         q.ASSUNTO === assuntoSel) &&
-        (descritorSel === "" ||
-         q.DESCRITOR === descritorSel)
+        q.NIVEL_ENSINO === nivelSel &&
+        (assuntosSelecionados.length === 0 ||
+            assuntosSelecionados.includes(q.ASSUNTO)) &&
+        (descritoresSelecionados.length === 0 ||
+            descritoresSelecionados.includes(q.DESCRITOR))
     );
 
     if(filtradas.length === 0){
@@ -305,6 +290,7 @@ function gerarQuiz(){
     }
 
     embaralhar(filtradas);
+
     const selecionadas =
         filtradas.slice(0, quantidadeSel);
 
@@ -328,6 +314,9 @@ function gerarQuiz(){
 
 
 // =============================
+// TURMAS
+// =============================
+
 async function carregarTurmas(){
 
     const token =
@@ -344,12 +333,6 @@ async function carregarTurmas(){
 
     div.innerHTML = "";
 
-    if(linhas.erro){
-        div.innerHTML =
-            "Erro ao carregar turmas.";
-        return;
-    }
-
     if(!Array.isArray(linhas) ||
        linhas.length <= 1){
         div.innerHTML =
@@ -364,7 +347,7 @@ async function carregarTurmas(){
         const label =
             document.createElement("label");
 
-      label.innerHTML = `
+        label.innerHTML = `
             <input type="checkbox"
                    value="${nomeTurma}"
                    class="chkTurma">
@@ -377,6 +360,19 @@ async function carregarTurmas(){
 
 
 // =============================
+function preencherSelect(id, lista){
+
+    const sel=document.getElementById(id);
+    sel.innerHTML="<option value=''>Selecione</option>";
+
+    lista.forEach(v=>{
+        let op=document.createElement("option");
+        op.value=v;
+        op.textContent=v;
+        sel.appendChild(op);
+    });
+}
+
 function embaralhar(a){
     for(let i=a.length-1;i>0;i--){
         let j=Math.floor(Math.random()*(i+1));
