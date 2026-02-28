@@ -1325,3 +1325,32 @@ html, body {
     background: #f9fafb;
     font-size: 14px;
 }
+
+.multi-item {
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.multi-item:hover {
+    background: #f2f4f7;
+}
+
+.multi-item.selected {
+    background: #2563eb;
+    color: #fff;
+    font-weight: 500;
+}
+
+.descritor-codigo {
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.descritor-texto {
+    font-size: 13px;
+    color: inherit;
+}
