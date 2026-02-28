@@ -1218,3 +1218,50 @@ html, body {
   }
 
 }
+
+/* ============================= */
+/* MULTI-SELEÇÃO ASSUNTO/DESCRITOR */
+/* ============================= */
+
+.turmas-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.turmas-grid label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.turmas-grid input[type="checkbox"] {
+    display: none;
+}
+
+.turmas-grid span {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: #e4e7ec;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+/* Estado marcado */
+.turmas-grid input[type="checkbox"]:checked + span {
+    background: #3b82f6;
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Hover */
+.turmas-grid span:hover {
+    background: #d0d5dd;
+}
+
+/* Texto informativo */
+.info-text {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #475467;
+}
