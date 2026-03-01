@@ -462,10 +462,7 @@ function gerarQuiz(){
     const selecionadas =
         filtradas.slice(0, qtd);
 
-    const turmasSelecionadas =
-        [...document.querySelectorAll(".chkTurma:checked")]
-        .map(cb=>cb.value);
-
+  
     localStorage.setItem("previewQuiz",
         JSON.stringify({
             id:"APL_"+Date.now(),
