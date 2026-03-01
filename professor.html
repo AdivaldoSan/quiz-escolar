@@ -15,11 +15,24 @@
 
 <script>
 
+<script>
+
+// ================= VARIÁVEIS =================
+
+let banco = [];
+let descritoresBanco = [];
+let mapaDescritores = {};
+let modoGeracao = null;
+
+
+// ================= INICIAR PÁGINA =================
+
 function iniciarPagina(){
+
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
 
         <div class="card form-card">
 
@@ -32,10 +45,18 @@ function iniciarPagina(){
                 <label>Nível:</label>
                 <select id="nivel">
                     <option value="">Selecione</option>
-                    <option value="EF1">Ensino Fundamental I</option>
-                    <option value="EF2">Ensino Fundamental II</option>
-                    <option value="EM">Ensino Médio</option>
+                    <option value="EF1">EF1</option>
+                    <option value="EF2">EF2</option>
+                    <option value="EM">EM</option>
                 </select>
+            </div>
+
+            <div id="etapaTurmas" style="display:none;">
+                <div class="form-group">
+                    <label>Turmas:</label>
+                    <div id="listaTurmas" class="turmas-grid"></div>
+                    <div id="erroTurma" class="erro-validacao"></div>
+                </div>
             </div>
 
             <div id="etapaModo" style="display:none;">
@@ -89,10 +110,12 @@ function iniciarPagina(){
                            placeholder="Ex: Revisão Funções 3ºA">
                 </div>
 
-                <div class="form-group">
-                    <label>Turmas:</label>
-                    <div id="erroTurma" class="erro-validacao"></div>
-                    <div id="listaTurmas" class="turmas-grid"></div>
+                <div id="areaReutilizacao" style="display:none; margin-top:8px;">
+                    <div id="infoIneditas" style="color:#b42318; font-size:13px;"></div>
+                    <label style="font-size:13px;">
+                        <input type="checkbox" id="permitirReutilizar">
+                        Permitir reutilizar questões já aplicadas
+                    </label>
                 </div>
 
                 <button class="btn-primary"
@@ -109,14 +132,6 @@ function iniciarPagina(){
 }
 
 window.onload = iniciarPagina;
-    
-
-// ================= VARIÁVEIS =================
-
-let banco = [];
-let descritoresBanco = [];
-let mapaDescritores = {};
-let modoGeracao = null;
 
 
 // ================= INICIALIZAÇÃO =================
@@ -149,6 +164,21 @@ async function iniciar(){
             });
         });
 
+    document.addEventListener("change", function(e){
+        if(e.target.classList.contains("chkTurma")){
+            const turmas =
+                document.querySelectorAll(".chkTurma:checked");
+
+            if(turmas.length > 0){
+                etapaModo.style.display = "block";
+            }else{
+                etapaModo.style.display = "none";
+                etapaFiltro.style.display = "none";
+                etapaFinal.style.display = "none";
+            }
+        }
+    });
+
     configurarMultiSelect("msAssunto");
     configurarMultiSelect("msDescritor");
     document.addEventListener("click", fecharMultiSelect);
@@ -157,7 +187,7 @@ async function iniciar(){
 }
 
 
-// ================= RESET AO TROCAR DISCIPLINA/NÍVEL =================
+// ================= RESET =================
 
 function resetarFluxo(){
 
@@ -166,17 +196,17 @@ function resetarFluxo(){
     document.querySelectorAll("input[name='modo']")
         .forEach(r=>r.checked=false);
 
-    if(disciplina.value && nivel.value){
-        etapaModo.style.display = "block";
-    }else{
-        etapaModo.style.display = "none";
-    }
+    limparSelecoes();
+    limparConsolidacoes();
 
     etapaFiltro.style.display = "none";
     etapaFinal.style.display = "none";
+    etapaModo.style.display = "none";
+    etapaTurmas.style.display = "none";
 
-    limparSelecoes();
-    limparConsolidacoes();
+    if(disciplina.value && nivel.value){
+        etapaTurmas.style.display = "block";
+    }
 }
 
 
@@ -191,23 +221,14 @@ function limparSelecoes(){
 }
 
 function limparConsolidacoes(){
-
     const a = document.getElementById("infoAssunto");
     const d = document.getElementById("infoDescritor");
-
-    if(a){
-        a.innerHTML="";
-        a.style.display="none";
-    }
-
-    if(d){
-        d.innerHTML="";
-        d.style.display="none";
-    }
+    if(a){ a.innerHTML=""; a.style.display="none"; }
+    if(d){ d.innerHTML=""; d.style.display="none"; }
 }
 
 
-// ================= MOSTRAR FILTRO =================
+// ================= FILTRO =================
 
 function mostrarFiltro(){
 
@@ -215,7 +236,6 @@ function mostrarFiltro(){
     etapaFinal.style.display = "none";
 
     atualizarFiltros();
-
     limparSelecoes();
     limparConsolidacoes();
 
@@ -248,30 +268,28 @@ function atualizarFiltros(){
             parseInt(b.replace(/\D/g,''))
         );
 
-    // mapa filtrado corretamente por disciplina + nível
-   mapaDescritores = {};
+    mapaDescritores = {};
 
-descritoresBanco.forEach(d=>{
+    descritoresBanco.forEach(d=>{
 
-    let nivelPlanilha = d.NIVEL;
+        let nivelPlanilha = d.NIVEL;
 
-    // normaliza nível da planilha
-    if(nivelPlanilha === "ENSINO MÉDIO")
-        nivelPlanilha = "EM";
+        if(nivelPlanilha === "ENSINO MÉDIO")
+            nivelPlanilha = "EM";
 
-    if(nivelPlanilha === "ENSINO FUNDAMENTAL 1")
-        nivelPlanilha = "EF1";
+        if(nivelPlanilha === "ENSINO FUNDAMENTAL 1")
+            nivelPlanilha = "EF1";
 
-    if(nivelPlanilha === "ENSINO FUNDAMENTAL 2")
-        nivelPlanilha = "EF2";
+        if(nivelPlanilha === "ENSINO FUNDAMENTAL 2")
+            nivelPlanilha = "EF2";
 
-    if(
-        d.DISCIPLINA === disciplina.value &&
-        nivelPlanilha === nivel.value
-    ){
-        mapaDescritores[d.CODIGO] = d.DESCRICAO;
-    }
-});
+        if(
+            d.DISCIPLINA === disciplina.value &&
+            nivelPlanilha === nivel.value
+        ){
+            mapaDescritores[d.CODIGO] = d.DESCRICAO;
+        }
+    });
 
     listaAssuntosHTML(listaAssuntos);
     listaDescritoresHTML(listaDescritores);
@@ -282,6 +300,183 @@ descritoresBanco.forEach(d=>{
     if(radioDescritor){
         radioDescritor.disabled = (listaDescritores.length === 0);
     }
+}
+
+
+// ================= REUTILIZAÇÃO POR TURMA =================
+
+async function buscarQuestoesJaUsadasPorTurma(turmasSelecionadas){
+
+    const resp = await fetch(API +
+        "?tipo=listarAplicacoes&token=" +
+        localStorage.getItem("TOKEN"));
+
+    const dados = await resp.json();
+
+    if(!Array.isArray(dados) || dados.length <= 1)
+        return [];
+
+    const cab = dados[0];
+    const idxParametros = cab.indexOf("PARAMETROS");
+    const idxTurmas = cab.indexOf("TURMAS");
+
+    let usadas = [];
+
+    dados.slice(1).forEach(linha=>{
+
+        try{
+
+            const turmasAplicacao =
+                JSON.parse(linha[idxTurmas] || "[]");
+
+            const mesmaTurma =
+                turmasAplicacao.some(t =>
+                    turmasSelecionadas.includes(t)
+                );
+
+            if(!mesmaTurma) return;
+
+            const lista =
+                JSON.parse(linha[idxParametros]);
+
+            lista.forEach(q=>{
+                usadas.push(q.ID);
+            });
+
+        }catch(e){}
+    });
+
+    return usadas;
+}
+
+
+// ================= GERAR QUIZ =================
+
+async function gerarQuiz(){
+
+    const erroTurma =
+        document.getElementById("erroTurma");
+
+    erroTurma.innerText = "";
+
+    const turmasSelecionadas =
+        [...document.querySelectorAll(".chkTurma:checked")]
+        .map(cb=>cb.value);
+
+    if(turmasSelecionadas.length === 0){
+        erroTurma.innerText =
+            "Selecione ao menos uma turma para continuar.";
+        return;
+    }
+
+    const qtd =
+        parseInt(document.getElementById("quantidade").value);
+
+    if(!qtd || qtd <= 0){
+        alert("Informe uma quantidade válida de questões.");
+        return;
+    }
+
+    if(!modoGeracao){
+        alert("Selecione o modo de geração (Assunto ou Descritor).");
+        return;
+    }
+
+    const nome =
+        document.getElementById("nomeQuiz").value.trim();
+
+    if(!nome){
+        alert("Informe um nome para a aplicação.");
+        return;
+    }
+
+    const assuntos =
+        [...document.querySelectorAll("#listaAssuntos .selected")]
+        .map(el=>el.dataset.value);
+
+    const descritores =
+        [...document.querySelectorAll("#listaDescritores .selected")]
+        .map(el=>el.dataset.value);
+
+    const filtradas = banco.filter(q=>{
+
+        if(q.DISCIPLINA !== disciplina.value) return false;
+        if(q.NIVEL_ENSINO !== nivel.value) return false;
+
+        if(modoGeracao==="ASSUNTO")
+            return assuntos.includes(q.ASSUNTO);
+
+        if(modoGeracao==="DESCRITOR")
+            return descritores.includes(q.DESCRITOR);
+
+        return false;
+    });
+
+    if(filtradas.length===0){
+        alert("Nenhuma questão encontrada.");
+        return;
+    }
+
+    const usadas =
+        await buscarQuestoesJaUsadasPorTurma(turmasSelecionadas);
+
+    const ineditas =
+        filtradas.filter(q => !usadas.includes(q.ID));
+
+    const areaReuso =
+        document.getElementById("areaReutilizacao");
+
+    const infoIneditas =
+        document.getElementById("infoIneditas");
+
+    if(ineditas.length >= qtd){
+
+        areaReuso.style.display = "none";
+        embaralhar(ineditas);
+
+        const selecionadas =
+            ineditas.slice(0, qtd);
+
+        finalizarPreview(selecionadas, turmasSelecionadas, nome);
+        return;
+    }
+
+    areaReuso.style.display = "block";
+
+    infoIneditas.innerText =
+        `Restam apenas ${ineditas.length} questão(ões) inédita(s) para essas turmas.`;
+
+    const permitir =
+        document.getElementById("permitirReutilizar").checked;
+
+    if(!permitir){
+        return;
+    }
+
+    embaralhar(filtradas);
+
+    const selecionadas =
+        filtradas.slice(0, qtd);
+
+    finalizarPreview(selecionadas, turmasSelecionadas, nome);
+}
+
+
+// ================= FINALIZAR =================
+
+function finalizarPreview(selecionadas, turmasSelecionadas, nome){
+
+    localStorage.setItem("previewQuiz",
+        JSON.stringify({
+            id:"APL_"+Date.now(),
+            nome: nome,
+            turmas: turmasSelecionadas,
+            qtd: selecionadas.length,
+            questoes: selecionadas
+        })
+    );
+
+    window.location.href="preview.html";
 }
 
 
@@ -399,86 +594,6 @@ function fecharMultiSelect(){
     document.querySelectorAll(".multi-select")
         .forEach(ms=>ms.classList.remove("open"));
 }
-
-
-// ================= GERAR QUIZ =================
-
-function gerarQuiz(){
-
-   const erroTurma =
-        document.getElementById("erroTurma");
-
-    erroTurma.innerText = "";
-
-    const turmasSelecionadas =
-        [...document.querySelectorAll(".chkTurma:checked")]
-        .map(cb=>cb.value);
-
-    if(turmasSelecionadas.length === 0){
-        erroTurma.innerText =
-            "Selecione ao menos uma turma para continuar.";
-        return;
-    }
-
-    const qtd =
-        parseInt(document.getElementById("quantidade").value);
-
-    if(!qtd || qtd <= 0){
-        alert("Informe uma quantidade válida de questões.");
-        return;
-    }
-
-    if(!modoGeracao){
-    alert("Selecione o modo de geração (Assunto ou Descritor).");
-    return;
-    }
-
-    const assuntos =
-        [...document.querySelectorAll("#listaAssuntos .selected")]
-        .map(el=>el.dataset.value);
-
-    const descritores =
-        [...document.querySelectorAll("#listaDescritores .selected")]
-        .map(el=>el.dataset.value);
-
-    const filtradas = banco.filter(q=>{
-
-        if(q.DISCIPLINA !== disciplina.value) return false;
-        if(q.NIVEL_ENSINO !== nivel.value) return false;
-
-        if(modoGeracao==="ASSUNTO")
-            return assuntos.includes(q.ASSUNTO);
-
-        if(modoGeracao==="DESCRITOR")
-            return descritores.includes(q.DESCRITOR);
-
-        return false;
-    });
-
-    if(filtradas.length===0){
-        alert("Nenhuma questão encontrada.");
-        return;
-    }
-
-    embaralhar(filtradas);
-
-    const selecionadas =
-        filtradas.slice(0, qtd);
-
-  
-    localStorage.setItem("previewQuiz",
-        JSON.stringify({
-            id:"APL_"+Date.now(),
-            nome: document.getElementById("nomeQuiz").value || "Quiz",
-            turmas: turmasSelecionadas,
-            qtd: selecionadas.length,
-            questoes: selecionadas
-        })
-    );
-
-    window.location.href="preview.html";
-}
-
 
 // ================= CONSOLIDAÇÃO =================
 
