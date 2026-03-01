@@ -1477,3 +1477,15 @@ label {
     border-left: 4px solid #12b76a;
     font-weight: 600;
 }
+//Mostra Alternativa correta no Preview
+.alt-preview {
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+}
+
+.alt-correta {
+    background: #ecfdf3;
+    border-left: 4px solid #12b76a;
+    font-weight: 600;
+}
