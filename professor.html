@@ -19,7 +19,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
 
         <div class="card form-card">
 
@@ -56,7 +56,7 @@ function iniciarPagina(){
 
             <div id="etapaFiltro" style="display:none;">
 
-                <div class="form-group" id="blocoAssunto">
+                <div class="roup" id="blocoAssunto">
                     <label>Assunto:</label>
                     <div class="multi-select" id="msAssunto">
                         <div class="multi-header">Nenhum selecionado ▼</div>
@@ -65,7 +65,7 @@ function iniciarPagina(){
                     <div id="infoAssunto" class="consolidacao"></div>
                 </div>
 
-                <div class="form-group" id="blocoDescritor" style="display:none;">
+                <div class="roup" id="blocoDescritor" style="display:none;">
                     <label>Descritor:</label>
                     <div class="multi-select" id="msDescritor">
                         <div class="multi-header">Nenhum selecionado ▼</div>
@@ -91,6 +91,7 @@ function iniciarPagina(){
 
                 <div class="form-group">
                     <label>Turmas:</label>
+                    <div id="erroTurma" class="erro-validacao"></div>
                     <div id="listaTurmas" class="turmas-grid"></div>
                 </div>
 
