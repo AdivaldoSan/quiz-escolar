@@ -37,7 +37,8 @@ body {
   text-align: center;
   margin-bottom: 35px;
   font-size: 26px;
-  color: var(--text);
+  font-weight: 600;
+  color: var(--primary-dark);
 }
 
 .form-group {
