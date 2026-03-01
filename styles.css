@@ -1465,3 +1465,9 @@ label {
 .consolidacao .descritor-texto {
     color: #334155;
 }
+
+.correta-preview {
+    background: #ecfdf3;
+    border-left: 4px solid #12b76a;
+    font-weight: 600;
+}
