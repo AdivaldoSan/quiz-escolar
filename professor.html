@@ -19,7 +19,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
 
         <div class="card form-card">
 
@@ -404,6 +404,31 @@ function fecharMultiSelect(){
 // ================= GERAR QUIZ =================
 
 function gerarQuiz(){
+
+    function gerarQuiz(){
+
+    const erroTurma =
+        document.getElementById("erroTurma");
+
+    erroTurma.innerText = "";
+
+    const turmasSelecionadas =
+        [...document.querySelectorAll(".chkTurma:checked")]
+        .map(cb=>cb.value);
+
+    if(turmasSelecionadas.length === 0){
+        erroTurma.innerText =
+            "Selecione ao menos uma turma para continuar.";
+        return;
+    }
+
+    const qtd =
+        parseInt(document.getElementById("quantidade").value);
+
+    if(!qtd || qtd <= 0){
+        alert("Informe uma quantidade válida de questões.");
+        return;
+    }
 
     const assuntos =
         [...document.querySelectorAll("#listaAssuntos .selected")]
