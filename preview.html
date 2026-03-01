@@ -66,15 +66,14 @@ function iniciarPagina(){
     const div = document.createElement("div");
     div.className = "preview-questao";
 
-    function alt(letra, texto){
-        const correta = (letra === q.GABARITO);
-        return `
-            <div class="alt-preview ${correta ? "alt-correta" : ""}">
-                ${correta ? "✔ " : ""}
-                <strong>${letra})</strong> ${texto}
-            </div>
-        `;
-    }
+   function alt(letra, texto){
+    const correta = (letra === q.GABARITO);
+    return `
+        <div class="alt-preview ${correta ? "alt-correta" : ""}">
+            <strong>${letra})</strong> ${texto}
+        </div>
+    `;
+}
 
     div.innerHTML = `
         <strong>${i+1}) ${q.ENUNCIADO}</strong><br><br>
