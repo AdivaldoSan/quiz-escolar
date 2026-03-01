@@ -428,6 +428,11 @@ function gerarQuiz(){
         return;
     }
 
+    if(!modoGeracao){
+    alert("Selecione o modo de geração (Assunto ou Descritor).");
+    return;
+    }
+
     const assuntos =
         [...document.querySelectorAll("#listaAssuntos .selected")]
         .map(el=>el.dataset.value);
