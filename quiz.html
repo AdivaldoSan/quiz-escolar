@@ -240,10 +240,10 @@ async function finalizar(){
 
     if(enviando) return;
     enviando = true;
-    
+
     mostrarOverlayEnvio();
 
-    let acertos = respostas.filter(r=>r.marcada===r.correta).length;
+    const acertos = respostas.filter(r => r.marcada === r.correta).length;
 
     const envio = respostas.map(r => ({
         aplicacao: quiz.id,
@@ -265,31 +265,15 @@ async function finalizar(){
             })
         });
 
-        await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-        tipo:"respostas",
-        payload: envio
-    })
-});
+        // remove overlay
+        const overlay = document.getElementById("overlayEnvio");
+        if(overlay) overlay.remove();
 
-// 🔥 REMOVER OVERLAY AQUI
-const overlay = document.getElementById("overlayEnvio");
-if(overlay) overlay.remove();
-
-localStorage.removeItem("quizAtual");
-
-document.querySelector(".quiz-container").innerHTML = `
-    <div class="final-card">
-        <h2>Atividade Concluída!</h2>
-        <p>Você acertou <b>${acertos}</b> de <b>${respostas.length}</b> questões.</p>
-        <p>Suas respostas foram registradas com sucesso.</p>
-    </div>
-`;
-        
+        // limpa localStorage
         localStorage.removeItem("quizAtual");
 
-        document.body.innerHTML = `
+        // mantém header e substitui só o container
+        document.querySelector(".quiz-container").innerHTML = `
             <div class="final-card">
                 <h2>🎉 Atividade Concluída!</h2>
                 <p>Você acertou <b>${acertos}</b> de <b>${respostas.length}</b> questões.</p>
@@ -302,7 +286,6 @@ document.querySelector(".quiz-container").innerHTML = `
         mostrarAlerta("Erro ao enviar respostas. Verifique sua conexão.");
     }
 }
-
 
 // ===========================
 // IDENTIFICAÇÃO
