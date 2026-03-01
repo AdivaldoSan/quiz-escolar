@@ -1477,7 +1477,7 @@ label {
     border-left: 4px solid #12b76a;
     font-weight: 600;
 }
-//Mostra Alternativa correta no Preview
+/*Mostra Alternativa correta no Preview*/
 .alt-preview {
     padding: 6px 10px;
     margin-bottom: 6px;
@@ -1488,4 +1488,10 @@ label {
     background: #ecfdf3;
     border-left: 4px solid #12b76a;
     font-weight: 600;
+}
+
+/*Cabeçalho dos PDFs*/
+.cabecalho img{
+    height:70px;
+    margin-bottom:10px;
 }
