@@ -19,7 +19,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
 
         <div class="card form-card">
 
@@ -458,9 +458,6 @@ function gerarQuiz(){
     }
 
     embaralhar(filtradas);
-
-    const qtd =
-        parseInt(document.getElementById("quantidade").value);
 
     const selecionadas =
         filtradas.slice(0, qtd);
