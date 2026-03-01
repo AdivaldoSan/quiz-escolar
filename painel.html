@@ -193,7 +193,15 @@ function montarTabela(dados, contagem){
 // COPIAR LINK
 // =============================
 function copiarLink(link){
-    navigator.clipboard.writeText(link);
+
+    navigator.clipboard.writeText(link)
+    .then(()=>{
+        mostrarToast("Link copiado com sucesso!");
+    })
+    .catch(()=>{
+        mostrarToast("Não foi possível copiar o link.");
+    });
+
 }
 
 
@@ -565,6 +573,25 @@ function abrirQRCode(id){
 function fecharQR(){
     const modal = document.getElementById("modalQR");
     if(modal) modal.remove();
+}
+
+
+function mostrarToast(mensagem){
+
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.innerText = mensagem;
+
+    document.body.appendChild(toast);
+
+    // força reflow para animar
+    setTimeout(() => toast.classList.add("show"), 10);
+
+    // remover após 3s
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
     
 carregarAplicacoes();
