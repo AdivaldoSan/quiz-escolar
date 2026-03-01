@@ -19,7 +19,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
 
         <div class="card form-card">
 
@@ -248,16 +248,29 @@ function atualizarFiltros(){
         );
 
     // mapa filtrado corretamente por disciplina + nível
-    mapaDescritores = {};
+   mapaDescritores = {};
 
-    descritoresBanco.forEach(d=>{
-        if(
-            d.DISCIPLINA === disciplina.value &&
-            d.NIVEL === nivel.value
-        ){
-            mapaDescritores[d.CODIGO] = d.DESCRICAO;
-        }
-    });
+descritoresBanco.forEach(d=>{
+
+    let nivelPlanilha = d.NIVEL;
+
+    // normaliza nível da planilha
+    if(nivelPlanilha === "ENSINO MÉDIO")
+        nivelPlanilha = "EM";
+
+    if(nivelPlanilha === "ENSINO FUNDAMENTAL 1")
+        nivelPlanilha = "EF1";
+
+    if(nivelPlanilha === "ENSINO FUNDAMENTAL 2")
+        nivelPlanilha = "EF2";
+
+    if(
+        d.DISCIPLINA === disciplina.value &&
+        nivelPlanilha === nivel.value
+    ){
+        mapaDescritores[d.CODIGO] = d.DESCRICAO;
+    }
+});
 
     listaAssuntosHTML(listaAssuntos);
     listaDescritoresHTML(listaDescritores);
