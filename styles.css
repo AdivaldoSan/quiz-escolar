@@ -1465,6 +1465,12 @@ label {
 .consolidacao .descritor-texto {
     color: #334155;
 }
+.erro-validacao {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #b42318;
+    font-weight: 500;
+}
 
 .correta-preview {
     background: #ecfdf3;
