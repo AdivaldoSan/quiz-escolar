@@ -34,7 +34,7 @@ function iniciarPagina(){
     }
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📋 Pré-visualização do Quiz</h2>
+        <h2 style="margin-bottom:20px;">📋 Pré-visualização das Questões...</h2>
 
         <div class="card">
 
@@ -63,19 +63,29 @@ function iniciarPagina(){
 
     preview.questoes.forEach((q,i)=>{
 
-        const div = document.createElement("div");
-        div.className = "preview-questao";
+    const div = document.createElement("div");
+    div.className = "preview-questao";
 
-        div.innerHTML = `
-            <strong>${i+1}) ${q.ENUNCIADO}</strong><br><br>
-            A) ${q.ALT_A}<br>
-            B) ${q.ALT_B}<br>
-            C) ${q.ALT_C}<br>
-            D) ${q.ALT_D}<br>
+    function alt(letra, texto){
+        const correta = (letra === q.GABARITO);
+        return `
+            <div class="alt-preview ${correta ? "alt-correta" : ""}">
+                ${correta ? "✔ " : ""}
+                <strong>${letra})</strong> ${texto}
+            </div>
         `;
+    }
 
-        container.appendChild(div);
-    });
+    div.innerHTML = `
+        <strong>${i+1}) ${q.ENUNCIADO}</strong><br><br>
+        ${alt("A", q.ALT_A)}
+        ${alt("B", q.ALT_B)}
+        ${alt("C", q.ALT_C)}
+        ${alt("D", q.ALT_D)}
+    `;
+
+    container.appendChild(div);
+});
 }
 
 window.onload = iniciarPagina;
