@@ -13,6 +13,7 @@
 
 <script src="./js/conexao.js"></script>
 <script src="./js/layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <script>
 
@@ -20,7 +21,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📊 Painel de Aplicações...</h2>
+        <h2 style="margin-bottom:20px;">📊 Painel de Aplicações.</h2>
         <div id="listaAplicacoes" class="card">
             Carregando aplicações...
         </div>
@@ -158,6 +159,12 @@ function montarTabela(dados, contagem){
                                 title="Copiar link para os alunos"
                                 onclick="copiarLink('${linkAluno}')">
                                 🔗
+                        </button>
+
+                        <button class="btn-acao"
+                                title="Ver QR CODE"
+                                onclick="abrirQRCode('${id}')">
+                                📱
                         </button>
 
                     </div>
@@ -431,6 +438,43 @@ async function alterarStatus(id, status){
 
 carregarAplicacoes();
 }
+
+function abrirQRCode(id){
+
+    const link = window.location.origin +
+                 window.location.pathname.replace("painel.html","") +
+                 "aluno.html?id=" + id;
+
+    const modal = document.createElement("div");
+    modal.id = "modalQR";
+
+    modal.innerHTML = `
+        <div class="modal-bg" onclick="fecharQR()"></div>
+        <div class="modal-box">
+            <h3>Aplicação via QR Code</h3>
+
+            <div id="qrcode"></div>
+
+            <input value="${link}" readonly onclick="this.select()">
+
+            <button onclick="fecharQR()">Fechar</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    new QRCode(document.getElementById("qrcode"), {
+        text: link,
+        width: 180,
+        height: 180
+    });
+}
+
+function fecharQR(){
+    const modal = document.getElementById("modalQR");
+    if(modal) modal.remove();
+}
+    
 carregarAplicacoes();
 
 </script>
