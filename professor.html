@@ -56,7 +56,7 @@ function iniciarPagina(){
 
             <div id="etapaFiltro" style="display:none;">
 
-                <div class="roup" id="blocoAssunto">
+                <div class="form-group" id="blocoAssunto">
                     <label>Assunto:</label>
                     <div class="multi-select" id="msAssunto">
                         <div class="multi-header">Nenhum selecionado ▼</div>
@@ -65,7 +65,7 @@ function iniciarPagina(){
                     <div id="infoAssunto" class="consolidacao"></div>
                 </div>
 
-                <div class="roup" id="blocoDescritor" style="display:none;">
+                <div class="form-group" id="blocoDescritor" style="display:none;">
                     <label>Descritor:</label>
                     <div class="multi-select" id="msDescritor">
                         <div class="multi-header">Nenhum selecionado ▼</div>
@@ -405,9 +405,7 @@ function fecharMultiSelect(){
 
 function gerarQuiz(){
 
-    function gerarQuiz(){
-
-    const erroTurma =
+   const erroTurma =
         document.getElementById("erroTurma");
 
     erroTurma.innerText = "";
