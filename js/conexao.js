@@ -24,29 +24,48 @@ function tabelaParaObjetos(linhas){
 }
 
 // ===============================
+// ===============================
 async function carregarBancoCompleto(){
 
     const token = localStorage.getItem("TOKEN");
 
+    // Se não tiver token, força login
     if(!token){
         window.location.href = "index.html";
         return;
     }
 
-    const [q,d] = await Promise.all([
-        fetch(API+"?tipo=questoes&token="+token).then(r=>r.json()),
-        fetch(API+"?tipo=descritores&token="+token).then(r=>r.json())
-    ]);
+    try {
 
-    if(q.erro || d.erro){
-        alert("Sessão expirada. Faça login novamente.");
-        localStorage.removeItem("TOKEN");
-        window.location.href = "index.html";
-        return;
+        const [respQuestoes, respDescritores] = await Promise.all([
+            fetch(API + "?tipo=questoes&token=" + token),
+            fetch(API + "?tipo=descritores&token=" + token)
+        ]);
+
+        const q = await respQuestoes.json();
+        const d = await respDescritores.json();
+
+        // Se backend negar acesso
+        if(q.erro || d.erro){
+            alert("Sessão expirada ou não autorizada. Faça login novamente.");
+            localStorage.removeItem("TOKEN");
+            window.location.href = "index.html";
+            return;
+        }
+
+        return {
+            questoes: tabelaParaObjetos(q),
+            descritores: tabelaParaObjetos(d)
+        };
+
+    } catch (e) {
+
+        console.error("Erro ao carregar banco:", e);
+
+        alert("Erro de conexão com o servidor.");
+        return {
+            questoes: [],
+            descritores: []
+        };
     }
-
-    return {
-        questoes: tabelaParaObjetos(q),
-        descritores: tabelaParaObjetos(d)
-    };
 }
