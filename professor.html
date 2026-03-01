@@ -30,7 +30,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
 
         <div class="card form-card">
 
@@ -40,13 +40,14 @@ function iniciarPagina(){
             </div>
 
             <div class="form-group">
-                <label>Nível:</label>
+               <label>Nível das questões</label>
                 <select id="nivel">
                     <option value="">Selecione</option>
-                    <option value="EF1">EF1</option>
-                    <option value="EF2">EF2</option>
-                    <option value="EM">EM</option>
+                    <option value="EF1">Ensino Fundamental I</option>
+                    <option value="EF2">Ensino Fundamental II</option>
+                    <option value="EM">Ensino Médio</option>
                 </select>
+                
             </div>
 
             <div id="etapaTurmas" style="display:none;">
@@ -103,9 +104,10 @@ function iniciarPagina(){
                 </div>
 
                 <div class="form-group">
-                    <label>Nome do Quiz:</label>
+                    <label>Nome do Simulado:</label>
                     <input type="text" id="nomeQuiz"
                            placeholder="Ex: Revisão Funções 3ºA">
+                    <div id="erroNome" class="erro-validacao"></div>
                 </div>
 
                 <div id="areaReutilizacao" style="display:none; margin-top:8px;">
@@ -379,15 +381,25 @@ async function gerarQuiz(){
         alert("Selecione o modo de geração (Assunto ou Descritor).");
         return;
     }
+    
 
-    const nome =
-        document.getElementById("nomeQuiz").value.trim();
+        const nomeInput =
+            document.getElementById("nomeQuiz");
+        
+        const erroNome =
+            document.getElementById("erroNome");
+        
+        erroNome.innerText = "";
+        
+        const nome = nomeInput.value.trim();
+        
+        if(!nome){
+            erroNome.innerText =
+                "Informe um nome para a aplicação.";
+            return;
+        }
 
-    if(!nome){
-        alert("Informe um nome para a aplicação.");
-        return;
-    }
-
+    
     const assuntos =
         [...document.querySelectorAll("#listaAssuntos .selected")]
         .map(el=>el.dataset.value);
