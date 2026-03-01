@@ -15,6 +15,101 @@
 
 <script>
 
+function iniciarPagina(){
+    criarLayout();
+
+    document.getElementById("conteudo").innerHTML = `
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
+
+        <div class="card form-card">
+
+            <div class="form-group">
+                <label>Disciplina:</label>
+                <select id="disciplina"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Nível:</label>
+                <select id="nivel">
+                    <option value="">Selecione</option>
+                    <option value="EF1">EF1</option>
+                    <option value="EF2">EF2</option>
+                    <option value="EM">EM</option>
+                </select>
+            </div>
+
+            <div id="etapaModo" style="display:none;">
+                <div class="form-group">
+                    <label>Modo de geração:</label>
+                    <div class="modo-geracao">
+                        <label>
+                            <input type="radio" name="modo" value="ASSUNTO">
+                            Por Assunto
+                        </label>
+                        <label>
+                            <input type="radio" name="modo" value="DESCRITOR">
+                            Por Descritor
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="etapaFiltro" style="display:none;">
+
+                <div class="form-group" id="blocoAssunto">
+                    <label>Assunto:</label>
+                    <div class="multi-select" id="msAssunto">
+                        <div class="multi-header">Nenhum selecionado ▼</div>
+                        <div class="multi-list" id="listaAssuntos"></div>
+                    </div>
+                    <div id="infoAssunto" class="consolidacao"></div>
+                </div>
+
+                <div class="form-group" id="blocoDescritor" style="display:none;">
+                    <label>Descritor:</label>
+                    <div class="multi-select" id="msDescritor">
+                        <div class="multi-header">Nenhum selecionado ▼</div>
+                        <div class="multi-list" id="listaDescritores"></div>
+                    </div>
+                    <div id="infoDescritor" class="consolidacao"></div>
+                </div>
+
+            </div>
+
+            <div id="etapaFinal" style="display:none;">
+
+                <div class="form-group">
+                    <label>Quantidade de questões:</label>
+                    <input type="number" id="quantidade" value="5">
+                </div>
+
+                <div class="form-group">
+                    <label>Nome do Quiz:</label>
+                    <input type="text" id="nomeQuiz"
+                           placeholder="Ex: Revisão Funções 3ºA">
+                </div>
+
+                <div class="form-group">
+                    <label>Turmas:</label>
+                    <div id="listaTurmas" class="turmas-grid"></div>
+                </div>
+
+                <button class="btn-primary"
+                        onclick="gerarQuiz()">
+                    Gerar Quiz
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    iniciar();
+}
+
+window.onload = iniciarPagina;
+    
+
 // ================= VARIÁVEIS =================
 
 let banco = [];
