@@ -1582,3 +1582,22 @@ label {
   display: flex;
   align-items: center;
 }
+
+/* ===== IDENT HEADER ===== */
+
+.ident-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.ident-logo {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 14px;
+}
+
+.ident-titulo {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--primary-dark);  /* azul institucional */
+}
