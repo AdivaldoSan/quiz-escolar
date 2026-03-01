@@ -300,9 +300,30 @@ async function gerarPDF(id){
 </html>
         `);
 
-        novaJanela.document.close();
-        novaJanela.focus();
-        novaJanela.print();
+     novaJanela.document.close();
+
+            let imprimiu = false;
+            
+            function imprimir(){
+                if(imprimiu) return;
+                imprimiu = true;
+                novaJanela.focus();
+                novaJanela.print();
+            }
+            
+            const img = novaJanela.document.querySelector("img");
+            
+            if(img){
+            
+                img.onload = imprimir;
+                img.onerror = imprimir;
+            
+                setTimeout(imprimir, 1000);
+            
+            }else{
+            
+                imprimir();
+            }
 
     }catch(e){
 
@@ -408,9 +429,30 @@ async function gerarGabarito(id){
         `);
 
         novaJanela.document.close();
-        novaJanela.focus();
-        novaJanela.print();
 
+            let imprimiu = false;
+            
+            function imprimir(){
+                if(imprimiu) return;
+                imprimiu = true;
+                novaJanela.focus();
+                novaJanela.print();
+            }
+            
+            const img = novaJanela.document.querySelector("img");
+            
+            if(img){
+            
+                img.onload = imprimir;
+                img.onerror = imprimir;
+            
+                setTimeout(imprimir, 1000);
+            
+            }else{
+            
+                imprimir();
+            }
+            
     }catch(e){
 
         novaJanela.close();
