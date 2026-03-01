@@ -1561,3 +1561,24 @@ label {
   justify-content: center;
   gap: 12px;
 }
+
+
+.login-header.horizontal {
+  display: flex;
+  align-items: center;     /* centraliza verticalmente */
+  justify-content: center;
+  gap: 12px;
+}
+
+.login-logo {
+  width: 46px;
+  height: 46px;
+  display: block;          /* remove alinhamento baseline */
+}
+
+.login-header.horizontal h2 {
+  margin: 0;               /* remove margem padrão */
+  line-height: 1;          /* evita deslocamento vertical */
+  display: flex;
+  align-items: center;
+}
