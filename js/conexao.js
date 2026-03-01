@@ -26,10 +26,24 @@ function tabelaParaObjetos(linhas){
 // ===============================
 async function carregarBancoCompleto(){
 
+    const token = localStorage.getItem("TOKEN");
+
+    if(!token){
+        window.location.href = "index.html";
+        return;
+    }
+
     const [q,d] = await Promise.all([
-        fetch(API+"?tipo=questoes").then(r=>r.json()),
-        fetch(API+"?tipo=descritores").then(r=>r.json())
+        fetch(API+"?tipo=questoes&token="+token).then(r=>r.json()),
+        fetch(API+"?tipo=descritores&token="+token).then(r=>r.json())
     ]);
+
+    if(q.erro || d.erro){
+        alert("Sessão expirada. Faça login novamente.");
+        localStorage.removeItem("TOKEN");
+        window.location.href = "index.html";
+        return;
+    }
 
     return {
         questoes: tabelaParaObjetos(q),
