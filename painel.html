@@ -20,7 +20,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📊 Painel de Aplicações...</h2>
+        <h2 style="margin-bottom:20px;">📊 Painel de Aplicações.</h2>
         <div id="listaAplicacoes" class="card">
             Carregando aplicações...
         </div>
@@ -198,11 +198,9 @@ async function gerarPDF(id){
     const novaJanela = window.open("", "_blank");
 
     if(!novaJanela){
-        alert("Permita popups para gerar o PDF.");
+        alert("Permita popups para gerar a prova.");
         return;
     }
-
-    novaJanela.document.write("<p>Carregando prova...</p>");
 
     try{
 
@@ -215,83 +213,96 @@ async function gerarPDF(id){
             return;
         }
 
-        novaJanela.document.body.innerHTML = `
-            <style>
-                body{
-                        font-family: Arial;
-                        margin: 50px;
-                    }
+        novaJanela.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <base href="${window.location.origin}/">
+                    <title>Prova</title>
+                    <style>
+                        body{
+                            font-family: Arial;
+                            margin: 50px;
+                        }
                 
-                    .cabecalho{
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 15px;
-                        margin-bottom: 25px;
-                    }
+                        .cabecalho{
+                            display:flex;
+                            align-items:center;
+                            gap:15px;
+                            margin-bottom:30px;
+                        }
                 
-                    .cabecalho img{
-                        height: 60px;
-                    }
+                        .cabecalho img{
+                            height:60px;
+                        }
                 
-                    .texto-cabecalho{
-                        text-align: left;
-                    }
+                        .titulo-sistema{
+                            font-size:18px;
+                            font-weight:bold;
+                        }
                 
-                    .titulo-sistema{
-                        font-size: 18px;
-                        font-weight: bold;
-                    }
+                        .subtitulo{
+                            font-size:14px;
+                            color:#555;
+                        }
                 
-                    .subtitulo{
-                        font-size: 14px;
-                        color: #555;
-                    }
-                </style>
+                        h2{
+                            text-align:center;
+                            margin-bottom:20px;
+                        }
+                
+                        .questao{
+                            margin-bottom:25px;
+                        }
+                    </style>
+                </head>
+                <body>
                 
                 <div class="cabecalho">
-                    <img src="${window.location.origin}/favicon.svg">
-                    <div class="texto-cabecalho">
+                    <img src="favicon.svg">
+                    <div>
                         <div class="titulo-sistema">Avalia+</div>
                         <div class="subtitulo">Plataforma de Avaliação Digital</div>
                     </div>
                 </div>
-            
-            <style>
-                body{font-family:Arial;margin:50px;}
-                h2{text-align:center;}
-                .questao{margin-bottom:25px;}
-            </style>
+                
+                <h2>${dados.nome}</h2>
+                <p>Escola ___________________________________________</p>
+                <p>Aluno  ___________________________________________</p>
+                <p>Série _________Turma_________</p>
+                <hr>
+                        `);
 
-            <h2>${dados.nome}</h2>
-            <p>Escola ___________________________________________</p>
-            <p>Aluno  ___________________________________________</p>
-            <p>Série _________Turma_________</p>
-            <hr>
+        dados.questoes.forEach((q,i)=>{
 
-            ${
-                dados.questoes.map((q,i)=>`
-                    <div class="questao">
-                        <b>${i+1}) ${q.ENUNCIADO}</b><br><br>
-                        A) ${q.ALT_A}<br>
-                        B) ${q.ALT_B}<br>
-                        C) ${q.ALT_C}<br>
-                        D) ${q.ALT_D}<br>
-                    </div>
-                `).join("")
-            }
-        `;
+            novaJanela.document.write(`
+                <div class="questao">
+                    <b>${i+1}) ${q.ENUNCIADO}</b><br><br>
+                    A) ${q.ALT_A}<br>
+                    B) ${q.ALT_B}<br>
+                    C) ${q.ALT_C}<br>
+                    D) ${q.ALT_D}<br>
+                </div>
+            `);
+
+        });
+
+        novaJanela.document.write(`
+</body>
+</html>
+        `);
 
         novaJanela.document.close();
         novaJanela.focus();
         novaJanela.print();
 
     }catch(e){
+
         novaJanela.close();
-        alert("Erro ao gerar PDF.");
+        alert("Erro ao gerar prova.");
     }
 }
-
 
 // =============================
 // GERAR GABARITO
