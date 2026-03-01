@@ -216,6 +216,12 @@ async function gerarPDF(id){
         }
 
         novaJanela.document.body.innerHTML = `
+            <div class="cabecalho">
+                <img src="${window.location.origin}/favicon.svg">
+                <div><strong>Avalia+</strong></div>
+                <div>Plataforma de Avaliações</div>
+            </div>
+            
             <style>
                 body{font-family:Arial;margin:50px;}
                 h2{text-align:center;}
@@ -223,7 +229,9 @@ async function gerarPDF(id){
             </style>
 
             <h2>${dados.nome}</h2>
-            <p>Aluno: ___________________________________________</p>
+            <p>Escola ___________________________________________</p>
+            <p>Aluno  ___________________________________________</p>
+            <p>Série _________Turma_________</p>
             <hr>
 
             ${
@@ -276,6 +284,12 @@ async function gerarGabarito(id){
         }
 
         novaJanela.document.body.innerHTML = `
+            <div class="cabecalho">
+                <img src="${window.location.origin}/favicon.svg">
+                <div><strong>Avalia+</strong></div>
+                <div>Plataforma de Avaliações</div>
+            </div>
+            
             <style>
                 body{font-family:Arial;margin:50px;}
             </style>
