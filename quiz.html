@@ -279,9 +279,9 @@ if(overlay) overlay.remove();
 
 localStorage.removeItem("quizAtual");
 
-document.body.innerHTML = `
+document.querySelector(".quiz-container").innerHTML = `
     <div class="final-card">
-        <h2>🎉 Atividade Concluída!</h2>
+        <h2>Atividade Concluída!</h2>
         <p>Você acertou <b>${acertos}</b> de <b>${respostas.length}</b> questões.</p>
         <p>Suas respostas foram registradas com sucesso.</p>
     </div>
