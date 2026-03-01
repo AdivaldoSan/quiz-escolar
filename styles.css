@@ -1531,3 +1531,26 @@ label {
     margin: 10px 0;
     padding: 6px;
 }
+
+/* ===== LOGIN HEADER COM LOGO ===== */
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-logo {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.login-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.login-header h2 span {
+  font-weight: 700;
+}
