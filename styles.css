@@ -1495,3 +1495,32 @@ label {
     height:70px;
     margin-bottom:10px;
 }
+
+/* MODAL PARA QR CODE */
+#modalQR {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+}
+
+.modal-bg {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-box {
+    position: relative;
+    width: 320px;
+    background: white;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.modal-box input {
+    width: 100%;
+    margin: 10px 0;
+    padding: 6px;
+}
