@@ -15,104 +15,10 @@
 
 <script>
 
-function iniciarPagina(){
-    criarLayout();
-
-    document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
-
-        <div class="card form-card">
-
-            <div class="form-group">
-                <label>Disciplina:</label>
-                <select id="disciplina"></select>
-            </div>
-
-            <div class="form-group">
-                <label>Nível:</label>
-                <select id="nivel">
-                    <option value="">Selecione</option>
-                    <option value="EF1">EF1</option>
-                    <option value="EF2">EF2</option>
-                    <option value="EM">EM</option>
-                </select>
-            </div>
-
-            <div id="etapaModo" style="display:none;">
-                <div class="form-group">
-                    <label>Modo de geração:</label>
-                    <div class="modo-geracao">
-                        <label>
-                            <input type="radio" name="modo" value="ASSUNTO">
-                            Por Assunto
-                        </label>
-                        <label>
-                            <input type="radio" name="modo" value="DESCRITOR">
-                            Por Descritor
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div id="etapaFiltro" style="display:none;">
-
-                <div class="form-group" id="blocoAssunto">
-                    <label>Assunto:</label>
-                    <div class="multi-select" id="msAssunto">
-                        <div class="multi-header">Nenhum selecionado ▼</div>
-                        <div class="multi-list" id="listaAssuntos"></div>
-                    </div>
-                    <div id="infoAssunto" class="consolidacao"></div>
-                </div>
-
-                <div class="form-group" id="blocoDescritor" style="display:none;">
-                    <label>Descritor:</label>
-                    <div class="multi-select" id="msDescritor">
-                        <div class="multi-header">Nenhum selecionado ▼</div>
-                        <div class="multi-list" id="listaDescritores"></div>
-                    </div>
-                    <div id="infoDescritor" class="consolidacao"></div>
-                </div>
-
-            </div>
-
-            <div id="etapaFinal" style="display:none;">
-
-                <div class="form-group">
-                    <label>Quantidade de questões:</label>
-                    <input type="number" id="quantidade" value="5">
-                </div>
-
-                <div class="form-group">
-                    <label>Nome do Quiz:</label>
-                    <input type="text" id="nomeQuiz"
-                           placeholder="Ex: Revisão Funções 3ºA">
-                </div>
-
-                <div class="form-group">
-                    <label>Turmas:</label>
-                    <div id="listaTurmas" class="turmas-grid"></div>
-                </div>
-
-                <button class="btn-primary"
-                        onclick="gerarQuiz()">
-                    Gerar Quiz
-                </button>
-
-            </div>
-
-        </div>
-    `;
-
-    iniciar();
-}
-
-window.onload = iniciarPagina;
-
-
 // ================= VARIÁVEIS =================
 
 let banco = [];
+let descritoresBanco = [];
 let mapaDescritores = {};
 let modoGeracao = null;
 
@@ -127,19 +33,17 @@ async function iniciar(){
         String(q.ATIVO).trim().toUpperCase() === "SIM"
     );
 
-    dados.descritores.forEach(d=>{
-        mapaDescritores[d.CODIGO] = d.DESCRICAO;
-    });
+    descritoresBanco = dados.descritores;
 
     preencherSelect("disciplina",
         [...new Set(banco.map(q=>q.DISCIPLINA))]
     );
 
     document.getElementById("disciplina")
-        .addEventListener("change", verificarEtapaInicial);
+        .addEventListener("change", resetarFluxo);
 
     document.getElementById("nivel")
-        .addEventListener("change", verificarEtapaInicial);
+        .addEventListener("change", resetarFluxo);
 
     document.querySelectorAll("input[name='modo']")
         .forEach(r=>{
@@ -157,26 +61,67 @@ async function iniciar(){
 }
 
 
-// ================= FLUXO PROGRESSIVO =================
+// ================= RESET AO TROCAR DISCIPLINA/NÍVEL =================
 
-function verificarEtapaInicial(){
+function resetarFluxo(){
+
+    modoGeracao = null;
+
+    document.querySelectorAll("input[name='modo']")
+        .forEach(r=>r.checked=false);
 
     if(disciplina.value && nivel.value){
         etapaModo.style.display = "block";
-        atualizarFiltros();
     }else{
         etapaModo.style.display = "none";
-        etapaFiltro.style.display = "none";
-        etapaFinal.style.display = "none";
+    }
+
+    etapaFiltro.style.display = "none";
+    etapaFinal.style.display = "none";
+
+    limparSelecoes();
+    limparConsolidacoes();
+}
+
+
+// ================= LIMPEZAS =================
+
+function limparSelecoes(){
+    document.querySelectorAll(".multi-item")
+        .forEach(el=>el.classList.remove("selected"));
+
+    atualizarHeader("msAssunto");
+    atualizarHeader("msDescritor");
+}
+
+function limparConsolidacoes(){
+
+    const a = document.getElementById("infoAssunto");
+    const d = document.getElementById("infoDescritor");
+
+    if(a){
+        a.innerHTML="";
+        a.style.display="none";
+    }
+
+    if(d){
+        d.innerHTML="";
+        d.style.display="none";
     }
 }
+
+
+// ================= MOSTRAR FILTRO =================
 
 function mostrarFiltro(){
 
     etapaFiltro.style.display = "block";
     etapaFinal.style.display = "none";
 
+    atualizarFiltros();
+
     limparSelecoes();
+    limparConsolidacoes();
 
     if(modoGeracao === "ASSUNTO"){
         blocoAssunto.style.display="block";
@@ -202,12 +147,36 @@ function atualizarFiltros(){
 
     const listaDescritores =
         [...new Set(filtrado.map(q=>q.DESCRITOR))]
-        .sort((a,b)=>parseInt(a.replace(/\D/g,'')) -
-                     parseInt(b.replace(/\D/g,'')));
+        .sort((a,b)=>
+            parseInt(a.replace(/\D/g,'')) -
+            parseInt(b.replace(/\D/g,''))
+        );
+
+    // mapa filtrado corretamente por disciplina + nível
+    mapaDescritores = {};
+
+    descritoresBanco.forEach(d=>{
+        if(
+            d.DISCIPLINA === disciplina.value &&
+            d.NIVEL === nivel.value
+        ){
+            mapaDescritores[d.CODIGO] = d.DESCRICAO;
+        }
+    });
 
     listaAssuntosHTML(listaAssuntos);
     listaDescritoresHTML(listaDescritores);
+
+    const radioDescritor =
+        document.querySelector("input[value='DESCRITOR']");
+
+    if(radioDescritor){
+        radioDescritor.disabled = (listaDescritores.length === 0);
+    }
 }
+
+
+// ================= LISTA ASSUNTOS =================
 
 function listaAssuntosHTML(lista){
 
@@ -224,13 +193,16 @@ function listaAssuntosHTML(lista){
         item.addEventListener("click", function(){
             this.classList.toggle("selected");
             atualizarHeader("msAssunto");
-            atualizarInfoAssunto();   
+            atualizarInfoAssunto();
             verificarEtapaFinal();
         });
 
         div.appendChild(item);
     });
 }
+
+
+// ================= LISTA DESCRITORES =================
 
 function listaDescritoresHTML(lista){
 
@@ -246,14 +218,14 @@ function listaDescritoresHTML(lista){
         item.innerHTML = `
             <span class="descritor-codigo">${cod}</span>
             <span class="descritor-texto">
-                ${mapaDescritores[cod]||""}
+                ${mapaDescritores[cod] || ""}
             </span>
         `;
 
         item.addEventListener("click", function(){
             this.classList.toggle("selected");
             atualizarHeader("msDescritor");
-              atualizarInfoDescritor();  
+            atualizarInfoDescritor();
             verificarEtapaFinal();
         });
 
@@ -269,17 +241,8 @@ function verificarEtapaFinal(){
     const selecionados =
         document.querySelectorAll(".multi-item.selected");
 
-    if(selecionados.length > 0){
-        etapaFinal.style.display="block";
-    }else{
-        etapaFinal.style.display="none";
-    }
-}
-
-function limparSelecoes(){
-    document.querySelectorAll(".multi-item")
-        .forEach(el=>el.classList.remove("selected"));
-    etapaFinal.style.display="none";
+    etapaFinal.style.display =
+        (selecionados.length > 0) ? "block" : "none";
 }
 
 
@@ -288,12 +251,12 @@ function limparSelecoes(){
 function atualizarHeader(id){
 
     const selecionados =
-        document.querySelectorAll(
-            "#"+id+" .multi-list .selected"
-        );
+        document.querySelectorAll("#"+id+" .selected");
 
     const header =
         document.querySelector("#"+id+" .multi-header");
+
+    if(!header) return;
 
     if(selecionados.length === 0){
         header.innerText="Nenhum selecionado ▼";
@@ -307,7 +270,10 @@ function atualizarHeader(id){
 // ================= MULTI SELECT =================
 
 function configurarMultiSelect(id){
+
     const el = document.getElementById(id);
+    if(!el) return;
+
     const header = el.querySelector(".multi-header");
 
     header.addEventListener("click", function(e){
@@ -359,17 +325,22 @@ function gerarQuiz(){
 
     embaralhar(filtradas);
 
+    const qtd =
+        parseInt(document.getElementById("quantidade").value);
+
     const selecionadas =
-        filtradas.slice(0,
-            parseInt(document.getElementById("quantidade").value));
+        filtradas.slice(0, qtd);
+
+    const turmasSelecionadas =
+        [...document.querySelectorAll(".chkTurma:checked")]
+        .map(cb=>cb.value);
 
     localStorage.setItem("previewQuiz",
         JSON.stringify({
             id:"APL_"+Date.now(),
             nome: document.getElementById("nomeQuiz").value || "Quiz",
-            turmas:
-              [...document.querySelectorAll(".chkTurma:checked")]
-              .map(cb=>cb.value),
+            turmas: turmasSelecionadas,
+            qtd: selecionadas.length,
             questoes: selecionadas
         })
     );
@@ -378,60 +349,7 @@ function gerarQuiz(){
 }
 
 
-// ================= AUXILIARES =================
-
-function preencherSelect(id, lista){
-    const sel=document.getElementById(id);
-    sel.innerHTML="<option value=''>Selecione</option>";
-    lista.forEach(v=>{
-        let op=document.createElement("option");
-        op.value=v;
-        op.textContent=v;
-        sel.appendChild(op);
-    });
-}
-
-async function carregarTurmas(){
-
-    const token=localStorage.getItem("TOKEN");
-
-    const resp=
-        await fetch(API+"?tipo=turmas&token="+token);
-
-    const linhas=await resp.json();
-
-    const div=document.getElementById("listaTurmas");
-    div.innerHTML="";
-
-    if(!Array.isArray(linhas)||linhas.length<=1){
-        div.innerHTML="Nenhuma turma encontrada.";
-        return;
-    }
-
-    linhas.slice(1).forEach(l=>{
-        const nomeTurma=l[2];
-
-        const label=document.createElement("label");
-
-        label.innerHTML=`
-            <input type="checkbox"
-                   value="${nomeTurma}"
-                   class="chkTurma">
-            <span>${nomeTurma}</span>
-        `;
-
-        div.appendChild(label);
-    });
-}
-
-function embaralhar(a){
-    for(let i=a.length-1;i>0;i--){
-        let j=Math.floor(Math.random()*(i+1));
-        [a[i],a[j]]=[a[j],a[i]];
-    }
-}
-
-    // ================= CONSOLIDAÇÃO =================
+// ================= CONSOLIDAÇÃO =================
 
 function atualizarInfoAssunto(){
 
@@ -509,6 +427,63 @@ function atualizarInfoDescritor(){
 
     bloco.innerHTML = html;
     bloco.style.display = "block";
+}
+
+
+// ================= AUXILIARES =================
+
+function preencherSelect(id, lista){
+
+    const sel=document.getElementById(id);
+    sel.innerHTML="<option value=''>Selecione</option>";
+
+    lista.forEach(v=>{
+        let op=document.createElement("option");
+        op.value=v;
+        op.textContent=v;
+        sel.appendChild(op);
+    });
+}
+
+async function carregarTurmas(){
+
+    const token=localStorage.getItem("TOKEN");
+
+    const resp=
+        await fetch(API+"?tipo=turmas&token="+token);
+
+    const linhas=await resp.json();
+
+    const div=document.getElementById("listaTurmas");
+    div.innerHTML="";
+
+    if(!Array.isArray(linhas)||linhas.length<=1){
+        div.innerHTML="Nenhuma turma encontrada.";
+        return;
+    }
+
+    linhas.slice(1).forEach(l=>{
+
+        const nomeTurma=l[2];
+
+        const label=document.createElement("label");
+
+        label.innerHTML=`
+            <input type="checkbox"
+                   value="${nomeTurma}"
+                   class="chkTurma">
+            <span>${nomeTurma}</span>
+        `;
+
+        div.appendChild(label);
+    });
+}
+
+function embaralhar(a){
+    for(let i=a.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+    }
 }
 
 </script>
