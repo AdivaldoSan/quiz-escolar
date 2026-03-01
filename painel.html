@@ -208,6 +208,36 @@ async function alterarStatus(id, ativo){
     });
 }
 
+// ============================
+// ABRIR RELATORIO
+// ============================
+async function abrirRelatorio(id, linkRelatorio){
+
+    const token = localStorage.getItem("TOKEN");
+
+    try{
+
+        const resp = await fetch(
+            API + "?tipo=gerarRelatorio&token=" +
+            token + "&id=" + id
+        );
+
+        const retorno = await resp.json();
+
+        if(retorno.erro){
+            alert("Erro: " + retorno.erro);
+            return;
+        }
+
+        if(retorno.link){
+            window.open(retorno.link, "_blank");
+        }
+
+    }catch(e){
+        alert("Erro ao gerar relatório.");
+    }
+}
+
 </script>
 
 </body>
