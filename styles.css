@@ -1601,3 +1601,17 @@ label {
   font-weight: 700;
   color: var(--primary-dark);  /* azul institucional */
 }
+
+/* ===== LOGO DIREITA HEADER QUIZ ===== */
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;   /* já garante ~20px da lateral */
+}
+
+.quiz-logo-direita {
+  width: 40px;
+  height: 40px;
+}
