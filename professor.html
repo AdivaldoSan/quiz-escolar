@@ -19,7 +19,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📘 Criar Simulado...</h2>
+        <h2 style="margin-bottom:20px;">📘 Criar Simulado.</h2>
 
         <div class="card form-card">
 
@@ -493,7 +493,7 @@ function atualizarInfoDescritor(){
         return;
     }
 
-    let html = "";
+    let html = `<div class="info-bloco">`;
 
     descritores.forEach(d=>{
         html += `
@@ -504,6 +504,8 @@ function atualizarInfoDescritor(){
                 </span>
             </div>`;
     });
+
+    html += `</div>`;
 
     bloco.innerHTML = html;
     bloco.style.display = "block";
