@@ -1554,3 +1554,10 @@ label {
 .login-header h2 span {
   font-weight: 700;
 }
+
+.login-header.horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
