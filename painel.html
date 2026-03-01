@@ -21,7 +21,7 @@ function iniciarPagina(){
     criarLayout();
 
     document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📊 Painel de Aplicações.</h2>
+        <h2 style="margin-bottom:20px;">📊 Painel de Aplicações</h2>
         <div id="listaAplicacoes" class="card">
             Carregando aplicações...
         </div>
@@ -162,7 +162,7 @@ function montarTabela(dados, contagem){
                         </button>
 
                         <button class="btn-acao"
-                                title="Ver QR CODE"
+                                title="QR CODE"
                                 onclick="abrirQRCode('${id}')">
                                 📱
                         </button>
@@ -241,7 +241,7 @@ async function gerarPDF(id){
                         }
                 
                         .cabecalho img{
-                            height:60px;
+                            height:50px;
                         }
                 
                         .titulo-sistema{
@@ -323,8 +323,6 @@ async function gerarGabarito(id){
         return;
     }
 
-    novaJanela.document.write("<p>Carregando gabarito...</p>");
-
     try{
 
         const resp = await fetch(API+"?tipo=abrirAplicacao&id="+id);
@@ -336,37 +334,89 @@ async function gerarGabarito(id){
             return;
         }
 
-        novaJanela.document.body.innerHTML = `
-            <div class="cabecalho">
-               <img src="/favicon.svg" style="height:70px;">
-                <div><strong>Avalia+</strong></div>
-                <div>Plataforma de Avaliações</div>
-            </div>
-            
-            <style>
-                body{font-family:Arial;margin:50px;}
-            </style>
+        novaJanela.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Gabarito</title>
+<style>
+    body{
+        font-family: Arial;
+        margin: 50px;
+    }
 
-            <h2>Gabarito – ${dados.nome}</h2>
-            <hr>
+    .cabecalho{
+        display:flex;
+        align-items:center;
+        gap:15px;
+        margin-bottom:30px;
+    }
 
-            ${
-                dados.questoes.map((q,i)=>`
-                    ${i+1}) ${q.GABARITO}<br>
-                `).join("")
-            }
-        `;
+    .cabecalho img{
+        height:50px;
+    }
+
+    .titulo-sistema{
+        font-size:18px;
+        font-weight:bold;
+    }
+
+    .subtitulo{
+        font-size:14px;
+        color:#555;
+    }
+
+    h2{
+        text-align:center;
+        margin-bottom:20px;
+    }
+
+    .linha-gabarito{
+        margin-bottom:8px;
+        font-size:15px;
+    }
+</style>
+</head>
+<body>
+
+<div class="cabecalho">
+    <img src="https://adivaldosan.github.io/quiz-escolar/favicon.svg">
+    <div>
+        <div class="titulo-sistema">Avalia+</div>
+        <div class="subtitulo">Plataforma de Avaliação Digital</div>
+    </div>
+</div>
+
+<h2>Gabarito – ${dados.nome}</h2>
+<hr>
+        `);
+
+        dados.questoes.forEach((q,i)=>{
+
+            novaJanela.document.write(`
+                <div class="linha-gabarito">
+                    ${i+1}) ${q.GABARITO}
+                </div>
+            `);
+
+        });
+
+        novaJanela.document.write(`
+</body>
+</html>
+        `);
 
         novaJanela.document.close();
         novaJanela.focus();
         novaJanela.print();
 
     }catch(e){
+
         novaJanela.close();
         alert("Erro ao gerar gabarito.");
     }
 }
-
 
 // =============================
 // ABRIR RELATÓRIO
