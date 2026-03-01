@@ -223,14 +223,19 @@ async function gerarPDF(id){
                     }
                 
                     .cabecalho{
-                        text-align: center;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 15px;
                         margin-bottom: 25px;
                     }
                 
                     .cabecalho img{
-                        height: 70px;
-                        display: block;
-                        margin: 0 auto 10px auto;
+                        height: 60px;
+                    }
+                
+                    .texto-cabecalho{
+                        text-align: left;
                     }
                 
                     .titulo-sistema{
@@ -245,9 +250,11 @@ async function gerarPDF(id){
                 </style>
                 
                 <div class="cabecalho">
-                    <img src="/favicon.svg">
-                    <div class="titulo-sistema">Avalia+</div>
-                    <div class="subtitulo">Plataforma de Avaliações</div>
+                    <img src="${window.location.origin}/favicon.svg">
+                    <div class="texto-cabecalho">
+                        <div class="titulo-sistema">Avalia+</div>
+                        <div class="subtitulo">Plataforma de Avaliação Digital</div>
+                    </div>
                 </div>
             
             <style>
