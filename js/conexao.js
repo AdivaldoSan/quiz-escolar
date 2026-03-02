@@ -87,3 +87,30 @@ async function fetchProtegido(url, options = {}){
 
     return dados;
 }
+
+// ===============================
+// PROTEÇÃO AUTOMÁTICA AO CARREGAR PÁGINA
+// ===============================
+
+(function(){
+
+    const paginasPublicas = [
+        "index.html",
+        "aluno.html",
+        "quiz.html"
+    ];
+
+    const paginaAtual =
+        window.location.pathname.split("/").pop();
+
+    if(paginasPublicas.includes(paginaAtual)){
+        return;
+    }
+
+    const token = localStorage.getItem("TOKEN");
+
+    if(!token){
+        window.location.href = "index.html";
+    }
+
+})();
