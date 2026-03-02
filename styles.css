@@ -1,3 +1,26 @@
+.paypal-box{
+    text-align:center;
+    margin-top:20px;
+}
+
+.btn-paypal{
+    display:inline-block;
+    margin-top:10px;
+    padding:12px 24px;
+    background:#003087;
+    color:#fff;
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:600;
+    transition:0.2s ease;
+}
+
+.btn-paypal:hover{
+    background:#001f5c;
+}
+
+
+
 :root {
   --primary: #2563EB;
   --primary-dark: #1E40AF;
