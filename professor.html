@@ -119,8 +119,9 @@ function iniciarPagina(){
                 </div>
 
                 <button class="btn-primary"
-                        onclick="gerarQuiz()">
-                    Gerar Quiz
+                    id="btnGerarQuiz"
+                    onclick="gerarQuiz()">
+                    Gerar 
                 </button>
 
             </div>
@@ -355,6 +356,10 @@ async function buscarQuestoesJaUsadasPorTurma(turmasSelecionadas){
 
 async function gerarQuiz(){
 
+    const btn = document.getElementById("btnGerarQuiz");
+    btn.classList.add("btn-loading");
+    btn.disabled = true;
+
     const erroTurma =
         document.getElementById("erroTurma");
 
@@ -367,6 +372,9 @@ async function gerarQuiz(){
     if(turmasSelecionadas.length === 0){
         erroTurma.innerText =
             "Selecione ao menos uma turma para continuar.";
+
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
         return;
     }
 
@@ -375,32 +383,39 @@ async function gerarQuiz(){
 
     if(!qtd || qtd <= 0){
         alert("Informe uma quantidade válida de questões.");
+
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
         return;
     }
 
     if(!modoGeracao){
         alert("Selecione o modo de geração (Assunto ou Descritor).");
+
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
         return;
     }
-    
 
-        const nomeInput =
-            document.getElementById("nomeQuiz");
-        
-        const erroNome =
-            document.getElementById("erroNome");
-        
-        erroNome.innerText = "";
-        
-        const nome = nomeInput.value.trim();
-        
-        if(!nome){
-            erroNome.innerText =
-                "Informe um nome para a aplicação.";
-            return;
-        }
+    const nomeInput =
+        document.getElementById("nomeQuiz");
 
-    
+    const erroNome =
+        document.getElementById("erroNome");
+
+    erroNome.innerText = "";
+
+    const nome = nomeInput.value.trim();
+
+    if(!nome){
+        erroNome.innerText =
+            "Informe um nome para a aplicação.";
+
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
+        return;
+    }
+
     const assuntos =
         [...document.querySelectorAll("#listaAssuntos .selected")]
         .map(el=>el.dataset.value);
@@ -425,6 +440,9 @@ async function gerarQuiz(){
 
     if(filtradas.length===0){
         alert("Nenhuma questão encontrada.");
+
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
         return;
     }
 
@@ -461,6 +479,9 @@ async function gerarQuiz(){
         document.getElementById("permitirReutilizar").checked;
 
     if(!permitir){
+
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
         return;
     }
 
