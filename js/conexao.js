@@ -69,3 +69,21 @@ async function carregarBancoCompleto(){
         };
     }
 }
+
+async function fetchProtegido(url, options = {}){
+
+    const resp = await fetch(url, options);
+    const dados = await resp.json();
+
+    if(dados.erro === "nao_autorizado"){
+
+        alert("Sua sessão expirou. Faça login novamente.");
+
+        localStorage.removeItem("TOKEN");
+
+        window.location.href = "index.html";
+        return null;
+    }
+
+    return dados;
+}
