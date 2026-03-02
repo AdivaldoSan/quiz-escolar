@@ -36,6 +36,9 @@ window.onload = iniciarPagina;
 // =============================
 // CARREGAR
 // =============================
+// =============================
+// CARREGAR
+// =============================
 async function carregarAplicacoes(){
 
     const token = localStorage.getItem("TOKEN");
@@ -44,9 +47,10 @@ async function carregarAplicacoes(){
         return;
     }
 
-    const respAplicacoes =
-        await fetch(API + "?tipo=listarAplicacoes&token=" + token);
-    const dados = await respAplicacoes.json();
+    const dados =
+        await fetchProtegido(API + "?tipo=listarAplicacoes&token=" + token);
+
+    if(!dados) return;
 
     if(!Array.isArray(dados) || dados.length <= 1){
         document.getElementById("listaAplicacoes").innerHTML =
@@ -54,13 +58,13 @@ async function carregarAplicacoes(){
         return;
     }
 
-    const respContagem =
-        await fetch(API + "?tipo=contarRespostas&token=" + token);
-    const contagem = await respContagem.json();
+    const contagem =
+        await fetchProtegido(API + "?tipo=contarRespostas&token=" + token);
+
+    if(!contagem) return;
 
     montarTabela(dados, contagem);
 }
-
 
 // =============================
 // TABELA
@@ -471,6 +475,9 @@ async function gerarGabarito(id){
 // =============================
 // ABRIR RELATÓRIO
 // =============================
+// =============================
+// ABRIR RELATÓRIO
+// =============================
 async function abrirRelatorio(id, linkExistente){
 
     const novaJanela = window.open("", "_blank");
@@ -488,15 +495,13 @@ async function abrirRelatorio(id, linkExistente){
 
             const token = localStorage.getItem("TOKEN");
 
-            const resp = await fetch(
-                API + "?tipo=gerarRelatorio&id=" + id + "&token=" + token
-            );
+            const dados =
+                await fetchProtegido(
+                    API + "?tipo=gerarRelatorio&id=" + id + "&token=" + token
+                );
 
-            const dados = await resp.json();
-
-            if(dados.erro){
+            if(!dados){
                 novaJanela.close();
-                alert("Erro ao gerar relatório: " + dados.erro);
                 return;
             }
 
@@ -515,11 +520,14 @@ async function abrirRelatorio(id, linkExistente){
 // =============================
 // ALTERAR STATUS
 // =============================
+// =============================
+// ALTERAR STATUS
+// =============================
 async function alterarStatus(id, status){
 
     const token = localStorage.getItem("TOKEN");
 
-    const resp = await fetch(API, {
+    const retorno = await fetchProtegido(API, {
         method:"POST",
         body: JSON.stringify({
             tipo:"alterarStatus",
@@ -529,14 +537,14 @@ async function alterarStatus(id, status){
         })
     });
 
-    const retorno = await resp.json();
+    if(!retorno) return;
 
     if(retorno.erro){
         alert("Erro: " + retorno.erro);
         return;
     }
 
-carregarAplicacoes();
+    carregarAplicacoes();
 }
 
 function abrirQRCode(id){
