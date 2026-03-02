@@ -558,29 +558,36 @@ function abrirQRCode(id){
 
   modal.innerHTML = `
     <div class="modal-bg" onclick="fecharQR()"></div>
-    <div class="modal-box">
-        <h3>Aplicação via QR Code</h3>
+    <div class="modal-box" style="text-align:center;">
 
-        <div id="qrcode" style="margin:15px 0;"></div>
+        <h3 style="margin-bottom:15px;">Aplicação via QR Code</h3>
 
-        <div style="display:flex; gap:8px; margin-top:10px;">
-            <input id="inputLinkQR"
-                   value="${link}"
-                   readonly
-                   style="flex:1; padding:6px;"
-                   onclick="this.select()">
+        <div id="qrcode" style="margin:10px 0 20px;"></div>
 
+        <input id="inputLinkQR"
+               value="${link}"
+               readonly
+               style="
+                   width:100%;
+                   padding:8px;
+                   margin-bottom:15px;
+                   border:1px solid #ccc;
+                   border-radius:4px;
+               "
+               onclick="this.select()">
+
+        <div style="display:flex; justify-content:center; gap:10px;">
             <button onclick="copiarLink(document.getElementById('inputLinkQR').value)">
-                Copiar
+                Copiar link
+            </button>
+
+            <button onclick="fecharQR()">
+                Fechar
             </button>
         </div>
 
-        <div style="margin-top:15px;">
-            <button onclick="fecharQR()">Fechar</button>
-        </div>
     </div>
 `;
-
     document.body.appendChild(modal);
 
     new QRCode(document.getElementById("qrcode"), {
