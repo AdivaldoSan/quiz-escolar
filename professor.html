@@ -307,11 +307,12 @@ function atualizarFiltros(){
 
 async function buscarQuestoesJaUsadasPorTurma(turmasSelecionadas){
 
-    const resp = await fetch(API +
-        "?tipo=listarAplicacoes&token=" +
-        localStorage.getItem("TOKEN"));
-
-    const dados = await resp.json();
+   const dados = await fetchProtegido(
+        API + "?tipo=listarAplicacoes&token=" +
+        localStorage.getItem("TOKEN")
+    );
+    
+    if(!dados) return [];
 
     if(!Array.isArray(dados) || dados.length <= 1)
         return [];
@@ -705,10 +706,10 @@ async function carregarTurmas(){
 
     const token=localStorage.getItem("TOKEN");
 
-    const resp=
-        await fetch(API+"?tipo=turmas&token="+token);
+       const linhas =
+    await fetchProtegido(API+"?tipo=turmas&token="+token);
 
-    const linhas=await resp.json();
+    if(!linhas) return;
 
     const div=document.getElementById("listaTurmas");
     div.innerHTML="";
