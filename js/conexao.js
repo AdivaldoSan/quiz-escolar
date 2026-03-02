@@ -114,3 +114,48 @@ async function fetchProtegido(url, options = {}){
     }
 
 })();
+
+// ===============================
+// LOGOUT POR INATIVIDADE
+// ===============================
+
+(function(){
+
+    const TEMPO_LIMITE = 30 * 60 * 1000; // 30 minutos
+
+    const paginasPublicas = [
+        "index.html",
+        "aluno.html",
+        "quiz.html"
+    ];
+
+    const paginaAtual =
+        window.location.pathname.split("/").pop();
+
+    if(paginasPublicas.includes(paginaAtual)){
+        return; // não aplica para páginas públicas
+    }
+
+    let timer;
+
+    function resetarTimer(){
+        clearTimeout(timer);
+        timer = setTimeout(encerrarSessao, TEMPO_LIMITE);
+    }
+
+    function encerrarSessao(){
+        localStorage.removeItem("TOKEN");
+        alert("Sessão encerrada por inatividade.");
+        window.location.href = "index.html";
+    }
+
+    // Eventos que contam como atividade
+    ["click","mousemove","keydown","scroll","touchstart"]
+        .forEach(evento=>{
+            document.addEventListener(evento, resetarTimer, true);
+        });
+
+    // Inicia contagem
+    resetarTimer();
+
+})();
