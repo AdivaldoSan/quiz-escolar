@@ -48,10 +48,10 @@
 <script>
 
 // ===========================
-// ALERTA INTERNO
+// A INTERNO
 // ===========================
-function mostrarAlerta(mensagem){
-    const box = document.getElementById("alertaQuiz");
+function mostrara(mensagem){
+    const box = document.getElementById("aQuiz");
     box.innerText = mensagem;
     box.style.display = "block";
 
@@ -206,7 +206,7 @@ function avancar(){
     const marcada = document.querySelector('input[name="resp"]:checked');
 
     if(!marcada){
-        mostrarAlerta("Selecione uma alternativa para continuar.");
+        mostrara("Selecione uma alternativa para continuar.");
         return;
     }
 
@@ -286,7 +286,7 @@ async function finalizar(){
 
     } catch(e){
         enviando = false;
-        mostrarAlerta("Erro ao enviar respostas. Verifique sua conexão.");
+        mostrara("Erro ao enviar respostas. Verifique sua conexão.");
     }
 }
 
@@ -316,7 +316,7 @@ function iniciarIdentificacao(){
                 Informe seus dados para iniciar a atividade.
             </p>
 
-            <div id="alertaQuiz" class="alerta" style="display:none;"></div>
+            <div id="aQuiz" class="a" style="display:none;"></div>
 
             <div class="ident-campo">
                 <input id="nomeAluno"
@@ -363,17 +363,17 @@ async function confirmarAluno(){
     const turma = document.getElementById("turmaAluno").value;
 
     if(!nome){
-        mostrarAlerta("Informe seu Nome Completo.");
+        mostrara("Informe seu Nome Completo.");
         return;
     }
 
     if(!numero){
-        mostrarAlerta("Informe seu número na chamada.");
+        mostrara("Informe seu número na chamada.");
         return;
     }
 
     if(!turma){
-        mostrarAlerta("Selecione sua turma.");
+        mostrara("Selecione sua turma.");
         return;
     }
 
@@ -391,8 +391,7 @@ async function confirmarAluno(){
 
         const retorno = await resp.json();
 
-        alert(JSON.stringify(retorno));
-
+     
         if(retorno.jaRespondeu){
             mostrarAlerta("Você já respondeu esta atividade.");
             return;
