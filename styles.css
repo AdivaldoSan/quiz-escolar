@@ -894,7 +894,7 @@ select {
 .ident-campo select {
   width: 100%;
   padding: 16px;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 10px;
   border: 1px solid #E5E7EB;
 }
