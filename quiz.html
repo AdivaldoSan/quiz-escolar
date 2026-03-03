@@ -353,9 +353,10 @@ function iniciarIdentificacao(){
 
             </div>
 
-            <button class="btn-iniciar"
-                    onclick="confirmarAluno()">
-                Iniciar Atividade
+            <button id="btnIniciar"
+                class="btn-iniciar"
+                onclick="confirmarAluno()">
+               Iniciar Atividade
             </button>
 
         </div>
@@ -366,22 +367,38 @@ function iniciarIdentificacao(){
 
 async function confirmarAluno(){
 
+    const btn = document.getElementById("btnIniciar");
+    const textoOriginal = btn.innerText;
+
+    btn.classList.add("btn-loading");
+    btn.disabled = true;
+    btn.innerText = "Iniciando...";
+
     const nome = document.getElementById("nomeAluno").value.trim();
     const numero = document.getElementById("numeroAluno").value.trim();
     const turma = document.getElementById("turmaAluno").value;
 
     if(!nome){
-        mostrara("Informe seu Nome Completo.");
+        mostrara("Informe seu Nome Completo.", "erro");
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
+        btn.innerText = textoOriginal;
         return;
     }
 
     if(!numero){
-        mostrara("Informe seu número na chamada.");
+        mostrara("Informe seu número na chamada.", "erro");
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
+        btn.innerText = textoOriginal;
         return;
     }
 
     if(!turma){
-        mostrara("Selecione sua turma.");
+        mostrara("Selecione sua turma.", "erro");
+        btn.classList.remove("btn-loading");
+        btn.disabled = false;
+        btn.innerText = textoOriginal;
         return;
     }
 
@@ -414,7 +431,11 @@ async function confirmarAluno(){
         location.reload();
 
     }catch(e){
-        mostrarAlerta("Erro ao verificar tentativa.");
+           btn.classList.remove("btn-loading");
+            btn.disabled = false;
+            btn.innerText = textoOriginal;
+
+        mostrara("Erro ao iniciar atividade.", "erro");
     }
 }
 
