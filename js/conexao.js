@@ -47,7 +47,7 @@ async function carregarBancoCompleto(){
 
         // Se backend negar acesso
         if(q.erro || d.erro){
-            alert("Sessão expirada ou não autorizada. Faça login novamente.");
+
             localStorage.removeItem("TOKEN");
             window.location.href = "index.html";
             return;
@@ -76,8 +76,6 @@ async function fetchProtegido(url, options = {}){
     const dados = await resp.json();
 
     if(dados.erro === "nao_autorizado"){
-
-        alert("Sua sessão expirou. Faça login novamente.");
 
         localStorage.removeItem("TOKEN");
 
@@ -147,7 +145,6 @@ async function fetchProtegido(url, options = {}){
 
     function encerrarSessao(){
         localStorage.removeItem("TOKEN");
-        alert("Sessão encerrada por inatividade.");
         window.location.href = "index.html";
     }
 
