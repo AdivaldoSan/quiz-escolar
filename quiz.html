@@ -196,7 +196,7 @@ function atualizarBarra(){
 // ===========================
 function atualizarCabecalho(){
     document.getElementById("infoAluno").innerHTML =
-        `${quiz.alunoNome} • ${quiz.alunoTurma}`;
+        `${quiz.alunoNome} • Nº ${quiz.alunoNumero} • ${quiz.alunoTurma}`;
 }
 
 
@@ -246,10 +246,13 @@ async function finalizar(){
     const acertos = respostas.filter(r => r.marcada === r.correta).length;
 
     const envio = respostas.map(r => ({
-        aplicacao: quiz.id,
-        nomeQuiz: quiz.nome,
-        aluno: quiz.alunoNome,
-        turma: quiz.alunoTurma,
+    aplicacao: quiz.id,
+    nomeQuiz: quiz.nome,
+    aluno: quiz.alunoNome,
+    numero: quiz.alunoNumero,
+    turma: quiz.alunoTurma,
+
+        
         questao: r.questao,
         marcada: r.marcada,
         correta: r.correta
@@ -315,13 +318,35 @@ function iniciarIdentificacao(){
 
                 <div id="alertaQuiz" class="alerta" style="display:none;"></div>
 
-                <div class="ident-campo">
-                    <input id="nomeAluno"
-                           placeholder="Digite seu nome completo">
-                </div>
 
                 <div class="ident-campo">
-                    <select id="turmaAluno">
+                    <input id="nomeAluno"
+                                placeholder="Nome Completo">
+                            </div>
+                            
+                            <div class="ident-linha">
+                            
+                        <div class="ident-campo metade">
+                            <input type="number"
+                            id="numeroAluno"
+                            placeholder="Informe seu número na chamada">
+                                </div>
+                            
+                                <div class="ident-campo metade">
+                                    <select id="turmaAluno">
+                                        ${
+                                            turmasPermitidas.length === 0
+                                            ? `<option value="">Turma não definida</option>`
+                                            : turmasPermitidas
+                                                .map(t=>`<option value="${t}">${t}</option>`)
+                                                .join("")
+                                        }
+                                    </select>
+                                </div>
+                            
+                            </div>
+
+                    
                         ${
                             turmasPermitidas.length === 0
                             ? `<option value="">Turma não definida</option>`
@@ -346,14 +371,26 @@ function iniciarIdentificacao(){
 function confirmarAluno(){
 
     const nome = document.getElementById("nomeAluno").value.trim();
+    const numero = document.getElementById("numeroAluno").value.trim();
     const turma = document.getElementById("turmaAluno").value;
 
     if(!nome){
-        mostrarAlerta("Por favor, informe seu nome para iniciar.");
+        mostrarAlerta("Informe seu Nome Completo.");
+        return;
+    }
+
+    if(!numero){
+        mostrarAlerta("Informe seu número na chamada.");
+        return;
+    }
+
+    if(!turma){
+        mostrarAlerta("Selecione sua turma.");
         return;
     }
 
     quiz.alunoNome = nome;
+    quiz.alunoNumero = numero;
     quiz.alunoTurma = turma;
 
     localStorage.setItem("quizAtual", JSON.stringify(quiz));
