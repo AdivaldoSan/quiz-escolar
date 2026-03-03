@@ -356,7 +356,7 @@ function iniciarIdentificacao(){
 `;
 }
 
-function confirmarAluno(){
+async function confirmarAluno(){
 
     const nome = document.getElementById("nomeAluno").value.trim();
     const numero = document.getElementById("numeroAluno").value.trim();
@@ -377,12 +377,36 @@ function confirmarAluno(){
         return;
     }
 
-    quiz.alunoNome = nome;
-    quiz.alunoNumero = numero;
-    quiz.alunoTurma = turma;
+    try{
 
-    localStorage.setItem("quizAtual", JSON.stringify(quiz));
-    location.reload();
+        const resp = await fetch(API,{
+            method:"POST",
+            body: JSON.stringify({
+                tipo:"verificarTentativa",
+                aplicacao: quiz.id,
+                turma: turma,
+                numero: numero
+            })
+        });
+
+        const retorno = await resp.json();
+
+        if(retorno.jaRespondeu){
+            mostrarAlerta("Você já respondeu esta atividade.");
+            return;
+        }
+
+        // Se não respondeu, continua normalmente
+        quiz.alunoNome = nome;
+        quiz.alunoNumero = numero;
+        quiz.alunoTurma = turma;
+
+        localStorage.setItem("quizAtual", JSON.stringify(quiz));
+        location.reload();
+
+    }catch(e){
+        mostrarAlerta("Erro ao verificar tentativa.");
+    }
 }
 
 function mostrarOverlayEnvio(){
