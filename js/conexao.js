@@ -95,7 +95,7 @@ async function fetchProtegido(url, options = {}){
     const paginasPublicas = [
         "index.html",
         "aluno.html",
-        "quiz.html"
+        "quiz.html",
         "cadastro.html"
     ];
 
@@ -125,7 +125,7 @@ async function fetchProtegido(url, options = {}){
     const paginasPublicas = [
         "index.html",
         "aluno.html",
-        "quiz.html"
+        "quiz.html",
         "cadastro.html"
     ];
 
