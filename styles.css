@@ -1706,6 +1706,11 @@ label {
   }
 
 }
-
+/*AJUSTA MSG ERRO PAGINA ENTRADA DO ALUNO*/
+.alerta-erro {
+  background-color: #fdecea;
+  color: #b42318;
+  border: 1px solid #f5c2c7;
+}
 
 
