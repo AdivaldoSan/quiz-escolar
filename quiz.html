@@ -214,7 +214,7 @@ function avancar(){
     const marcada = document.querySelector('input[name="resp"]:checked');
 
     if(!marcada){
-        mostrara("Selecione uma alternativa para continuar.");
+        mostrarAlerta("Selecione uma alternativa para continuar.");
         return;
     }
 
@@ -294,7 +294,7 @@ async function finalizar(){
 
     } catch(e){
         enviando = false;
-        mostrara("Erro ao enviar respostas. Verifique sua conexão.");
+        mostrarAlerta("Erro ao enviar respostas. Verifique sua conexão.");
     }
 }
 
@@ -379,7 +379,7 @@ async function confirmarAluno(){
     const turma = document.getElementById("turmaAluno").value;
 
     if(!nome){
-        mostrara("Informe seu Nome Completo.", "erro");
+        mostrarAlerta("Informe seu Nome Completo.", "erro");
         btn.classList.remove("btn-loading");
         btn.disabled = false;
         btn.innerText = textoOriginal;
@@ -387,7 +387,7 @@ async function confirmarAluno(){
     }
 
     if(!numero){
-        mostrara("Informe seu número na chamada.", "erro");
+        mostrarAlerta("Informe seu número na chamada.", "erro");
         btn.classList.remove("btn-loading");
         btn.disabled = false;
         btn.innerText = textoOriginal;
@@ -395,7 +395,7 @@ async function confirmarAluno(){
     }
 
     if(!turma){
-        mostrara("Selecione sua turma.", "erro");
+        mostrarAlerta("Selecione sua turma.", "erro");
         btn.classList.remove("btn-loading");
         btn.disabled = false;
         btn.innerText = textoOriginal;
@@ -435,7 +435,7 @@ async function confirmarAluno(){
             btn.disabled = false;
             btn.innerText = textoOriginal;
 
-        mostrara("Erro ao iniciar atividade.", "erro");
+        mostrarAlerta("Erro ao iniciar atividade.", "erro");
     }
 }
 
