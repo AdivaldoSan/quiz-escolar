@@ -1692,3 +1692,23 @@ label {
 .ident-campo.metade{
   flex:1;
 }
+
+/*RESPONSIVO TELA IDENTIFICAÇÃO ALUNO*/
+@media (max-width: 600px){
+
+  .ident-campo input,
+  .ident-campo select{
+    font-size:16px;
+  }
+
+}
+
+@media (max-width: 600px){
+
+  .ident-linha{
+    flex-direction: column;
+  }
+
+}
+
+
