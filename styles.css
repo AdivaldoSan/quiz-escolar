@@ -1682,3 +1682,13 @@ label {
   opacity: 1;
   transform: translateY(0);
 }
+
+
+.ident-linha{
+  display:flex;
+  gap:12px;
+}
+
+.ident-campo.metade{
+  flex:1;
+}
