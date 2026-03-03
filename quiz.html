@@ -419,6 +419,9 @@ async function confirmarAluno(){
      
         if(retorno.jaRespondeu){
             mostrarAlerta("Você já respondeu esta atividade.");
+              btn.classList.remove("btn-loading");
+                btn.disabled = false;
+                btn.innerText = textoOriginal;
             return;
         }
 
