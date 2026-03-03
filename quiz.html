@@ -391,6 +391,8 @@ async function confirmarAluno(){
 
         const retorno = await resp.json();
 
+        alert(JSON.stringify(retorno));
+
         if(retorno.jaRespondeu){
             mostrarAlerta("Você já respondeu esta atividade.");
             return;
