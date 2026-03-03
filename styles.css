@@ -1695,20 +1695,17 @@ label {
 
 /*RESPONSIVO TELA IDENTIFICAÇÃO ALUNO*/
 @media (max-width: 600px){
-
-  .ident-campo input,
-  .ident-campo select{
-    font-size:16px;
-  }
-
-}
-
-@media (max-width: 600px){
-
-  .ident-linha{
+.ident-linha{
     flex-direction: column;
   }
 
+  .ident-campo input,
+  .ident-campo select{
+    font-size: 14px;       /* reduz fonte */
+    padding: 10px;         /* reduz padding */
+  }
+
 }
+
 
 
