@@ -98,6 +98,7 @@ async function fetchProtegido(url, options = {}){
         "index.html",
         "aluno.html",
         "quiz.html"
+        "cadastro.html"
     ];
 
     const paginaAtual =
@@ -127,6 +128,7 @@ async function fetchProtegido(url, options = {}){
         "index.html",
         "aluno.html",
         "quiz.html"
+        "cadastro.html"
     ];
 
     const paginaAtual =
