@@ -50,9 +50,17 @@
 // ===========================
 // A INTERNO
 // ===========================
-function mostrara(mensagem){
+function mostrara(mensagem, tipo = "normal"){
+
     const box = document.getElementById("aQuiz");
     box.innerText = mensagem;
+
+    box.classList.remove("alerta-erro");
+
+    if(tipo === "erro"){
+        box.classList.add("alerta-erro");
+    }
+
     box.style.display = "block";
 
     setTimeout(()=>{
