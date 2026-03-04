@@ -104,6 +104,7 @@ height:100%;
 
 <script>
 
+
 let aplicacoes=[]
 let respostas=[]
 
@@ -130,7 +131,7 @@ const dados=await fetchProtegido(
 API+"?tipo=listarAplicacoes&token="+token
 )
 
-if(!dados||dados.length<=1){
+if(!dados || dados.length<=1){
 document.getElementById("areaDashboard").innerHTML="Nenhuma aplicação encontrada"
 return
 }
@@ -149,7 +150,18 @@ aplicacoes.forEach(a=>{
 
 const id=a[0]
 const nome=a[1]
-const turmas=JSON.parse(a[3]||"[]")
+
+let turmas=[]
+
+try{
+turmas=JSON.parse(a[3]||"[]")
+}catch(e){
+
+if(typeof a[3]==="string"){
+turmas=a[3].split(",").map(t=>t.trim())
+}
+
+}
 
 html+=`
 <div class="aplicacao-card" onclick="abrirAplicacao('${id}')">
@@ -179,18 +191,32 @@ const dados=await fetchProtegido(
 API+"?tipo=respostasPorAplicacao&id="+id+"&token="+token
 )
 
-if(!dados){
+if(!dados || dados.length<=1){
 document.getElementById("areaDashboard").innerHTML="Erro ao carregar respostas"
 return
 }
 
-respostas=dados.slice(1)
+const cab=dados[0]
+
+respostas=dados.slice(1).map(l=>{
+
+let obj={}
+
+cab.forEach((c,i)=>{
+obj[c]=l[i]
+})
+
+return obj
+
+})
 
 mostrarTurmas(id)
 
 }
 
 function definirCor(media){
+
+media=parseFloat(media)
 
 if(media>=70)return"verde"
 if(media>=50)return"amarelo"
@@ -239,8 +265,9 @@ const dados=porTurma[t]
 
 let media=0
 
-if(dados.total>0)
+if(dados.total>0){
 media=((dados.acertos/dados.total)*100).toFixed(1)
+}
 
 const cor=definirCor(media)
 
@@ -279,8 +306,15 @@ const descritores={}
 
 filtradas.forEach(r=>{
 
-const partes=r.QUESTAO.split("_")
-const d=partes[2]
+let d="SEM"
+
+if(r.QUESTAO){
+
+const m=r.QUESTAO.match(/D\d+/)
+
+if(m)d=m[0]
+
+}
 
 if(!descritores[d]){
 descritores[d]={acertos:0,total:0}
@@ -288,7 +322,9 @@ descritores[d]={acertos:0,total:0}
 
 descritores[d].total++
 
-if(r.MARCADA===r.CORRETA)descritores[d].acertos++
+if(r.MARCADA===r.CORRETA){
+descritores[d].acertos++
+}
 
 })
 
@@ -303,7 +339,11 @@ let html=`
 
 Object.keys(descritores).forEach(d=>{
 
-const perc=(descritores[d].acertos/descritores[d].total)*100
+const total=descritores[d].total
+const acertos=descritores[d].acertos
+
+const perc=total>0 ? (acertos/total)*100 : 0
+
 const cor=definirCor(perc)
 
 html+=`
