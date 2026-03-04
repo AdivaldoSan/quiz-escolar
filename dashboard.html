@@ -4,93 +4,99 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Avalia+ | Dashboard</title>
+
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="favicon.svg">
 
 <style>
 
-.resumo-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
-    gap:25px;
+.aplicacoes-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+}
+
+.aplicacao-card{
+background:white;
+padding:25px;
+border-radius:16px;
+box-shadow:0 6px 18px rgba(0,0,0,0.06);
+cursor:pointer;
+transition:0.3s;
+}
+
+.aplicacao-card:hover{
+transform:translateY(-5px);
+}
+
+.aplicacao-nome{
+font-size:18px;
+font-weight:600;
+margin-bottom:10px;
+}
+
+.aplicacao-info{
+font-size:14px;
+color:#64748b;
+}
+
+.turmas-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
 }
 
 .turma-card{
-    background:white;
-    border-radius:20px;
-    padding:30px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.06);
-    text-align:center;
-    transition:0.3s;
-    cursor:pointer;
-}
-
-.turma-card:hover{
-    transform:translateY(-6px);
-}
-
-.turma-nome{
-    font-weight:600;
-    font-size:18px;
-    margin-bottom:20px;
+background:white;
+padding:25px;
+border-radius:16px;
+box-shadow:0 6px 18px rgba(0,0,0,0.06);
+text-align:center;
+cursor:pointer;
 }
 
 .circle{
-    width:120px;
-    height:120px;
-    border-radius:50%;
-    margin:0 auto 20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:26px;
-    font-weight:bold;
-    color:white;
+width:120px;
+height:120px;
+border-radius:50%;
+margin:0 auto 15px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:26px;
+font-weight:bold;
+color:white;
 }
 
-.verde{ background:linear-gradient(135deg,#16a34a,#22c55e); }
-.amarelo{ background:linear-gradient(135deg,#eab308,#facc15); }
-.vermelho{ background:linear-gradient(135deg,#dc2626,#ef4444); }
-.cinza{ background:linear-gradient(135deg,#94a3b8,#cbd5e1); }
-
-.stats{
-    font-size:14px;
-    color:#64748b;
-    line-height:1.6;
-}
+.verde{background:#16a34a;}
+.amarelo{background:#eab308;}
+.vermelho{background:#dc2626;}
+.cinza{background:#94a3b8;}
 
 .section{
-    background:white;
-    padding:25px;
-    border-radius:16px;
-    margin-bottom:25px;
-    box-shadow:0 6px 15px rgba(0,0,0,0.06);
+background:white;
+padding:25px;
+border-radius:16px;
+margin-bottom:20px;
+box-shadow:0 6px 15px rgba(0,0,0,0.06);
 }
 
 .barra-bg{
-    width:100%;
-    height:10px;
-    background:#e2e8f0;
-    border-radius:8px;
-    overflow:hidden;
+width:100%;
+height:10px;
+background:#e2e8f0;
+border-radius:8px;
+overflow:hidden;
 }
 
 .barra-fill{
-    height:100%;
-    transition:width 0.6s ease;
-}
-
-.insight{
-    background:#eef2ff;
-    padding:15px;
-    border-left:4px solid #6366f1;
-    border-radius:8px;
-    margin-top:15px;
+height:100%;
 }
 
 </style>
 
 </head>
+
 <body>
 
 <script src="./js/conexao.js"></script>
@@ -98,214 +104,235 @@
 
 <script>
 
-let aplicacoes = [];
-let respostas = [];
-let aplicacaoSelecionada = null;
+let aplicacoes=[]
+let respostas=[]
 
-window.onload = iniciarPagina;
+window.onload=iniciarPagina
 
 function iniciarPagina(){
-    criarLayout();
 
-    document.getElementById("conteudo").innerHTML = `
-        <h2 style="margin-bottom:20px;">📊 Dashboard Pedagógico</h2>
+criarLayout()
 
-        <div style="margin-bottom:20px;">
-            <label>Aplicação:</label>
-            <select id="selectAplicacao"></select>
-        </div>
+document.getElementById("conteudo").innerHTML=`
+<h2 style="margin-bottom:20px;">📊 Dashboard</h2>
+<div id="areaDashboard"></div>
+`
 
-        <div id="areaDashboard"></div>
-    `;
+carregarAplicacoes()
 
-    carregarAplicacoes();
 }
 
 async function carregarAplicacoes(){
 
-    const token = localStorage.getItem("TOKEN");
+const token=localStorage.getItem("TOKEN")
 
-    const dados = await fetchProtegido(
-        API + "?tipo=listarAplicacoes&token=" + token
-    );
+const dados=await fetchProtegido(
+API+"?tipo=listarAplicacoes&token="+token
+)
 
-    if(!dados || dados.length <= 1) return;
-
-    aplicacoes = dados.slice(1);
-
-    const select = document.getElementById("selectAplicacao");
-
-    aplicacoes.forEach(l=>{
-        const op = document.createElement("option");
-        op.value = l[0];
-        op.textContent = l[1];
-        select.appendChild(op);
-    });
-
-    select.addEventListener("change", ()=>{
-        aplicacaoSelecionada = select.value;
-        carregarRespostas();
-    });
-
-    aplicacaoSelecionada = select.value;
-    carregarRespostas();
+if(!dados||dados.length<=1){
+document.getElementById("areaDashboard").innerHTML="Nenhuma aplicação encontrada"
+return
 }
 
-async function carregarRespostas(){
+aplicacoes=dados.slice(1)
 
-    const token = localStorage.getItem("TOKEN");
+mostrarAplicacoes()
 
-    const dados = await fetchProtegido(
-        API + "?tipo=respostasPorAplicacao&id=" +
-        aplicacaoSelecionada + "&token=" + token
-    );
+}
 
-    if(!dados || dados.length <= 1){
-        document.getElementById("areaDashboard").innerHTML =
-            "Nenhuma resposta registrada.";
-        return;
-    }
+function mostrarAplicacoes(){
 
-    respostas = dados.slice(1);
-    mostrarResumoPorTurma();
+let html=`<div class="aplicacoes-grid">`
+
+aplicacoes.forEach(a=>{
+
+const id=a[0]
+const nome=a[1]
+const turmas=JSON.parse(a[3]||"[]")
+
+html+=`
+<div class="aplicacao-card" onclick="abrirAplicacao('${id}')">
+
+<div class="aplicacao-nome">${nome}</div>
+
+<div class="aplicacao-info">
+${turmas.length} turmas
+</div>
+
+</div>
+`
+
+})
+
+html+=`</div>`
+
+document.getElementById("areaDashboard").innerHTML=html
+
+}
+
+async function abrirAplicacao(id){
+
+const token=localStorage.getItem("TOKEN")
+
+const dados=await fetchProtegido(
+API+"?tipo=respostasPorAplicacao&id="+id+"&token="+token
+)
+
+if(!dados){
+document.getElementById("areaDashboard").innerHTML="Erro ao carregar respostas"
+return
+}
+
+respostas=dados.slice(1)
+
+mostrarTurmas(id)
+
 }
 
 function definirCor(media){
-    if(media >= 70) return "verde";
-    if(media >= 50) return "amarelo";
-    return "vermelho";
+
+if(media>=70)return"verde"
+if(media>=50)return"amarelo"
+if(media>0)return"vermelho"
+return"cinza"
+
 }
 
-function mostrarResumoPorTurma(){
+function mostrarTurmas(idAplicacao){
 
-    const porTurma = {};
+const porTurma={}
 
-    respostas.forEach(r=>{
+respostas.forEach(r=>{
 
-        const turma = r[3];
-        const aluno = r[2];
+const turma=r.TURMA
+const aluno=r.ALUNO
 
-        if(!porTurma[turma]){
-            porTurma[turma] = {
-                alunos: new Set(),
-                total:0,
-                acertos:0
-            };
-        }
+if(!porTurma[turma]){
 
-        porTurma[turma].alunos.add(aluno);
-        porTurma[turma].total++;
-
-        if(r[5] === r[6]){
-            porTurma[turma].acertos++;
-        }
-    });
-
-    let html = `<div class="resumo-grid">`;
-
-    Object.keys(porTurma).forEach(turma=>{
-
-        const dados = porTurma[turma];
-
-        const media =
-            ((dados.acertos / dados.total) * 100).toFixed(1);
-
-        const cor = definirCor(media);
-
-        html += `
-            <div class="turma-card"
-                 onclick="mostrarDetalhe('${turma}')">
-
-                <div class="turma-nome">${turma}</div>
-
-                <div class="circle ${cor}">
-                    ${media}%
-                </div>
-
-                <div class="stats">
-                    ${dados.alunos.size} alunos<br>
-                    ${dados.total} respostas
-                </div>
-
-            </div>
-        `;
-    });
-
-    html += `</div>`;
-
-    document.getElementById("areaDashboard").innerHTML = html;
+porTurma[turma]={
+alunos:new Set(),
+acertos:0,
+total:0
 }
 
-function mostrarDetalhe(turma){
+}
 
-    const filtradas = respostas.filter(r => r[3] === turma);
+porTurma[turma].alunos.add(aluno)
+porTurma[turma].total++
 
-    const descritores = {};
+if(r.MARCADA===r.CORRETA)porTurma[turma].acertos++
 
-    filtradas.forEach(r=>{
+})
 
-        const partes = r[4].split("_");
-        const descritor = partes[2];
+let html=`
+<div style="margin-bottom:20px;">
+<button onclick="mostrarAplicacoes()">← Voltar</button>
+</div>
 
-        if(!descritores[descritor]){
-            descritores[descritor] = {total:0, acertos:0};
-        }
+<div class="turmas-grid">
+`
 
-        descritores[descritor].total++;
+Object.keys(porTurma).forEach(t=>{
 
-        if(r[5] === r[6]){
-            descritores[descritor].acertos++;
-        }
-    });
+const dados=porTurma[t]
 
-    let html = `
-        <div style="margin-bottom:20px;">
-            <button onclick="mostrarResumoPorTurma()">
-                ← Voltar
-            </button>
-        </div>
+let media=0
 
-        <div class="section">
-            <h3>📚 Desempenho - ${turma}</h3>
-    `;
+if(dados.total>0)
+media=((dados.acertos/dados.total)*100).toFixed(1)
 
-    Object.keys(descritores)
-        .sort((a,b)=>
-            (descritores[a].acertos/descritores[a].total) -
-            (descritores[b].acertos/descritores[b].total)
-        );
+const cor=definirCor(media)
 
-    Object.keys(descritores).forEach(d=>{
+html+=`
 
-        const perc =
-            (descritores[d].acertos /
-             descritores[d].total) * 100;
+<div class="turma-card"
+onclick="mostrarAnalise('${idAplicacao}','${t}')">
 
-        const cor = definirCor(perc);
+<div class="circle ${cor}">
+${media}%
+</div>
 
-        html += `
-            <div style="margin-bottom:15px;">
-                <strong>${d}</strong> - ${perc.toFixed(1)}%
-                <div class="barra-bg">
-                    <div class="barra-fill ${cor}"
-                         style="width:${perc}%">
-                    </div>
-                </div>
-            </div>
-        `;
-    });
+<strong>${t}</strong>
 
-    html += `
-        <div class="insight">
-            🧠 Em breve: análises inteligentes com IA
-            gerarão plano automático de intervenção
-            para os descritores críticos.
-        </div>
+<div style="margin-top:10px;font-size:13px;color:#64748b;">
+${dados.alunos.size} alunos
+</div>
 
-        </div>
-    `;
+</div>
 
-    document.getElementById("areaDashboard").innerHTML = html;
+`
+
+})
+
+html+=`</div>`
+
+document.getElementById("areaDashboard").innerHTML=html
+
+}
+
+function mostrarAnalise(idAplicacao,turma){
+
+const filtradas=respostas.filter(r=>r.TURMA===turma)
+
+const descritores={}
+
+filtradas.forEach(r=>{
+
+const partes=r.QUESTAO.split("_")
+const d=partes[2]
+
+if(!descritores[d]){
+descritores[d]={acertos:0,total:0}
+}
+
+descritores[d].total++
+
+if(r.MARCADA===r.CORRETA)descritores[d].acertos++
+
+})
+
+let html=`
+<div style="margin-bottom:20px;">
+<button onclick="mostrarTurmas('${idAplicacao}')">← Voltar</button>
+</div>
+
+<div class="section">
+<h3>📚 Desempenho por Descritor</h3>
+`
+
+Object.keys(descritores).forEach(d=>{
+
+const perc=(descritores[d].acertos/descritores[d].total)*100
+const cor=definirCor(perc)
+
+html+=`
+
+<div style="margin-bottom:15px;">
+<strong>${d}</strong> - ${perc.toFixed(1)}%
+
+<div class="barra-bg">
+<div class="barra-fill ${cor}"
+style="width:${perc}%"></div>
+</div>
+
+</div>
+
+`
+
+})
+
+html+=`
+
+<div style="margin-top:20px;background:#eef2ff;padding:15px;border-radius:8px;">
+🧠 Em breve análises inteligentes com IA gerarão plano de intervenção automático.
+</div>
+
+</div>
+`
+
+document.getElementById("areaDashboard").innerHTML=html
+
 }
 
 </script>
