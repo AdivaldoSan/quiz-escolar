@@ -6,8 +6,91 @@
 <title>Avalia+ | Dashboard</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="favicon.svg">
-</head>
 
+<style>
+
+.resumo-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap:25px;
+}
+
+.turma-card{
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.06);
+    text-align:center;
+    transition:0.3s;
+    cursor:pointer;
+}
+
+.turma-card:hover{
+    transform:translateY(-6px);
+}
+
+.turma-nome{
+    font-weight:600;
+    font-size:18px;
+    margin-bottom:20px;
+}
+
+.circle{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    margin:0 auto 20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    font-weight:bold;
+    color:white;
+}
+
+.verde{ background:linear-gradient(135deg,#16a34a,#22c55e); }
+.amarelo{ background:linear-gradient(135deg,#eab308,#facc15); }
+.vermelho{ background:linear-gradient(135deg,#dc2626,#ef4444); }
+.cinza{ background:linear-gradient(135deg,#94a3b8,#cbd5e1); }
+
+.stats{
+    font-size:14px;
+    color:#64748b;
+    line-height:1.6;
+}
+
+.section{
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    margin-bottom:25px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.06);
+}
+
+.barra-bg{
+    width:100%;
+    height:10px;
+    background:#e2e8f0;
+    border-radius:8px;
+    overflow:hidden;
+}
+
+.barra-fill{
+    height:100%;
+    transition:width 0.6s ease;
+}
+
+.insight{
+    background:#eef2ff;
+    padding:15px;
+    border-left:4px solid #6366f1;
+    border-radius:8px;
+    margin-top:15px;
+}
+
+</style>
+
+</head>
 <body>
 
 <script src="./js/conexao.js"></script>
@@ -17,6 +100,9 @@
 
 let aplicacoes = [];
 let respostas = [];
+let aplicacaoSelecionada = null;
+
+window.onload = iniciarPagina;
 
 function iniciarPagina(){
     criarLayout();
@@ -24,24 +110,17 @@ function iniciarPagina(){
     document.getElementById("conteudo").innerHTML = `
         <h2 style="margin-bottom:20px;">📊 Dashboard Pedagógico</h2>
 
-        <div class="card">
-            <div style="margin-bottom:15px;">
-                <label>Aplicação:</label>
-                <select id="selectAplicacao"></select>
-            </div>
-
-            <div id="areaDashboard"></div>
+        <div style="margin-bottom:20px;">
+            <label>Aplicação:</label>
+            <select id="selectAplicacao"></select>
         </div>
+
+        <div id="areaDashboard"></div>
     `;
 
     carregarAplicacoes();
 }
 
-window.onload = iniciarPagina;
-
-// =========================
-// CARREGAR APLICAÇÕES
-// =========================
 async function carregarAplicacoes(){
 
     const token = localStorage.getItem("TOKEN");
@@ -63,49 +142,109 @@ async function carregarAplicacoes(){
         select.appendChild(op);
     });
 
-    select.addEventListener("change", carregarRespostas);
+    select.addEventListener("change", ()=>{
+        aplicacaoSelecionada = select.value;
+        carregarRespostas();
+    });
 
+    aplicacaoSelecionada = select.value;
     carregarRespostas();
 }
 
-// =========================
-// CARREGAR RESPOSTAS
-// =========================
 async function carregarRespostas(){
-
-    const id = document.getElementById("selectAplicacao").value;
 
     const token = localStorage.getItem("TOKEN");
 
     const dados = await fetchProtegido(
-        API + "?tipo=respostasPorAplicacao&id=" + id + "&token=" + token
+        API + "?tipo=respostasPorAplicacao&id=" +
+        aplicacaoSelecionada + "&token=" + token
     );
 
-    if(!dados) return;
-
-    respostas = dados;
-
-    calcularDashboard();
-}
-
-// =========================
-// CÁLCULO
-// =========================
-function calcularDashboard(){
-
-    if(respostas.length === 0){
+    if(!dados || dados.length <= 1){
         document.getElementById("areaDashboard").innerHTML =
             "Nenhuma resposta registrada.";
         return;
     }
 
-    const alunos = new Set();
-    const descritores = {};
+    respostas = dados.slice(1);
+    mostrarResumoPorTurma();
+}
+
+function definirCor(media){
+    if(media >= 70) return "verde";
+    if(media >= 50) return "amarelo";
+    return "vermelho";
+}
+
+function mostrarResumoPorTurma(){
+
+    const porTurma = {};
 
     respostas.forEach(r=>{
-        alunos.add(r.ALUNO);
 
-        const partes = r.QUESTAO.split("_");
+        const turma = r[3];
+        const aluno = r[2];
+
+        if(!porTurma[turma]){
+            porTurma[turma] = {
+                alunos: new Set(),
+                total:0,
+                acertos:0
+            };
+        }
+
+        porTurma[turma].alunos.add(aluno);
+        porTurma[turma].total++;
+
+        if(r[5] === r[6]){
+            porTurma[turma].acertos++;
+        }
+    });
+
+    let html = `<div class="resumo-grid">`;
+
+    Object.keys(porTurma).forEach(turma=>{
+
+        const dados = porTurma[turma];
+
+        const media =
+            ((dados.acertos / dados.total) * 100).toFixed(1);
+
+        const cor = definirCor(media);
+
+        html += `
+            <div class="turma-card"
+                 onclick="mostrarDetalhe('${turma}')">
+
+                <div class="turma-nome">${turma}</div>
+
+                <div class="circle ${cor}">
+                    ${media}%
+                </div>
+
+                <div class="stats">
+                    ${dados.alunos.size} alunos<br>
+                    ${dados.total} respostas
+                </div>
+
+            </div>
+        `;
+    });
+
+    html += `</div>`;
+
+    document.getElementById("areaDashboard").innerHTML = html;
+}
+
+function mostrarDetalhe(turma){
+
+    const filtradas = respostas.filter(r => r[3] === turma);
+
+    const descritores = {};
+
+    filtradas.forEach(r=>{
+
+        const partes = r[4].split("_");
         const descritor = partes[2];
 
         if(!descritores[descritor]){
@@ -114,51 +253,55 @@ function calcularDashboard(){
 
         descritores[descritor].total++;
 
-        if(r.MARCADA === r.CORRETA){
+        if(r[5] === r[6]){
             descritores[descritor].acertos++;
         }
     });
 
-    const totalAlunos = alunos.size;
-
-    let somaPercentuais = 0;
-    let countDescritores = 0;
-
-    Object.keys(descritores).forEach(d=>{
-        const perc = (descritores[d].acertos / descritores[d].total) * 100;
-        somaPercentuais += perc;
-        countDescritores++;
-    });
-
-    const media = (somaPercentuais / countDescritores).toFixed(1);
-
     let html = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;">
-            <div class="card"><h3>${media}%</h3><p>Média Geral</p></div>
-            <div class="card"><h3>${totalAlunos}</h3><p>Total de Alunos</p></div>
+        <div style="margin-bottom:20px;">
+            <button onclick="mostrarResumoPorTurma()">
+                ← Voltar
+            </button>
         </div>
 
-        <h3>📚 Descritores</h3>
+        <div class="section">
+            <h3>📚 Desempenho - ${turma}</h3>
     `;
+
+    Object.keys(descritores)
+        .sort((a,b)=>
+            (descritores[a].acertos/descritoress[a].total) -
+            (descritores[b].acertos/descritoress[b].total)
+        );
 
     Object.keys(descritores).forEach(d=>{
 
-        const perc = (descritores[d].acertos / descritores[d].total) * 100;
-        const cor = perc < 50 ? "#dc2626" : "#16a34a";
+        const perc =
+            (descritores[d].acertos /
+             descritores[d].total) * 100;
+
+        const cor = definirCor(perc);
 
         html += `
-            <div style="margin-bottom:10px;">
+            <div style="margin-bottom:15px;">
                 <strong>${d}</strong> - ${perc.toFixed(1)}%
-                <div style="height:8px;background:#e2e8f0;border-radius:6px;">
-                    <div style="width:${perc}%;background:${cor};height:100%;border-radius:6px;"></div>
+                <div class="barra-bg">
+                    <div class="barra-fill ${cor}"
+                         style="width:${perc}%">
+                    </div>
                 </div>
             </div>
         `;
     });
 
     html += `
-        <div style="margin-top:30px;padding:20px;background:#f8fafc;border-left:4px solid #6366f1;border-radius:8px;">
-            🧠 <strong>Em breve:</strong> análises inteligentes com IA gerarão plano de intervenção automático para descritores abaixo de 50%.
+        <div class="insight">
+            🧠 Em breve: análises inteligentes com IA
+            gerarão plano automático de intervenção
+            para os descritores críticos.
+        </div>
+
         </div>
     `;
 
