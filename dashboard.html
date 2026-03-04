@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avalia+ | Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="favicon.svg">
+</head>
+
+<body>
+
+<script src="./js/conexao.js"></script>
+<script src="./js/layout.js"></script>
+
+<script>
+
+let aplicacoes = [];
+let respostas = [];
+
+function iniciarPagina(){
+    criarLayout();
+
+    document.getElementById("conteudo").innerHTML = `
+        <h2 style="margin-bottom:20px;">📊 Dashboard Pedagógico</h2>
+
+        <div class="card">
+            <div style="margin-bottom:15px;">
+                <label>Aplicação:</label>
+                <select id="selectAplicacao"></select>
+            </div>
+
+            <div id="areaDashboard"></div>
+        </div>
+    `;
+
+    carregarAplicacoes();
+}
+
+window.onload = iniciarPagina;
+
+// =========================
+// CARREGAR APLICAÇÕES
+// =========================
+async function carregarAplicacoes(){
+
+    const token = localStorage.getItem("TOKEN");
+
+    const dados = await fetchProtegido(
+        API + "?tipo=listarAplicacoes&token=" + token
+    );
+
+    if(!dados || dados.length <= 1) return;
+
+    aplicacoes = dados.slice(1);
+
+    const select = document.getElementById("selectAplicacao");
+
+    aplicacoes.forEach(l=>{
+        const op = document.createElement("option");
+        op.value = l[0];
+        op.textContent = l[1];
+        select.appendChild(op);
+    });
+
+    select.addEventListener("change", carregarRespostas);
+
+    carregarRespostas();
+}
+
+// =========================
+// CARREGAR RESPOSTAS
+// =========================
+async function carregarRespostas(){
+
+    const id = document.getElementById("selectAplicacao").value;
+
+    const token = localStorage.getItem("TOKEN");
+
+    const dados = await fetchProtegido(
+        API + "?tipo=respostasPorAplicacao&id=" + id + "&token=" + token
+    );
+
+    if(!dados) return;
+
+    respostas = dados;
+
+    calcularDashboard();
+}
+
+// =========================
+// CÁLCULO
+// =========================
+function calcularDashboard(){
+
+    if(respostas.length === 0){
+        document.getElementById("areaDashboard").innerHTML =
+            "Nenhuma resposta registrada.";
+        return;
+    }
+
+    const alunos = new Set();
+    const descritores = {};
+
+    respostas.forEach(r=>{
+        alunos.add(r.ALUNO);
+
+        const partes = r.QUESTAO.split("_");
+        const descritor = partes[2];
+
+        if(!descritores[descritor]){
+            descritores[descritor] = {total:0, acertos:0};
+        }
+
+        descritores[descritor].total++;
+
+        if(r.MARCADA === r.CORRETA){
+            descritores[descritor].acertos++;
+        }
+    });
+
+    const totalAlunos = alunos.size;
+
+    let somaPercentuais = 0;
+    let countDescritores = 0;
+
+    Object.keys(descritores).forEach(d=>{
+        const perc = (descritores[d].acertos / descritores[d].total) * 100;
+        somaPercentuais += perc;
+        countDescritores++;
+    });
+
+    const media = (somaPercentuais / countDescritores).toFixed(1);
+
+    let html = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;">
+            <div class="card"><h3>${media}%</h3><p>Média Geral</p></div>
+            <div class="card"><h3>${totalAlunos}</h3><p>Total de Alunos</p></div>
+        </div>
+
+        <h3>📚 Descritores</h3>
+    `;
+
+    Object.keys(descritores).forEach(d=>{
+
+        const perc = (descritores[d].acertos / descritores[d].total) * 100;
+        const cor = perc < 50 ? "#dc2626" : "#16a34a";
+
+        html += `
+            <div style="margin-bottom:10px;">
+                <strong>${d}</strong> - ${perc.toFixed(1)}%
+                <div style="height:8px;background:#e2e8f0;border-radius:6px;">
+                    <div style="width:${perc}%;background:${cor};height:100%;border-radius:6px;"></div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += `
+        <div style="margin-top:30px;padding:20px;background:#f8fafc;border-left:4px solid #6366f1;border-radius:8px;">
+            🧠 <strong>Em breve:</strong> análises inteligentes com IA gerarão plano de intervenção automático para descritores abaixo de 50%.
+        </div>
+    `;
+
+    document.getElementById("areaDashboard").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
