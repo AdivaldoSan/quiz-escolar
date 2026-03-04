@@ -43,7 +43,7 @@ function criarLayout(){
        Turmas
     </a>
 
-    <a href="turmas.html"
+    <a href="dashboard.html"
        class="${paginaAtual==='dashboard.html'?'active':''}">
        Dashboard
     </a>
