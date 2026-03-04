@@ -271,8 +271,8 @@ function mostrarDetalhe(turma){
 
     Object.keys(descritores)
         .sort((a,b)=>
-            (descritores[a].acertos/descritoress[a].total) -
-            (descritores[b].acertos/descritoress[b].total)
+            (descritores[a].acertos/descritores[a].total) -
+            (descritores[b].acertos/descritores[b].total)
         );
 
     Object.keys(descritores).forEach(d=>{
