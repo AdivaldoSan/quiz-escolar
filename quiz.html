@@ -52,7 +52,7 @@
 // ===========================
 function mostrarAlerta(mensagem, tipo = "normal"){
 
-    const box = document.getElementById("aQuiz");
+    const box = document.getElementById("alertaQuiz");
     box.innerText = mensagem;
 
     box.classList.remove("alerta-erro");
@@ -324,7 +324,7 @@ function iniciarIdentificacao(){
                 Informe seus dados para iniciar a atividade.
             </p>
 
-            <div id="aQuiz" class="a" style="display:none;"></div>
+            <div id="alertaQuiz" class="a" style="display:none;"></div>
 
             <div class="ident-campo">
                 <input id="nomeAluno"
