@@ -43,11 +43,17 @@ function criarLayout(){
        Turmas
     </a>
 
+    <a href="turmas.html"
+       class="${paginaAtual==='dashboard.html'?'active':''}">
+       Dashboard
+    </a>
+   
     ${perfil === "ADMIN" ? `
       <a href="admin.html"
          class="${paginaAtual==='admin.html'?'active':''}">
          Admin
       </a>
+    
     ` : ``}
   </div>
 
