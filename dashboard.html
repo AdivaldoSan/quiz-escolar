@@ -206,6 +206,7 @@ const token = localStorage.getItem("TOKEN")
 let dados = await fetchProtegido(
 API+"?tipo=respostasPorAplicacao&id="+id+"&token="+token
 )
+  
 
 // caso venha encapsulado
 if(dados && dados.dados){
