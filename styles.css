@@ -1747,3 +1747,12 @@ animation:spin 1s linear infinite;
 0%{transform:rotate(0deg)}
 100%{transform:rotate(360deg)}
 }
+
+.status-dot{
+display:inline-block;
+width:10px;
+height:10px;
+border-radius:50%;
+margin-right:8px;
+vertical-align:middle;
+}
