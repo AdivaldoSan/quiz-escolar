@@ -132,6 +132,8 @@ carregarAplicacoes()
 async function carregarAplicacoes(){
 
 mostrarLoader() 
+await new Promise(r => setTimeout(r, 50))
+
 
 const token=localStorage.getItem("TOKEN")
 
@@ -219,6 +221,8 @@ document.getElementById("areaDashboard").innerHTML = html
 async function abrirAplicacao(id){
   
 mostrarLoader()
+await new Promise(r => setTimeout(r, 50))
+
 const token = localStorage.getItem("TOKEN")
 
 let dados = await fetchProtegido(
