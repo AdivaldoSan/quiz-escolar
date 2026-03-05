@@ -177,6 +177,11 @@ turmas = a[3].split(",").map(t=>t.trim())
 
 const total = mapaRespostas[id] || 0
 
+const ativa = a[7] === "SIM"
+const data = a[4] ? new 
+Date(a[4]).toLocaleDateString() : ""
+
+
 const ativo = total > 0
 
 html += `
