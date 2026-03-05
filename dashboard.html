@@ -198,6 +198,38 @@ document.getElementById("areaDashboard").innerHTML = html
 
 }
 
+
+  async function abrirAplicacao(id){
+
+const token = localStorage.getItem("TOKEN")
+
+const dados = await fetchProtegido(
+API+"?tipo=respostasPorAplicacao&id="+id+"&token="+token
+)
+
+if(!dados || dados.length<=1){
+document.getElementById("areaDashboard").innerHTML="Nenhuma resposta registrada ainda"
+return
+}
+
+const cab = dados[0]
+
+respostas = dados.slice(1).map(l=>{
+
+let obj = {}
+
+cab.forEach((c,i)=>{
+obj[c] = l[i]
+})
+
+return obj
+
+})
+
+mostrarTurmas(id)
+
+}
+
 function definirCor(media){
 
 media=parseFloat(media)
