@@ -1781,14 +1781,29 @@ position:relative;
 .status-dot[data-tooltip]:hover::after{
 content:attr(data-tooltip);
 position:absolute;
-bottom:18px;
+bottom:22px;
 left:50%;
 transform:translateX(-50%);
 background:#111827;
 color:white;
-padding:6px 8px;
+padding:6px 10px;
 font-size:12px;
 border-radius:6px;
 white-space:nowrap;
-z-index:10;
+z-index:9999;
+pointer-events:none;
+}
+
+.aplicacao-card{
+overflow:visible;
+}
+
+.status-dot[data-tooltip]:hover::before{
+content:"";
+position:absolute;
+bottom:16px;
+left:50%;
+transform:translateX(-50%);
+border:6px solid transparent;
+border-top-color:#111827;
 }
