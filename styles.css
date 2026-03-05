@@ -1756,10 +1756,20 @@ margin-right:8px;
 vertical-align:middle;
 }
 
+/* LED verde ativo */
 .status-ativa{
-background:#16a34a;
+background:#22c55e;
+box-shadow:0 0 6px #22c55e, 0 0 12px #22c55e;
+animation:ledPulse 1.6s infinite;
 }
 
+/* LED cinza desligado */
 .status-encerrada{
 background:#9ca3af;
+}
+
+@keyframes ledPulse{
+0%{box-shadow:0 0 4px #22c55e;}
+50%{box-shadow:0 0 12px #22c55e;}
+100%{box-shadow:0 0 4px #22c55e;}
 }
