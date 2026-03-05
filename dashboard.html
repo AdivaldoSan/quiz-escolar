@@ -165,6 +165,8 @@ mostrarAplicacoes()
 
 function mostrarAplicacoes(){
 
+function mostrarAplicacoes(){
+
 let html = `<div class="aplicacoes-grid">`
 
 aplicacoes.forEach(a=>{
@@ -174,24 +176,20 @@ const nome = a[1]
 
 let turmas = []
 
+// TURMAS está na coluna 6
 try{
-if(typeof a[3]==="string" && a[3].startsWith("[")){
-turmas=JSON.parse(a[3])
-}else if(typeof a[3]==="string"){
-turmas=a[3].split(",").map(t=>t.trim()).filter(t=>t)
-}
+turmas = JSON.parse(a[6] || "[]")
 }catch(e){
-turmas=[]
+turmas = []
 }
 
 const total = mapaRespostas[id] || 0
 
+// STATUS ATIVA coluna 7
 const ativa = a[7] === "SIM"
-const data = a[4] ? new 
-Date(a[4]).toLocaleDateString() : ""
 
-
-const ativo = total > 0
+// DATA coluna 3
+const data = a[3] ? new Date(a[3]).toLocaleDateString() : ""
 
 html += `
 <div class="aplicacao-card ${total===0?"desabilitada":""}"
@@ -208,7 +206,7 @@ ${nome}
 
 <div class="aplicacao-info">
 
-${turmas.length} turmas<br>
+👥 ${turmas.length} turmas<br>
 📊 ${total} respostas
 
 </div>
