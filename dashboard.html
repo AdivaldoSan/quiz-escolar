@@ -174,15 +174,21 @@ const total = mapaRespostas[id] || 0
 const ativo = total > 0
 
 html += `
-<div class="aplicacao-card ${ativo ? "" : "desabilitada"}"
-     ${ativo ? `onclick="abrirAplicacao('${id}')"` : ""}>
+<div class="aplicacao-card ${total===0?"desabilitada":""}"
+     ${total>0 ? `onclick="abrirAplicacao('${id}')"` : ""}>
 
-<div class="aplicacao-nome">${nome}</div>
+<div class="aplicacao-nome">
+
+<span class="status-dot ${ativa ? "status-ativa":"status-encerrada"}"
+title="${ativa ? "Ativa desde "+data : "Encerrada"}"></span>
+
+${nome}
+
+</div>
 
 <div class="aplicacao-info">
 
 ${turmas.length} turmas<br>
-
 📊 ${total} respostas
 
 </div>
