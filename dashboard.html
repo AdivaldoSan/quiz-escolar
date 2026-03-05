@@ -109,6 +109,7 @@ height:100%;
 let aplicacoes=[]
 let respostas=[]
 let mapaRespostas = {}
+let mapaDescritores = {}
 
 window.addEventListener("DOMContentLoaded", iniciarPagina)
   
@@ -116,6 +117,8 @@ function iniciarPagina(){
 mostrarLoader()
 
 criarLayout()
+
+await carregarDescritores()  
 
 document.getElementById("conteudo").innerHTML=`
 
@@ -351,6 +354,8 @@ document.getElementById("areaDashboard").innerHTML=html
 }
 
 function mostrarAnalise(idAplicacao,turma){
+let temDescritor = false
+  
 
 const filtradas=respostas.filter(r=>r.TURMA===turma)
 
@@ -365,7 +370,7 @@ if(r.QUESTAO){
 const m=r.QUESTAO.match(/D\d+/)
 
 if(m)d=m[0]
-
+temDescritor = true
 }
 
 if(!descritores[d]){
@@ -386,7 +391,7 @@ let html=`
 </div>
 
 <div class="section">
-<h3>📚 Desempenho por Descritor</h3>
+<h3>${temDescritor ? "📚 Desempenho por Descritor" : "📊 Desempenho Geral"}</h3><h3>📚 Desempenho por Descritor</h3>
 `
 
 Object.keys(descritores).forEach(d=>{
@@ -398,10 +403,18 @@ const perc=total>0 ? (acertos/total)*100 : 0
 
 const cor=definirCor(perc)
 
+const descricao = mapaDescritores[d] || ""
+
 html+=`
 
 <div style="margin-bottom:15px;">
-<strong>${d}</strong> - ${perc.toFixed(1)}%
+
+<strong>${d}</strong><br>
+<span style="font-size:12px;color:#64748b;">
+${descricao}
+</span><br>
+
+${perc.toFixed(1)}%
 
 <div class="barra-bg">
 <div class="barra-fill ${cor}"
@@ -411,7 +424,6 @@ style="width:${perc}%"></div>
 </div>
 
 `
-
 })
 
 html+=`
@@ -438,6 +450,25 @@ const loader = document.getElementById("loader")
 if(!loader) return
 loader.style.display="none"
 }
+
+async function carregarDescritores(){
+
+const token = localStorage.getItem("TOKEN")
+
+const dados = await fetchProtegido(
+API+"?tipo=descritores&token="+token
+)
+
+if(!dados || dados.length<=1) return
+
+dados.slice(1).forEach(l=>{
+const codigo = l[0]
+const descricao = l[2]
+
+mapaDescritores[codigo] = descricao
+})
+
+}  
 
 </script>
 
