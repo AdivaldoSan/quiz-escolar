@@ -369,11 +369,16 @@ if(r.QUESTAO){
 
 const m=r.QUESTAO.match(/D\d+/)
 
-if(m)d=m[0]
+if(m){
+d=m[0]
 temDescritor = true
 }
 
+}
+
 if(d){
+
+temDescritor = true
 
 if(!descritores[d]){
 descritores[d]={acertos:0,total:0}
@@ -387,15 +392,9 @@ descritores[d].acertos++
 
 }
 
-descritores[d].total++
-
-if(r.MARCADA===r.CORRETA){
-descritores[d].acertos++
-}
-
 })
 
-const temDescritor = Object.keys(descritores).length > 0 && !descritores["SEM"]  
+temDescritor = Object.keys(descritores).length > 0
 
 let html=`
 <div style="margin-bottom:20px;">
