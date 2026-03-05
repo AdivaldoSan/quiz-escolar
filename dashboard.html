@@ -175,11 +175,13 @@ const nome = a[1]
 let turmas = []
 
 try{
-turmas = JSON.parse(a[3] || "[]")
-}catch(e){
-if(typeof a[3] === "string"){
-turmas = a[3].split(",").map(t=>t.trim())
+if(typeof a[3]==="string" && a[3].startsWith("[")){
+turmas=JSON.parse(a[3])
+}else if(typeof a[3]==="string"){
+turmas=a[3].split(",").map(t=>t.trim()).filter(t=>t)
 }
+}catch(e){
+turmas=[]
 }
 
 const total = mapaRespostas[id] || 0
