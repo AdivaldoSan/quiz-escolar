@@ -99,10 +99,6 @@ height:100%;
 
 <body>
 
-<div id="loader" class="loader-overlay" style="display:none">
-<div class="loader"></div>
-</div>
-
 
 <script src="./js/conexao.js"></script>
 <script src="./js/layout.js"></script>
@@ -122,6 +118,14 @@ mostrarLoader()
 criarLayout()
 
 document.getElementById("conteudo").innerHTML=`
+
+<div id="loader" class="loader-overlay" style="display:none">
+<div class="loader"></div>
+</div>
+
+
+
+
 <h2 style="margin-bottom:20px;">📊 Dashboard</h2>
 <div id="areaDashboard"></div>
 `
