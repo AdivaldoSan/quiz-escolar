@@ -1749,9 +1749,17 @@ animation:spin 1s linear infinite;
 
 .status-dot{
 display:inline-block;
-width:10px;
-height:10px;
+width:12px;
+height:12px;
 border-radius:50%;
 margin-right:8px;
 vertical-align:middle;
+}
+
+.status-ativa{
+background:#16a34a;
+}
+
+.status-encerrada{
+background:#9ca3af;
 }
