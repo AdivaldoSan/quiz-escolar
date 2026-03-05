@@ -99,6 +99,11 @@ height:100%;
 
 <body>
 
+<div id="loader" class="loader-overlay" style="display:none">
+<div class="loader"></div>
+</div>
+
+
 <script src="./js/conexao.js"></script>
 <script src="./js/layout.js"></script>
 
@@ -126,7 +131,7 @@ carregarAplicacoes()
 
 async function carregarAplicacoes(){
 
-  
+mostrarLoader() 
 
 const token=localStorage.getItem("TOKEN")
 
@@ -145,7 +150,8 @@ aplicacoes=dados.slice(1)
 mapaRespostas = await fetchProtegido(
 API+"?tipo=contarRespostas&token="+token
 )
-
+  
+esconderLoader()
 mostrarAplicacoes()
 
 }
@@ -206,7 +212,8 @@ document.getElementById("areaDashboard").innerHTML = html
 
 
 async function abrirAplicacao(id){
-
+  
+mostrarLoader()
 const token = localStorage.getItem("TOKEN")
 
 let dados = await fetchProtegido(
@@ -245,7 +252,7 @@ return obj
 })
 
 mostrarTurmas(id)
-
+esconderLoader()
 }
 function definirCor(media){
 
@@ -407,6 +414,14 @@ html+=`
 document.getElementById("areaDashboard").innerHTML=html
 
 }
+
+function mostrarLoader(){
+document.getElementById("loader").style.display="flex"
+}
+
+function esconderLoader(){
+document.getElementById("loader").style.display="none"
+}  
 
 </script>
 
