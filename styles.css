@@ -1773,3 +1773,22 @@ background:#9ca3af;
 50%{box-shadow:0 0 12px #22c55e;}
 100%{box-shadow:0 0 4px #22c55e;}
 }
+
+.status-dot{
+position:relative;
+}
+
+.status-dot[data-tooltip]:hover::after{
+content:attr(data-tooltip);
+position:absolute;
+bottom:18px;
+left:50%;
+transform:translateX(-50%);
+background:#111827;
+color:white;
+padding:6px 8px;
+font-size:12px;
+border-radius:6px;
+white-space:nowrap;
+z-index:10;
+}
