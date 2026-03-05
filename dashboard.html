@@ -141,6 +141,11 @@ return
 
 aplicacoes=dados.slice(1)
 
+  // buscar contagem de respostas
+mapaRespostas = await fetchProtegido(
+API+"?tipo=contarRespostas&token="+token
+)
+
 mostrarAplicacoes()
 
 }
