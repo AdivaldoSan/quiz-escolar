@@ -203,23 +203,26 @@ async function abrirAplicacao(id){
 
 const token = localStorage.getItem("TOKEN")
 
-let dados = await fetchProtegido(
-API+"?tipo=respostasPorAplicacao&token="+token+"&id="+id
-)
+let dados = await fetchProtegido(API,{
+method:"POST",
+body:new URLSearchParams({
+tipo:"respostasPorAplicacao",
+id:id,
+token:token
+})
+})
 
 // caso venha encapsulado
 if(dados && dados.dados){
 dados = dados.dados
 }
 
-// se não for array
 if(!Array.isArray(dados)){
 console.error("Formato inesperado:", dados)
 document.getElementById("areaDashboard").innerHTML="Erro ao carregar respostas"
 return
 }
 
-// se não houver respostas
 if(dados.length <= 1){
 document.getElementById("areaDashboard").innerHTML="Nenhuma resposta registrada ainda"
 return
