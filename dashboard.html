@@ -363,7 +363,7 @@ const descritores={}
 
 filtradas.forEach(r=>{
 
-let d="SEM"
+let d=null
 
 if(r.QUESTAO){
 
@@ -372,6 +372,8 @@ const m=r.QUESTAO.match(/D\d+/)
 if(m)d=m[0]
 temDescritor = true
 }
+
+if(d){
 
 if(!descritores[d]){
 descritores[d]={acertos:0,total:0}
@@ -383,7 +385,17 @@ if(r.MARCADA===r.CORRETA){
 descritores[d].acertos++
 }
 
+}
+
+descritores[d].total++
+
+if(r.MARCADA===r.CORRETA){
+descritores[d].acertos++
+}
+
 })
+
+const temDescritor = Object.keys(descritores).length > 0 && !descritores["SEM"]  
 
 let html=`
 <div style="margin-bottom:20px;">
@@ -391,8 +403,7 @@ let html=`
 </div>
 
 <div class="section">
-<h3>${temDescritor ? "📚 Desempenho por Descritor" : "📊 Desempenho Geral"}</h3><h3>📚 Desempenho por Descritor</h3>
-`
+<h3>${temDescritor ? "📚 Desempenho por Descritor" : "📊 Desempenho Geral da Turma"}</h3>`
 
 Object.keys(descritores).forEach(d=>{
 
