@@ -365,9 +365,11 @@ let indice=0
 
 l.itens.forEach((b,j)=>{
 
-if(b.count>maior){
-maior=b.count
-indice=j
+let escuro = medirEscuro(frame, largura, b.cx, b.cy)
+
+if(escuro > maior){
+maior = escuro
+indice = j
 }
 
 })
@@ -387,6 +389,34 @@ document.getElementById("resultado").innerHTML =
 "Respostas detectadas: " + respostas.join("")
 
 }
+
+function medirEscuro(frame,largura,x,y){
+
+let soma=0
+let cont=0
+
+for(let dy=-6;dy<6;dy++){
+for(let dx=-6;dx<6;dx++){
+
+let px=Math.floor(x+dx)
+let py=Math.floor(y+dy)
+
+let index=(py*largura+px)*4
+
+let r=frame.data[index]
+let g=frame.data[index+1]
+let b=frame.data[index+2]
+
+let brilho=(r+g+b)/3
+
+soma += (255-brilho)
+cont++
+
+}
+}
+
+return soma/cont
+}  
 
 /* =========================
 INICIAR
