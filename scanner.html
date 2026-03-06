@@ -245,6 +245,11 @@ if(brilho < 110){
 
 pontos.push({x,y})
 
+if(pontos.length < 50){
+document.getElementById("resultado").innerHTML="Poucos pontos detectados"
+return
+}
+
 }
 
 }
