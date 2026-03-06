@@ -22,27 +22,36 @@ width:100%;
 }
 
 #resultado{
-padding:10px;
+padding:12px;
 font-size:18px;
 }
 
 button{
-padding:12px 20px;
+padding:14px 22px;
 margin:10px;
-font-size:16px;
+font-size:18px;
 }
 
 .oculto{
 display:none;
 }
 
+video{
+width:100%;
+max-width:500px;
+}
+
+canvas{
+width:100%;
+max-width:500px;
+}
+
 </style>
 </head>
 
-
 <body>
 
-<h2 id="titulo">Scanner Avalia+</h2>
+<h2>Scanner Avalia+</h2>
 
 <div id="reader"></div>
 
@@ -50,21 +59,22 @@ display:none;
 Aponte para o QR da prova
 </div>
 
+<div id="captura" class="oculto">
+<button onclick="capturar()">CAPTURAR</button>
+</div>
+
 <div id="acoes" class="oculto">
 <button onclick="confirmar()">Confirmar envio</button>
-<button onclick="lerNovamente()">Ler novamente</button>
+<button onclick="capturar()">Capturar novamente</button>
 </div>
-
-<div id="proximo" class="oculto">
-<button onclick="reiniciar()">Próxima prova</button>
-</div>
-
 
 <script>
 
 let scanner
 let gabarito=""
+let respostas=""
 let folha=""
+let qtd=0
 
 /* =========================
 BIP
@@ -74,9 +84,11 @@ function beep(){
 
 const ctx=new AudioContext()
 const osc=ctx.createOscillator()
+
 osc.connect(ctx.destination)
 osc.frequency.value=900
 osc.start()
+
 setTimeout(()=>osc.stop(),150)
 
 }
@@ -86,29 +98,37 @@ VIBRAÇÃO
 ========================= */
 
 function vibrar(){
+
 if(navigator.vibrate){
 navigator.vibrate(150)
 }
+
 }
 
 /* =========================
-INICIAR SCANNER QR
+INICIAR QR
 ========================= */
 
 function iniciarQR(){
 
-scanner = new Html5Qrcode("reader")
+scanner=new Html5Qrcode("reader")
 
 scanner.start(
-{ facingMode:"environment" },
+
+{facingMode:"environment"},
+
 {
 fps:10,
+
 qrbox:{
 width: Math.min(window.innerWidth*0.8,400),
 height: Math.min(window.innerWidth*0.8,400)
 }
+
 },
+
 (qr)=>{ lerQR(qr) }
+
 )
 
 }
@@ -124,39 +144,37 @@ if(!dado.startsWith("AVP")) return
 beep()
 vibrar()
 
-scanner.pause(true)
+scanner.stop()
 
-let partes = dado.split("|")
+let partes=dado.split("|")
 
-folha = partes[2]
-let qtd = parseInt(partes[3])
-gabarito = partes[4]
+folha=partes[2]
+qtd=parseInt(partes[3])
+gabarito=partes[4]
 
-window.qtdQuestoes = qtd
-
-document.getElementById("resultado").innerHTML =
+document.getElementById("resultado").innerHTML=
 
 `
 QR detectado ✓<br><br>
-Folha: ${folha}<br>
-Questões: ${qtd}<br><br>
-Lendo respostas...
+Folha ${folha}<br>
+${qtd} questões<br><br>
+Centralize a folha e toque CAPTURAR
 `
 
-setTimeout(()=>{
-iniciarLeituraBolhas()
-},600)
+abrirCameraBolhas()
 
 }
 
 /* =========================
-INICIAR LEITURA BOLHAS
+CAMERA BOLHAS
 ========================= */
 
-function iniciarLeituraBolhas(){
+function abrirCameraBolhas(){
 
 navigator.mediaDevices.getUserMedia({
+
 video:{facingMode:"environment"}
+
 })
 .then(stream=>{
 
@@ -168,222 +186,72 @@ video.play()
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(video)
 
-setTimeout(()=>{
-lerBolhas()
-},1000)
+document.getElementById("captura").classList.remove("oculto")
 
 })
 
 }
 
 /* =========================
-LER BOLHAS
+CAPTURAR FRAME
 ========================= */
 
-function lerBolhas(){
+function capturar(){
 
-const video = document.querySelector("video")
+const video=document.querySelector("video")
 
-if(!video || video.videoWidth===0){
-setTimeout(lerBolhas,200)
-return
-}
+const canvas=document.createElement("canvas")
+const ctx=canvas.getContext("2d")
 
-const canvas = document.createElement("canvas")
-const ctx = canvas.getContext("2d")
-
-canvas.width = video.videoWidth
-canvas.height = video.videoHeight
+canvas.width=video.videoWidth
+canvas.height=video.videoHeight
 
 ctx.drawImage(video,0,0)
-
-const largura = canvas.width
-const altura = canvas.height
-
-const frame = ctx.getImageData(0,0,largura,altura)
-
-/* =========================
-DETECTAR PIXELS ESCUROS
-========================= */
-
-const pontos=[]
-
-for(let y=0; y<altura*0.75; y+=4){
-for(let x=largura*0.15; x<largura*0.85; x+=4){
-
-let idx=(y*largura+x)*4
-
-let r=frame.data[idx]
-let g=frame.data[idx+1]
-let b=frame.data[idx+2]
-
-let brilho=(r+g+b)/3
-
-if(brilho<120){
-pontos.push({x,y})
-}
-
-}
-}
-
-/* =========================
-AGRUPAR PIXELS
-========================= */
-
-const grupos=[]
-
-pontos.forEach(p=>{
-
-let achou=false
-
-for(let g of grupos){
-
-let dx=p.x-g.cx
-let dy=p.y-g.cy
-
-if(Math.sqrt(dx*dx+dy*dy)<26){
-
-g.x+=p.x
-g.y+=p.y
-g.count++
-
-g.cx=g.x/g.count
-g.cy=g.y/g.count
-
-achou=true
-break
-
-}
-
-}
-
-if(!achou){
-
-grupos.push({
-x:p.x,
-y:p.y,
-cx:p.x,
-cy:p.y,
-count:1
-})
-
-}
-
-})
-
-/* =========================
-FILTRAR BOLHAS
-========================= */
-
-const bolhas = grupos.filter(g => {
-
-if(g.count < 18) return false
-if(g.count > 80) return false
-
-/* limitar área da grade */
-
-if(g.cx < largura*0.25) return false
-if(g.cx > largura*0.75) return false
-
-if(g.cy < altura*0.15) return false
-if(g.cy > altura*0.60) return false
-
-return true
-
-})
-/* =========================
-DESENHAR
-========================= */
-
-ctx.fillStyle="red"
-
-bolhas.forEach(b=>{
-
-ctx.beginPath()
-ctx.arc(b.cx,b.cy,8,0,Math.PI*2)
-ctx.fill()
-
-})
-
-/* =========================
-ORDENAR POR LINHAS
-========================= */
-
-bolhas.sort((a,b)=>a.cy-b.cy)
-
-const linhas = []
-
-const topo = Math.min(...bolhas.map(b=>b.cy))
-const base = Math.max(...bolhas.map(b=>b.cy))
-
-const alturaTotal = base - topo
-
-const alturaLinha = alturaTotal / window.qtdQuestoes
-
-for(let i=0;i<window.qtdQuestoes;i++){
-
-let yMin = topo + i*alturaLinha
-let yMax = topo + (i+1)*alturaLinha
-
-const itens = bolhas.filter(b => b.cy>=yMin && b.cy<yMax)
-
-itens.sort((a,b)=>a.cx-b.cx)
-
-linhas.push({itens})
-
-}
-
-/* =========================
-ORDENAR COLUNAS
-========================= */
-
-linhas.forEach(l=>{
-l.itens.sort((a,b)=>a.cx-b.cx)
-})
-
-/* =========================
-DETECTAR RESPOSTAS
-========================= */
-
-const letras=["A","B","C","D"]
-const respostas=[]
-
-linhas.forEach(l=>{
-
-let maior=0
-let indice=0
-
-l.itens.forEach((b,j)=>{
-
-let escuro = medirEscuro(frame, largura, b.cx, b.cy)
-
-if(escuro > maior){
-maior = escuro
-indice = j
-}
-
-})
-
-respostas.push(letras[indice])
-
-})
-
-/* =========================
-MOSTRAR RESULTADO
-========================= */
 
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(canvas)
 
-document.getElementById("resultado").innerHTML =
-"Respostas detectadas: " + respostas.join("")
+processar(canvas)
 
 }
 
-function medirEscuro(frame,largura,x,y){
+/* =========================
+PROCESSAR OMR
+========================= */
 
-let soma=0
-let cont=0
+function processar(canvas){
+
+const ctx=canvas.getContext("2d")
+
+const largura=canvas.width
+const altura=canvas.height
+
+const frame=ctx.getImageData(0,0,largura,altura)
+
+/* área do gabarito */
+
+const startX=largura*0.30
+const startY=altura*0.20
+
+const areaW=largura*0.45
+const areaH=altura*0.45
+
+const respostasDetectadas=[]
+
+const letras=["A","B","C","D"]
+
+for(let q=0;q<qtd;q++){
+
+let y=startY+(q*(areaH/qtd))
+
+let melhor=0
+let maior=0
+
+for(let a=0;a<4;a++){
+
+let x=startX+(a*(areaW/4))
+
+let escuro=0
 
 for(let dy=-6;dy<6;dy++){
 for(let dx=-6;dx<6;dx++){
@@ -391,22 +259,72 @@ for(let dx=-6;dx<6;dx++){
 let px=Math.floor(x+dx)
 let py=Math.floor(y+dy)
 
-let index=(py*largura+px)*4
+let idx=(py*largura+px)*4
 
-let r=frame.data[index]
-let g=frame.data[index+1]
-let b=frame.data[index+2]
+let r=frame.data[idx]
+let g=frame.data[idx+1]
+let b=frame.data[idx+2]
 
 let brilho=(r+g+b)/3
 
-soma += (255-brilho)
-cont++
+escuro+=(255-brilho)
 
 }
 }
 
-return soma/cont
-}  
+if(escuro>maior){
+maior=escuro
+melhor=a
+}
+
+}
+
+respostasDetectadas.push(letras[melhor])
+
+}
+
+/* desenhar bolhas detectadas */
+
+ctx.fillStyle="red"
+
+for(let q=0;q<qtd;q++){
+
+let y=startY+(q*(areaH/qtd))
+let x=startX+(respostasDetectadas[q].charCodeAt(0)-65)*(areaW/4)
+
+ctx.beginPath()
+ctx.arc(x,y,10,0,Math.PI*2)
+ctx.fill()
+
+}
+
+respostas=respostasDetectadas.join("")
+
+document.getElementById("resultado").innerHTML=
+
+`
+Respostas detectadas: ${respostas}
+`
+
+document.getElementById("captura").classList.add("oculto")
+document.getElementById("acoes").classList.remove("oculto")
+
+}
+
+/* =========================
+CONFIRMAR
+========================= */
+
+function confirmar(){
+
+document.getElementById("resultado").innerHTML=
+
+`
+✓ Resultado enviado<br><br>
+Folha ${folha}
+`
+
+}
 
 /* =========================
 INICIAR
