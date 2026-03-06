@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Scanner Avalia+</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+}
+
+#reader{
+width:320px;
+margin:auto;
+margin-top:20px;
+}
+
+#resultado{
+margin-top:20px;
+font-size:18px;
+background:#222;
+padding:10px;
+border-radius:8px;
+}
+
+#status{
+margin-top:10px;
+color:#00ff88;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Scanner Avalia+</h2>
+
+<div id="status">Inicializando câmera...</div>
+
+<div id="reader"></div>
+
+<div id="resultado">
+QR não detectado
+</div>
+
+<script>
+
+/* =========================================
+PREPARADO PARA FUTURA VALIDAÇÃO DE SESSÃO
+========================================= */
+
+function verificarSessao(){
+
+// futuramente:
+//
+// fetch("/api/session")
+// .then(r=>r.json())
+// .then(data=>{
+//
+// if(!data.logado){
+// location.href="/login.html"
+// }
+//
+// iniciarScanner()
+// })
+
+iniciarScanner()
+
+}
+
+/* =========================================
+INICIAR SCANNER
+========================================= */
+
+function iniciarScanner(){
+
+document.getElementById("status").innerText="Scanner ativo"
+
+const scanner = new Html5Qrcode("reader")
+
+scanner.start(
+{ facingMode:"environment" },
+{
+fps:10,
+qrbox:250
+},
+
+(qrMessage)=>{
+
+processarQR(qrMessage)
+
+},
+
+(error)=>{
+
+// ignorar erros de leitura
+
+}
+
+)
+
+}
+
+/* =========================================
+PROCESSAR QR
+========================================= */
+
+function processarQR(dado){
+
+document.getElementById("resultado").innerText=dado
+
+try{
+
+const partes = dado.split("|")
+
+if(partes[0] !== "AVP"){
+return
+}
+
+const aplicacao = partes[1]
+const folha = partes[2]
+const gabarito = partes[3]
+
+console.log("Aplicação:",aplicacao)
+console.log("Folha:",folha)
+console.log("Gabarito:",gabarito)
+
+/* =========================================
+AQUI ENTRARÁ A LEITURA DAS RESPOSTAS
+========================================= */
+
+/*
+exemplo:
+
+let respostas = ["A","B","C","D"]
+
+corrigir(respostas,gabarito)
+
+*/
+
+}catch(e){
+
+console.log("QR inválido")
+
+}
+
+}
+
+/* =========================================
+FUNÇÃO FUTURA DE ENVIO AO SERVIDOR
+========================================= */
+
+function enviarResultado(aplicacao,folha,respostas,acertos){
+
+fetch("/api/scanner/enviar",{
+
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+aplicacao:aplicacao,
+folha:folha,
+respostas:respostas,
+acertos:acertos
+
+})
+
+})
+
+}
+
+/* =========================================
+INICIAR
+========================================= */
+
+verificarSessao()
+
+</script>
+
+</body>
+</html>
