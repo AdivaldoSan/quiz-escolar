@@ -11,52 +11,29 @@
 
 body{
 margin:0;
+font-family:Arial;
 background:#111;
 color:white;
-font-family:Arial;
-}
-
-#app{
-width:100vw;
-}
-
-#titulo{
 text-align:center;
-padding:10px;
-font-size:22px;
-}
-
-#status{
-text-align:center;
-margin-bottom:10px;
-color:#00ff88;
 }
 
 #reader{
-width:100vw;
-}
-
-#reader video{
 width:100%;
-height:auto;
 }
 
 #resultado{
-margin:10px;
-padding:12px;
-background:#222;
-border-radius:8px;
-text-align:center;
+padding:10px;
 font-size:18px;
 }
 
-#instrucao{
+button{
+padding:12px 20px;
 margin:10px;
-padding:10px;
-background:#333;
-border-radius:8px;
-text-align:center;
 font-size:16px;
+}
+
+.oculto{
+display:none;
 }
 
 </style>
@@ -65,263 +42,230 @@ font-size:16px;
 
 <body>
 
-<div id="app">
-
-<div id="titulo">Scanner Avalia+</div>
-
-<div id="status">Inicializando câmera...</div>
+<h2 id="titulo">Scanner Avalia+</h2>
 
 <div id="reader"></div>
 
-<div id="resultado">Aguardando QR da prova</div>
-
-<div id="instrucao">
-Aponte a câmera para o QR Code da prova
+<div id="resultado">
+Aponte para o QR da prova
 </div>
 
+<div id="acoes" class="oculto">
+<button onclick="confirmar()">Confirmar envio</button>
+<button onclick="lerNovamente()">Ler novamente</button>
 </div>
+
+<div id="proximo" class="oculto">
+<button onclick="reiniciar()">Próxima prova</button>
+</div>
+
 
 <script>
 
+let scanner
+let gabarito=""
+let respostas=""
+let folha=""
 
-/* ================================
-BIP SONORO
-================================ */
+/* =========================
+BIP
+========================= */
 
 function beep(){
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-
-const oscillator = audioCtx.createOscillator()
-const gainNode = audioCtx.createGain()
-
-oscillator.connect(gainNode)
-gainNode.connect(audioCtx.destination)
-
-oscillator.frequency.value = 900
-oscillator.type = "sine"
-
-gainNode.gain.value = 0.2
-
-oscillator.start()
-
-setTimeout(()=>{
-oscillator.stop()
-},150)
+const ctx=new AudioContext()
+const osc=ctx.createOscillator()
+osc.connect(ctx.destination)
+osc.frequency.value=900
+osc.start()
+setTimeout(()=>osc.stop(),150)
 
 }
 
-
-/* ================================
+/* =========================
 VIBRAÇÃO
-================================ */
+========================= */
 
 function vibrar(){
 
 if(navigator.vibrate){
-navigator.vibrate(120)
+navigator.vibrate(150)
 }
 
 }
 
+/* =========================
+INICIAR SCANNER QR
+========================= */
 
-/* ================================
-VERIFICAR SESSÃO (FUTURO)
-================================ */
+function iniciarQR(){
 
-function verificarSessao(){
-
-/*
-
-futuro:
-
-fetch("/api/session")
-.then(r=>r.json())
-.then(data=>{
-
-if(!data.logado){
-location.href="/login.html"
-}
-
-iniciarScanner()
-
-})
-
-*/
-
-iniciarScanner()
-
-}
-
-
-/* ================================
-INICIAR SCANNER
-================================ */
-
-function iniciarScanner(){
-
-document.getElementById("status").innerText="Scanner ativo"
-
-const scanner = new Html5Qrcode("reader")
+scanner=new Html5Qrcode("reader")
 
 scanner.start(
 
-{
-facingMode:"environment",
-aspectRatio:1.777
-},
+{facingMode:"environment"},
 
 {
 fps:10,
-qrbox:{
-width: Math.min(window.innerWidth*0.8,400),
-height: Math.min(window.innerWidth*0.8,400)
+qrbox:{width:250,height:250}
+},
+
+(qr)=>{
+
+lerQR(qr)
+
 }
-},
-
-(qrMessage)=>{
-
-processarQR(qrMessage)
-
-},
-
-(error)=>{}
 
 )
 
 }
 
+/* =========================
+LER QR
+========================= */
 
-/* ================================
-PROCESSAR QR
-================================ */
+function lerQR(dado){
 
-function processarQR(dado){
-
-try{
-
-const partes = dado.split("|")
-
-if(partes[0] !== "AVP"){
-return
-}
-
-const aplicacao = partes[1]
-const folha = partes[2]
-const gabarito = partes[3]
-
-
-/* feedback */
+if(!dado.startsWith("AVP")) return
 
 beep()
 vibrar()
 
+scanner.stop()
 
-/* atualizar interface */
+let partes=dado.split("|")
 
-document.getElementById("titulo").innerText =
-"Prova "+aplicacao+" | Folha "+folha
+folha=partes[2]
+gabarito=partes[3]
 
-document.getElementById("resultado").innerText =
-"QR detectado com sucesso"
+document.getElementById("resultado").innerHTML=
 
-document.getElementById("instrucao").innerText =
-"Posicione o gabarito na câmera para leitura das respostas"
+`
+QR detectado ✓<br>
+Folha: ${folha}<br>
+Gabarito: ${gabarito}<br><br>
+Lendo respostas...
+`
 
-
-/* salvar temporário */
-
-window.provaAtual = {
-
-aplicacao: aplicacao,
-folha: folha,
-gabarito: gabarito
+setTimeout(lerBolhas,1000)
 
 }
 
-
-}catch(e){
-
-console.log("QR inválido")
-
-}
-
-}
-
-
-/* ================================
-LEITURA DAS RESPOSTAS (FUTURO)
-================================ */
+/* =========================
+LER BOLHAS (SIMULAÇÃO)
+========================= */
 
 function lerBolhas(){
 
-/*
+// simulação leitura
 
-Aqui entrará:
+const alternativas=["A","B","C","D"]
 
-1 converter imagem
-2 detectar marcações
-3 gerar vetor respostas
+respostas=""
 
-exemplo retorno:
+for(let i=0;i<gabarito.length;i++){
 
-["A","C","B","D","A","B"]
-
-*/
+respostas+=alternativas[Math.floor(Math.random()*4)]
 
 }
 
-
-/* ================================
-CORRIGIR PROVA
-================================ */
-
-function corrigir(respostas,gabarito){
-
-let acertos = 0
-
-for(let i=0;i<respostas.length;i++){
-
-if(respostas[i] === gabarito[i]){
-acertos++
-}
+mostrarResultado()
 
 }
 
-return acertos
+/* =========================
+MOSTRAR RESULTADO
+========================= */
+
+function mostrarResultado(){
+
+let acertos=0
+
+for(let i=0;i<gabarito.length;i++){
+
+if(gabarito[i]==respostas[i]) acertos++
 
 }
 
+document.getElementById("resultado").innerHTML=
 
-/* ================================
-ENVIAR PARA SERVIDOR
-================================ */
+`
+Respostas detectadas<br><br>
 
-function enviarResultado(aplicacao,folha,respostas,acertos){
+Aluno: ${respostas}<br>
+Gabarito: ${gabarito}<br><br>
 
-fetch("/api/scanner/enviar",{
+Acertos: ${acertos}/${gabarito.length}
+`
 
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-aplicacao:aplicacao,
-folha:folha,
-respostas:respostas,
-acertos:acertos
-
-})
-
-})
+document.getElementById("acoes").classList.remove("oculto")
 
 }
 
+/* =========================
+LER NOVAMENTE
+========================= */
 
-verificarSessao()
+function lerNovamente(){
+
+document.getElementById("acoes").classList.add("oculto")
+
+document.getElementById("resultado").innerHTML="Lendo novamente..."
+
+setTimeout(lerBolhas,1000)
+
+}
+
+/* =========================
+CONFIRMAR ENVIO
+========================= */
+
+function confirmar(){
+
+document.getElementById("acoes").classList.add("oculto")
+
+document.getElementById("resultado").innerHTML=
+
+`
+Enviando resultado ao Avalia+...
+`
+
+setTimeout(()=>{
+
+document.getElementById("resultado").innerHTML=
+
+`
+✓ Resultado enviado<br><br>
+
+Folha ${folha} registrada
+`
+
+document.getElementById("proximo").classList.remove("oculto")
+
+},1000)
+
+}
+
+/* =========================
+PRÓXIMA PROVA
+========================= */
+
+function reiniciar(){
+
+document.getElementById("proximo").classList.add("oculto")
+
+document.getElementById("resultado").innerHTML="Aponte para o QR da prova"
+
+iniciarQR()
+
+}
+
+/* =========================
+INICIAR
+========================= */
+
+iniciarQR()
 
 </script>
 
