@@ -275,8 +275,22 @@ count:1
 FILTRAR BOLHAS
 ========================= */
 
-const bolhas = grupos.filter(g => g.count>8 && g.count<120)
+const bolhas = grupos.filter(g => {
 
+if(g.count < 12) return false
+if(g.count > 80) return false
+
+/* ignorar bordas */
+
+if(g.cx < largura*0.25) return false
+if(g.cx > largura*0.75) return false
+
+if(g.cy < altura*0.15) return false
+if(g.cy > altura*0.60) return false
+
+return true
+
+})
 /* =========================
 DESENHAR
 ========================= */
