@@ -20,7 +20,7 @@ input{
 padding:8px;
 margin:5px;
 font-size:16px;
-width:180px;
+width:160px;
 }
 
 button{
@@ -35,23 +35,15 @@ width:210mm;
 background:white;
 padding:10mm;
 display:flex;
-justify-content:space-between;
+gap:10mm;
 }
 
-
-/* gabarito */
-
 .folha{
-
 width:60mm;
 border:2px solid #000;
 padding:6mm;
 position:relative;
-
 }
-
-
-/* QR */
 
 .qr{
 width:70px;
@@ -59,17 +51,11 @@ height:70px;
 margin-bottom:6px;
 }
 
-
-/* título */
-
 .info{
 font-weight:bold;
 font-size:14px;
 margin-bottom:6px;
 }
-
-
-/* grid */
 
 .linha{
 display:flex;
@@ -79,19 +65,16 @@ font-size:13px;
 }
 
 .numero{
-width:20px;
+width:18px;
 }
 
 .opcao{
-width:16px;
-height:16px;
+width:14px;
+height:14px;
 border:2px solid #000;
 border-radius:50%;
-margin:0 6px;
+margin:0 5px;
 }
-
-
-/* pontos de alinhamento */
 
 .marcador{
 width:10px;
@@ -100,20 +83,17 @@ background:black;
 position:absolute;
 }
 
-.m1{ top:3px; left:3px; }
-.m2{ top:3px; right:3px; }
-.m3{ bottom:3px; left:3px; }
-.m4{ bottom:3px; right:3px; }
+.m1{top:3px;left:3px;}
+.m2{top:3px;right:3px;}
+.m3{bottom:3px;left:3px;}
+.m4{bottom:3px;right:3px;}
 
 </style>
 </head>
 
-
 <body>
 
-<h2>Gerador de Gabarito (Scanner Teste)</h2>
-
-<p>Digite os gabaritos</p>
+<h2>Gerador de Gabarito (Teste Scanner)</h2>
 
 <input id="g1" placeholder="Gabarito 1">
 <input id="g2" placeholder="Gabarito 2">
@@ -121,11 +101,12 @@ position:absolute;
 
 <br>
 
-<button onclick="gerar()">Gerar</button>
+<button onclick="gerar()">Gerar gabaritos</button>
 <button onclick="pdf()">Gerar PDF</button>
 
-<div id="a4"></div>
+<br><br>
 
+<div id="a4"></div>
 
 <script>
 
@@ -136,33 +117,20 @@ const dadosQR = `AVP|SIM|${seq}|${gabarito}`
 const folha=document.createElement("div")
 folha.className="folha"
 
-
-/* marcadores */
-
-["m1","m2","m3","m4"].forEach(c=>{
+;["m1","m2","m3","m4"].forEach(p=>{
 let m=document.createElement("div")
-m.className="marcador "+c
+m.className="marcador "+p
 folha.appendChild(m)
 })
-
-
-/* QR */
 
 const qr=document.createElement("div")
 qr.className="qr"
 folha.appendChild(qr)
 
-
-/* info */
-
 const info=document.createElement("div")
 info.className="info"
-info.innerHTML=`Folha ${seq}`
-
+info.innerText="Folha "+seq
 folha.appendChild(info)
-
-
-/* respostas */
 
 for(let i=0;i<gabarito.length;i++){
 
@@ -172,14 +140,12 @@ linha.className="linha"
 let num=document.createElement("div")
 num.className="numero"
 num.innerText=i+1
-
 linha.appendChild(num)
 
 for(let j=0;j<4;j++){
 
 let op=document.createElement("div")
 op.className="opcao"
-
 linha.appendChild(op)
 
 }
@@ -188,40 +154,34 @@ folha.appendChild(linha)
 
 }
 
-
 setTimeout(()=>{
-
 new QRCode(qr,{
 text:dadosQR,
 width:70,
 height:70
 })
-
-},10)
-
+},50)
 
 return folha
 
 }
 
-
-
 function gerar(){
 
-const g1=document.getElementById("g1").value.toUpperCase()
-const g2=document.getElementById("g2").value.toUpperCase()
-const g3=document.getElementById("g3").value.toUpperCase()
+const padrao="ABCDABCDAB"
+
+let g1=document.getElementById("g1").value.toUpperCase()||padrao
+let g2=document.getElementById("g2").value.toUpperCase()||padrao
+let g3=document.getElementById("g3").value.toUpperCase()||padrao
 
 const a4=document.getElementById("a4")
 a4.innerHTML=""
 
-if(g1) a4.appendChild(criarFolha(1,g1))
-if(g2) a4.appendChild(criarFolha(2,g2))
-if(g3) a4.appendChild(criarFolha(3,g3))
+a4.appendChild(criarFolha(1,g1))
+a4.appendChild(criarFolha(2,g2))
+a4.appendChild(criarFolha(3,g3))
 
 }
-
-
 
 function pdf(){
 
