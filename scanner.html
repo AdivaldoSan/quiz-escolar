@@ -232,6 +232,20 @@ const frame = ctx.getImageData(0,0,largura,altura)
 /* detectar pixels escuros */
 
 const marcadores = detectarMarcadores(frame, largura, altura)
+const grupos = agruparPontos(marcadores)
+ctx.fillStyle = "yellow"
+
+grupos.forEach(g=>{
+
+if(g.count > 30){
+
+ctx.beginPath()
+ctx.arc(g.cx, g.cy, 10, 0, Math.PI*2)
+ctx.fill()
+
+}
+
+})  
 
 /* desenhar pontos verdes */
 
@@ -375,6 +389,53 @@ pontos.push({x,y})
 }
 
 return pontos
+
+}  
+
+function agruparPontos(pontos){
+
+const grupos = []
+
+pontos.forEach(p=>{
+
+let encontrado=false
+
+for(let g of grupos){
+
+let dx = p.x - g.cx
+let dy = p.y - g.cy
+
+if(Math.sqrt(dx*dx + dy*dy) < 40){
+
+g.x += p.x
+g.y += p.y
+g.count++
+
+g.cx = g.x / g.count
+g.cy = g.y / g.count
+
+encontrado=true
+break
+
+}
+
+}
+
+if(!encontrado){
+
+grupos.push({
+x:p.x,
+y:p.y,
+cx:p.x,
+cy:p.y,
+count:1
+})
+
+}
+
+})
+
+return grupos
 
 }  
 /* =========================
