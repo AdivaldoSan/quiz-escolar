@@ -141,19 +141,30 @@ vibrar()
 
 scanner.stop()
 
-let partes=dado.split("|")
+let partes = dado.split("|")
 
-folha=partes[2]
-gabarito=partes[3]
+let sistema = partes[0]
+let prova = partes[1]
+folha = partes[2]
+let qtd = parseInt(partes[3])
+gabarito = partes[4]
 
-document.getElementById("resultado").innerHTML=
+document.getElementById("resultado").innerHTML =
 
 `
-QR detectado ✓<br>
+QR detectado ✓<br><br>
+
+Prova: ${prova}<br>
 Folha: ${folha}<br>
+Questões: ${qtd}<br>
 Gabarito: ${gabarito}<br><br>
-Lendo respostas...
+
+Preparando leitura das respostas...
 `
+
+/* guardar quantidade */
+
+window.qtdQuestoes = qtd
 
 setTimeout(lerBolhas,1000)
 
@@ -165,15 +176,13 @@ LER BOLHAS (SIMULAÇÃO)
 
 function lerBolhas(){
 
-// simulação leitura
+const alternativas = ["A","B","C","D"]
 
-const alternativas=["A","B","C","D"]
+respostas = ""
 
-respostas=""
+for(let i=0;i<window.qtdQuestoes;i++){
 
-for(let i=0;i<gabarito.length;i++){
-
-respostas+=alternativas[Math.floor(Math.random()*4)]
+respostas += alternativas[Math.floor(Math.random()*4)]
 
 }
 
@@ -187,15 +196,15 @@ MOSTRAR RESULTADO
 
 function mostrarResultado(){
 
-let acertos=0
+let acertos = 0
 
-for(let i=0;i<gabarito.length;i++){
+for(let i=0;i<window.qtdQuestoes;i++){
 
-if(gabarito[i]==respostas[i]) acertos++
+if(gabarito[i] === respostas[i]) acertos++
 
 }
 
-document.getElementById("resultado").innerHTML=
+document.getElementById("resultado").innerHTML =
 
 `
 Respostas detectadas<br><br>
@@ -203,7 +212,7 @@ Respostas detectadas<br><br>
 Aluno: ${respostas}<br>
 Gabarito: ${gabarito}<br><br>
 
-Acertos: ${acertos}/${gabarito.length}
+Acertos: ${acertos}/${window.qtdQuestoes}
 `
 
 document.getElementById("acoes").classList.remove("oculto")
