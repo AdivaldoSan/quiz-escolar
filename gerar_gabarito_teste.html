@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>Gerador de Gabarito Avalia+</title>
+<title>Gerador Gabarito Avalia+</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -20,7 +20,7 @@ input{
 padding:8px;
 margin:5px;
 font-size:16px;
-width:200px;
+width:180px;
 }
 
 button{
@@ -32,56 +32,78 @@ cursor:pointer;
 
 #a4{
 width:210mm;
-min-height:297mm;
 background:white;
-padding:20px;
-margin-top:20px;
-}
-
-.folha{
-width:100%;
-border:2px solid #000;
-padding:15px;
-margin-bottom:30px;
-}
-
-.topo{
+padding:10mm;
 display:flex;
 justify-content:space-between;
-align-items:center;
 }
+
+
+/* gabarito */
+
+.folha{
+
+width:60mm;
+border:2px solid #000;
+padding:6mm;
+position:relative;
+
+}
+
+
+/* QR */
 
 .qr{
-width:100px;
-height:100px;
+width:70px;
+height:70px;
+margin-bottom:6px;
 }
 
-.titulo{
-font-size:20px;
+
+/* título */
+
+.info{
 font-weight:bold;
+font-size:14px;
+margin-bottom:6px;
 }
 
-.grid{
-margin-top:20px;
-}
+
+/* grid */
 
 .linha{
 display:flex;
 align-items:center;
-margin-bottom:6px;
+margin-bottom:4px;
+font-size:13px;
 }
 
 .numero{
-width:30px;
+width:20px;
 }
 
 .opcao{
+width:16px;
+height:16px;
 border:2px solid #000;
-width:22px;
-height:22px;
 border-radius:50%;
-margin:0 10px;
+margin:0 6px;
 }
+
+
+/* pontos de alinhamento */
+
+.marcador{
+width:10px;
+height:10px;
+background:black;
+position:absolute;
+}
+
+.m1{ top:3px; left:3px; }
+.m2{ top:3px; right:3px; }
+.m3{ bottom:3px; left:3px; }
+.m4{ bottom:3px; right:3px; }
 
 </style>
 </head>
@@ -89,17 +111,18 @@ margin:0 10px;
 
 <body>
 
-<h2>Gerador de Gabarito de Teste</h2>
+<h2>Gerador de Gabarito (Scanner Teste)</h2>
 
-<p>Digite os gabaritos (ex: ABCDABCDAB)</p>
+<p>Digite os gabaritos</p>
 
-<input id="g1" placeholder="Gabarito folha 1">
-<input id="g2" placeholder="Gabarito folha 2">
+<input id="g1" placeholder="Gabarito 1">
+<input id="g2" placeholder="Gabarito 2">
+<input id="g3" placeholder="Gabarito 3">
 
 <br>
 
-<button onclick="gerar()">Gerar folhas</button>
-<button onclick="gerarPDF()">Gerar PDF A4</button>
+<button onclick="gerar()">Gerar</button>
+<button onclick="pdf()">Gerar PDF</button>
 
 <div id="a4"></div>
 
@@ -108,35 +131,45 @@ margin:0 10px;
 
 function criarFolha(seq,gabarito){
 
-const dadosQR = `AVP|TESTE|${seq}|${gabarito}`
+const dadosQR = `AVP|SIM|${seq}|${gabarito}`
 
-const div = document.createElement("div")
-div.className="folha"
+const folha=document.createElement("div")
+folha.className="folha"
 
-const topo = document.createElement("div")
-topo.className="topo"
 
-const titulo = document.createElement("div")
-titulo.className="titulo"
-titulo.innerHTML=`Prova Teste<br>Folha ${seq}`
+/* marcadores */
 
-const qr = document.createElement("div")
+["m1","m2","m3","m4"].forEach(c=>{
+let m=document.createElement("div")
+m.className="marcador "+c
+folha.appendChild(m)
+})
+
+
+/* QR */
+
+const qr=document.createElement("div")
 qr.className="qr"
+folha.appendChild(qr)
 
-topo.appendChild(titulo)
-topo.appendChild(qr)
 
-div.appendChild(topo)
+/* info */
 
-const grid = document.createElement("div")
-grid.className="grid"
+const info=document.createElement("div")
+info.className="info"
+info.innerHTML=`Folha ${seq}`
+
+folha.appendChild(info)
+
+
+/* respostas */
 
 for(let i=0;i<gabarito.length;i++){
 
-const linha = document.createElement("div")
+let linha=document.createElement("div")
 linha.className="linha"
 
-const num = document.createElement("div")
+let num=document.createElement("div")
 num.className="numero"
 num.innerText=i+1
 
@@ -144,28 +177,30 @@ linha.appendChild(num)
 
 for(let j=0;j<4;j++){
 
-const opc = document.createElement("div")
-opc.className="opcao"
+let op=document.createElement("div")
+op.className="opcao"
 
-linha.appendChild(opc)
-
-}
-
-grid.appendChild(linha)
+linha.appendChild(op)
 
 }
 
-div.appendChild(grid)
+folha.appendChild(linha)
+
+}
+
 
 setTimeout(()=>{
+
 new QRCode(qr,{
 text:dadosQR,
-width:100,
-height:100
+width:70,
+height:70
 })
+
 },10)
 
-return div
+
+return folha
 
 }
 
@@ -173,37 +208,34 @@ return div
 
 function gerar(){
 
-const g1 = document.getElementById("g1").value.toUpperCase()
-const g2 = document.getElementById("g2").value.toUpperCase()
+const g1=document.getElementById("g1").value.toUpperCase()
+const g2=document.getElementById("g2").value.toUpperCase()
+const g3=document.getElementById("g3").value.toUpperCase()
 
-const a4 = document.getElementById("a4")
+const a4=document.getElementById("a4")
 a4.innerHTML=""
 
-if(g1.length>0){
-a4.appendChild(criarFolha(1,g1))
-}
-
-if(g2.length>0){
-a4.appendChild(criarFolha(2,g2))
-}
+if(g1) a4.appendChild(criarFolha(1,g1))
+if(g2) a4.appendChild(criarFolha(2,g2))
+if(g3) a4.appendChild(criarFolha(3,g3))
 
 }
 
 
 
-function gerarPDF(){
+function pdf(){
 
-const element = document.getElementById("a4")
+const el=document.getElementById("a4")
 
 html2pdf().set({
 
 margin:0,
-filename:"gabarito_avalia.pdf",
+filename:"gabarito_simulacao.pdf",
 image:{type:"jpeg",quality:1},
 html2canvas:{scale:2},
-jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}
+jsPDF:{unit:"mm",format:"a4"}
 
-}).from(element).save()
+}).from(el).save()
 
 }
 
