@@ -132,44 +132,30 @@ lerQR(qr)
 LER QR
 ========================= */
 
-function lerQR(dado){
+function iniciarLeituraBolhas(){
 
-if(!dado.startsWith("AVP")) return
+navigator.mediaDevices.getUserMedia({
 
-beep()
-vibrar()
+video:{facingMode:"environment"}
 
-scanner.stop()
+})
+.then(stream=>{
 
-let partes = dado.split("|")
+let video=document.createElement("video")
 
-let sistema = partes[0]
-let prova = partes[1]
-folha = partes[2]
-let qtd = parseInt(partes[3])
-gabarito = partes[4]
+video.srcObject=stream
+video.play()
 
-window.qtdQuestoes = qtd
-
-document.getElementById("resultado").innerHTML =
-
-`
-QR detectado ✓<br><br>
-
-Prova: ${prova}<br>
-Folha: ${folha}<br>
-Questões: ${qtd}<br>
-
-Lendo respostas...
-`
-
-/* inicia leitura automática */
+document.getElementById("reader").innerHTML=""
+document.getElementById("reader").appendChild(video)
 
 setTimeout(()=>{
 
-lerBolhas()
+lerBolhas(video)
 
-},600)
+},1000)
+
+})
 
 }
 
@@ -180,6 +166,13 @@ LER BOLHAS (SIMULAÇÃO)
 function lerBolhas(){
 
 const video = document.querySelector("video")
+
+if(!video || video.videoWidth === 0){
+
+setTimeout(lerBolhas,200)
+return
+
+}
 
 const canvas = document.createElement("canvas")
 const ctx = canvas.getContext("2d")
@@ -222,14 +215,14 @@ let escuro = medirEscuro(frame,largura,colX,linhaY)
 
 if(escuro>maiorEscuro){
 
-maiorEscuro=escuro
-melhorIndice=a
+maiorEscuro = escuro
+melhorIndice = a
 
 }
 
 }
 
-const letras=["A","B","C","D"]
+const letras = ["A","B","C","D"]
 
 respostasDetectadas.push(letras[melhorIndice])
 
