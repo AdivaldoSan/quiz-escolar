@@ -117,7 +117,8 @@ margin:0 12px;
 
 function criarFolha(seq,gabarito){
 
-const dadosQR=`AVP|SIM|${seq}|${gabarito}`
+const qtd = gabarito.length
+const dadosQR=`AVP|SIM|${seq}|${qtd}|${gabarito}`
 
 const folha=document.createElement("div")
 folha.className="folha"
