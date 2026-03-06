@@ -149,6 +149,8 @@ folha = partes[2]
 let qtd = parseInt(partes[3])
 gabarito = partes[4]
 
+window.qtdQuestoes = qtd
+
 document.getElementById("resultado").innerHTML =
 
 `
@@ -157,16 +159,17 @@ QR detectado ✓<br><br>
 Prova: ${prova}<br>
 Folha: ${folha}<br>
 Questões: ${qtd}<br>
-Gabarito: ${gabarito}<br><br>
 
-Preparando leitura das respostas...
+Lendo respostas...
 `
 
-/* guardar quantidade */
+/* inicia leitura automática */
 
-window.qtdQuestoes = qtd
+setTimeout(()=>{
 
-setTimeout(lerBolhas,1000)
+lerBolhas()
+
+},600)
 
 }
 
@@ -176,46 +179,65 @@ LER BOLHAS (SIMULAÇÃO)
 
 function lerBolhas(){
 
-const alternativas = ["A","B","C","D"]
+const video = document.querySelector("video")
 
-respostas = ""
+const canvas = document.createElement("canvas")
+const ctx = canvas.getContext("2d")
 
-for(let i=0;i<window.qtdQuestoes;i++){
+canvas.width = video.videoWidth
+canvas.height = video.videoHeight
 
-respostas += alternativas[Math.floor(Math.random()*4)]
+ctx.drawImage(video,0,0)
+
+const frame = ctx.getImageData(0,0,canvas.width,canvas.height)
+
+const largura = canvas.width
+const altura = canvas.height
+
+/* área aproximada do gabarito */
+
+const startX = largura*0.35
+const startY = altura*0.25
+
+const areaWidth = largura*0.5
+const areaHeight = altura*0.6
+
+const questoes = window.qtdQuestoes
+const alternativas = 4
+
+const respostasDetectadas = []
+
+for(let q=0;q<questoes;q++){
+
+let linhaY = startY + (q*(areaHeight/questoes))
+
+let melhorIndice = 0
+let maiorEscuro = 0
+
+for(let a=0;a<alternativas;a++){
+
+let colX = startX + (a*(areaWidth/alternativas))
+
+let escuro = medirEscuro(frame,largura,colX,linhaY)
+
+if(escuro>maiorEscuro){
+
+maiorEscuro=escuro
+melhorIndice=a
 
 }
+
+}
+
+const letras=["A","B","C","D"]
+
+respostasDetectadas.push(letras[melhorIndice])
+
+}
+
+respostas = respostasDetectadas.join("")
 
 mostrarResultado()
-
-}
-
-/* =========================
-MOSTRAR RESULTADO
-========================= */
-
-function mostrarResultado(){
-
-let acertos = 0
-
-for(let i=0;i<window.qtdQuestoes;i++){
-
-if(gabarito[i] === respostas[i]) acertos++
-
-}
-
-document.getElementById("resultado").innerHTML =
-
-`
-Respostas detectadas<br><br>
-
-Aluno: ${respostas}<br>
-Gabarito: ${gabarito}<br><br>
-
-Acertos: ${acertos}/${window.qtdQuestoes}
-`
-
-document.getElementById("acoes").classList.remove("oculto")
 
 }
 
@@ -274,6 +296,37 @@ document.getElementById("proximo").classList.add("oculto")
 document.getElementById("resultado").innerHTML="Aponte para o QR da prova"
 
 iniciarQR()
+
+}
+
+function medirEscuro(frame,largura,x,y){
+
+let soma=0
+let cont=0
+
+for(let dy=-5;dy<5;dy++){
+
+for(let dx=-5;dx<5;dx++){
+
+let px = Math.floor(x+dx)
+let py = Math.floor(y+dy)
+
+let index = (py*largura+px)*4
+
+let r = frame.data[index]
+let g = frame.data[index+1]
+let b = frame.data[index+2]
+
+let brilho = (r+g+b)/3
+
+soma += (255-brilho)
+cont++
+
+}
+
+}
+
+return soma/cont
 
 }
 
