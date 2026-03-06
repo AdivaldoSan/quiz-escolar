@@ -131,6 +131,48 @@ lerQR(qr)
 /* =========================
 LER QR
 ========================= */
+/* =========================
+LER QR
+========================= */
+
+function lerQR(dado){
+
+if(!dado.startsWith("AVP")) return
+
+beep()
+vibrar()
+
+scanner.pause(true)
+
+let partes = dado.split("|")
+
+let prova = partes[1]
+folha = partes[2]
+let qtd = parseInt(partes[3])
+gabarito = partes[4]
+
+window.qtdQuestoes = qtd
+
+document.getElementById("resultado").innerHTML =
+
+`
+QR detectado ✓<br><br>
+Folha: ${folha}<br>
+Questões: ${qtd}<br><br>
+Lendo respostas...
+`
+
+setTimeout(()=>{
+
+iniciarLeituraBolhas()
+
+},600)
+
+}
+
+  
+/*==================*/
+  
 
 function iniciarLeituraBolhas(){
 
@@ -144,8 +186,8 @@ video:{facingMode:"environment"}
 let video=document.createElement("video")
 
 video.srcObject=stream
-video.play()
-
+video.play().catch(()=>{})
+  
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(video)
 
