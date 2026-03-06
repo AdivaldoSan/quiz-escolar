@@ -219,8 +219,6 @@ const ctx = canvas.getContext("2d")
 canvas.width = video.videoWidth
 canvas.height = video.videoHeight
 
-/* capturar frame da câmera */
-
 ctx.drawImage(video,0,0)
 
 const largura = canvas.width
@@ -228,29 +226,172 @@ const altura = canvas.height
 
 const frame = ctx.getImageData(0,0,largura,altura)
 
-/* detectar marcadores */
+/* detectar pixels escuros */
 
-const marcadores = detectarMarcadores(frame, largura, altura)
+const pontos = []
 
-/* desenhar marcadores encontrados */
+for(let y=0;y<altura;y+=6){
+for(let x=0;x<largura;x+=6){
+
+let idx = (y*largura + x)*4
+
+let r = frame.data[idx]
+let g = frame.data[idx+1]
+let b = frame.data[idx+2]
+
+let brilho = (r+g+b)/3
+
+if(brilho < 80){
+
+pontos.push({x,y})
+
+}
+
+}
+}
+
+/* agrupar pontos */
+
+const grupos = []
+
+pontos.forEach(p=>{
+
+let achou=false
+
+for(let g of grupos){
+
+let dx = p.x - g.cx
+let dy = p.y - g.cy
+
+if(Math.sqrt(dx*dx + dy*dy) < 18){
+
+g.x += p.x
+g.y += p.y
+g.count++
+
+g.cx = g.x / g.count
+g.cy = g.y / g.count
+
+achou=true
+break
+
+}
+
+}
+
+if(!achou){
+
+grupos.push({
+x:p.x,
+y:p.y,
+cx:p.x,
+cy:p.y,
+count:1
+})
+
+}
+
+})
+
+/* filtrar bolhas */
+
+const bolhas = grupos.filter(g => g.count > 25 && g.count < 250)
+
+/* desenhar centros */
 
 ctx.fillStyle="red"
 
-marcadores.forEach(m=>{
+bolhas.forEach(b=>{
 
 ctx.beginPath()
-ctx.arc(m.x,m.y,8,0,Math.PI*2)
+ctx.arc(b.cx,b.cy,8,0,Math.PI*2)
 ctx.fill()
 
 })
 
-/* mostrar canvas */
+/* ordenar por altura */
+
+bolhas.sort((a,b)=>a.cy-b.cy)
+
+/* agrupar em linhas */
+
+const linhas = []
+const tolerancia = 25
+
+bolhas.forEach(b=>{
+
+let linha=null
+
+for(let l of linhas){
+
+if(Math.abs(b.cy - l.mediaY) < tolerancia){
+
+linha=l
+break
+
+}
+
+}
+
+if(linha){
+
+linha.itens.push(b)
+
+linha.mediaY =
+linha.itens.reduce((s,i)=>s+i.cy,0) / linha.itens.length
+
+}else{
+
+linhas.push({
+mediaY:b.cy,
+itens:[b]
+})
+
+}
+
+})
+
+/* ordenar cada linha */
+
+linhas.forEach(l=>{
+
+l.itens.sort((a,b)=>a.cx-b.cx)
+
+})
+
+/* descobrir respostas */
+
+const letras=["A","B","C","D"]
+
+const respostasDetectadas=[]
+
+linhas.forEach((l,i)=>{
+
+let maior=0
+let indice=0
+
+l.itens.forEach((b,j)=>{
+
+if(b.count > maior){
+
+maior=b.count
+indice=j
+
+}
+
+})
+
+respostasDetectadas.push(letras[indice])
+
+})
+
+/* mostrar resultado */
 
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(canvas)
 
 document.getElementById("resultado").innerHTML =
-"Possíveis marcadores: " + marcadores.length
+"Respostas detectadas: " + respostasDetectadas.join("")
 
 }
   
