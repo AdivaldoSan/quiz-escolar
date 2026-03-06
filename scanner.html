@@ -277,10 +277,10 @@ FILTRAR BOLHAS
 
 const bolhas = grupos.filter(g => {
 
-if(g.count < 12) return false
+if(g.count < 18) return false
 if(g.count > 80) return false
 
-/* ignorar bordas */
+/* limitar área da grade */
 
 if(g.cx < largura*0.25) return false
 if(g.cx > largura*0.75) return false
