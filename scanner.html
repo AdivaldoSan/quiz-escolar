@@ -311,37 +311,27 @@ ORDENAR POR LINHAS
 
 bolhas.sort((a,b)=>a.cy-b.cy)
 
-const linhas=[]
-const tolerancia=25
+const linhas = []
 
-bolhas.forEach(b=>{
+const topo = Math.min(...bolhas.map(b=>b.cy))
+const base = Math.max(...bolhas.map(b=>b.cy))
 
-let linha=null
+const alturaTotal = base - topo
 
-for(let l of linhas){
+const alturaLinha = alturaTotal / window.qtdQuestoes
 
-if(Math.abs(b.cy-l.mediaY)<tolerancia){
-linha=l
-break
-}
+for(let i=0;i<window.qtdQuestoes;i++){
 
-}
+let yMin = topo + i*alturaLinha
+let yMax = topo + (i+1)*alturaLinha
 
-if(linha){
+const itens = bolhas.filter(b => b.cy>=yMin && b.cy<yMax)
 
-linha.itens.push(b)
-linha.mediaY = linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
+itens.sort((a,b)=>a.cx-b.cx)
 
-}else{
-
-linhas.push({
-mediaY:b.cy,
-itens:[b]
-})
+linhas.push({itens})
 
 }
-
-})
 
 /* =========================
 ORDENAR COLUNAS
