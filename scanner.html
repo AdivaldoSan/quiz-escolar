@@ -64,7 +64,6 @@ Aponte para o QR da prova
 
 let scanner
 let gabarito=""
-let respostas=""
 let folha=""
 
 /* =========================
@@ -87,11 +86,9 @@ VIBRAÇÃO
 ========================= */
 
 function vibrar(){
-
 if(navigator.vibrate){
 navigator.vibrate(150)
 }
-
 }
 
 /* =========================
@@ -100,37 +97,22 @@ INICIAR SCANNER QR
 
 function iniciarQR(){
 
-scanner=new Html5Qrcode("reader")
+scanner = new Html5Qrcode("reader")
 
 scanner.start(
-
-{facingMode:"environment"},
-
+{ facingMode:"environment" },
 {
 fps:10,
-
-
 qrbox:{
 width: Math.min(window.innerWidth*0.8,400),
 height: Math.min(window.innerWidth*0.8,400)
 }
-
-
 },
-
-(qr)=>{
-
-lerQR(qr)
-
-}
-
+(qr)=>{ lerQR(qr) }
 )
 
 }
 
-/* =========================
-LER QR
-========================= */
 /* =========================
 LER QR
 ========================= */
@@ -146,7 +128,6 @@ scanner.pause(true)
 
 let partes = dado.split("|")
 
-let prova = partes[1]
 folha = partes[2]
 let qtd = parseInt(partes[3])
 gabarito = partes[4]
@@ -163,38 +144,32 @@ Lendo respostas...
 `
 
 setTimeout(()=>{
-
 iniciarLeituraBolhas()
-
 },600)
 
 }
 
-  
-/*==================*/
-  
+/* =========================
+INICIAR LEITURA BOLHAS
+========================= */
 
 function iniciarLeituraBolhas(){
 
 navigator.mediaDevices.getUserMedia({
-
 video:{facingMode:"environment"}
-
 })
 .then(stream=>{
 
 let video=document.createElement("video")
 
 video.srcObject=stream
-video.play().catch(()=>{})
-  
+video.play()
+
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(video)
 
 setTimeout(()=>{
-
-lerBolhas(video)
-
+lerBolhas()
 },1000)
 
 })
@@ -202,13 +177,14 @@ lerBolhas(video)
 }
 
 /* =========================
-LER BOLHAS (SIMULAÇÃO)
+LER BOLHAS
 ========================= */
+
 function lerBolhas(){
 
 const video = document.querySelector("video")
 
-if(!video || video.videoWidth === 0){
+if(!video || video.videoWidth===0){
 setTimeout(lerBolhas,200)
 return
 }
@@ -226,38 +202,35 @@ const altura = canvas.height
 
 const frame = ctx.getImageData(0,0,largura,altura)
 
-/* detectar pixels escuros */
+/* =========================
+DETECTAR PIXELS ESCUROS
+========================= */
 
-const pontos = []
+const pontos=[]
 
-for(let y=0;y<altura*0.75;y+=4){
-for(let x=largura*0.15;x<largura*0.85;x+=4){
+for(let y=0; y<altura*0.75; y+=4){
+for(let x=largura*0.15; x<largura*0.85; x+=4){
 
-let idx = (y*largura + x)*4
+let idx=(y*largura+x)*4
 
-let r = frame.data[idx]
-let g = frame.data[idx+1]
-let b = frame.data[idx+2]
+let r=frame.data[idx]
+let g=frame.data[idx+1]
+let b=frame.data[idx+2]
 
-let brilho = (r+g+b)/3
+let brilho=(r+g+b)/3
 
-if(brilho < 140){
-
+if(brilho<140){
 pontos.push({x,y})
-
-/*if(pontos.length < 50){
-document.getElementById("resultado").innerHTML="Poucos pontos detectados"
-return*/
-}
-
 }
 
 }
 }
 
-/* agrupar pontos */
+/* =========================
+AGRUPAR PIXELS
+========================= */
 
-const grupos = []
+const grupos=[]
 
 pontos.forEach(p=>{
 
@@ -265,17 +238,17 @@ let achou=false
 
 for(let g of grupos){
 
-let dx = p.x - g.cx
-let dy = p.y - g.cy
+let dx=p.x-g.cx
+let dy=p.y-g.cy
 
-if(Math.sqrt(dx*dx + dy*dy) < 26){
+if(Math.sqrt(dx*dx+dy*dy)<26){
 
-g.x += p.x
-g.y += p.y
+g.x+=p.x
+g.y+=p.y
 g.count++
 
-g.cx = g.x / g.count
-g.cy = g.y / g.count
+g.cx=g.x/g.count
+g.cy=g.y/g.count
 
 achou=true
 break
@@ -298,11 +271,15 @@ count:1
 
 })
 
-/* filtrar bolhas */
+/* =========================
+FILTRAR BOLHAS
+========================= */
 
-const bolhas = grupos.filter(g => g.count > 8 && g.count < 120)
+const bolhas = grupos.filter(g => g.count>8 && g.count<120)
 
-/* desenhar centros */
+/* =========================
+DESENHAR
+========================= */
 
 ctx.fillStyle="red"
 
@@ -314,14 +291,14 @@ ctx.fill()
 
 })
 
-/* ordenar por altura */
+/* =========================
+ORDENAR POR LINHAS
+========================= */
 
 bolhas.sort((a,b)=>a.cy-b.cy)
 
-/* agrupar em linhas */
-
-const linhas = []
-const tolerancia = 25
+const linhas=[]
+const tolerancia=25
 
 bolhas.forEach(b=>{
 
@@ -329,11 +306,9 @@ let linha=null
 
 for(let l of linhas){
 
-if(Math.abs(b.cy - l.mediaY) < tolerancia){
-
+if(Math.abs(b.cy-l.mediaY)<tolerancia){
 linha=l
 break
-
 }
 
 }
@@ -341,9 +316,7 @@ break
 if(linha){
 
 linha.itens.push(b)
-
-linha.mediaY =
-linha.itens.reduce((s,i)=>s+i.cy,0) / linha.itens.length
+linha.mediaY = linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
 
 }else{
 
@@ -356,236 +329,51 @@ itens:[b]
 
 })
 
-/* ordenar cada linha */
+/* =========================
+ORDENAR COLUNAS
+========================= */
 
 linhas.forEach(l=>{
-
 l.itens.sort((a,b)=>a.cx-b.cx)
-
 })
 
-/* descobrir respostas */
+/* =========================
+DETECTAR RESPOSTAS
+========================= */
 
 const letras=["A","B","C","D"]
+const respostas=[]
 
-const respostasDetectadas=[]
-
-linhas.forEach((l,i)=>{
+linhas.forEach(l=>{
 
 let maior=0
 let indice=0
 
 l.itens.forEach((b,j)=>{
 
-if(b.count > maior){
-
+if(b.count>maior){
 maior=b.count
 indice=j
-
 }
 
 })
 
-respostasDetectadas.push(letras[indice])
+respostas.push(letras[indice])
 
 })
 
-/* mostrar resultado */
+/* =========================
+MOSTRAR RESULTADO
+========================= */
 
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(canvas)
 
 document.getElementById("resultado").innerHTML =
-"Respostas detectadas: " + respostasDetectadas.join("")
-
-}
-  
-/* =========================
-LER NOVAMENTE
-========================= */
-
-function lerNovamente(){
-
-document.getElementById("acoes").classList.add("oculto")
-
-document.getElementById("resultado").innerHTML="Lendo novamente..."
-
-setTimeout(lerBolhas,1000)
+"Respostas detectadas: " + respostas.join("")
 
 }
 
-/* =========================
-CONFIRMAR ENVIO
-========================= */
-
-function confirmar(){
-
-document.getElementById("acoes").classList.add("oculto")
-
-document.getElementById("resultado").innerHTML=
-
-`
-Enviando resultado ao Avalia+...
-`
-
-setTimeout(()=>{
-
-document.getElementById("resultado").innerHTML=
-
-`
-✓ Resultado enviado<br><br>
-
-Folha ${folha} registrada
-`
-
-document.getElementById("proximo").classList.remove("oculto")
-
-},1000)
-
-}
-
-/* =========================
-PRÓXIMA PROVA
-========================= */
-
-function reiniciar(){
-
-document.getElementById("proximo").classList.add("oculto")
-
-document.getElementById("resultado").innerHTML="Aponte para o QR da prova"
-
-iniciarQR()
-
-}
-
-function medirEscuro(frame,largura,x,y){
-
-let soma=0
-let cont=0
-
-for(let dy=-5;dy<5;dy++){
-
-for(let dx=-5;dx<5;dx++){
-
-let px = Math.floor(x+dx)
-let py = Math.floor(y+dy)
-
-let index = (py*largura+px)*4
-
-let r = frame.data[index]
-let g = frame.data[index+1]
-let b = frame.data[index+2]
-
-let brilho = (r+g+b)/3
-
-soma += (255-brilho)
-cont++
-
-}
-
-}
-
-return soma/cont
-
-}
-
-function detectarMarcadores(frame, largura, altura){
-
-const marcadores = []
-
-const passo = 8
-const tamanho = 20
-
-for(let y=0;y<altura-tamanho;y+=passo){
-for(let x=0;x<largura-tamanho;x+=passo){
-
-let escuro = 0
-let total = 0
-
-for(let dy=0;dy<tamanho;dy++){
-for(let dx=0;dx<tamanho;dx++){
-
-let px = x+dx
-let py = y+dy
-
-let idx = (py*largura + px)*4
-
-let r = frame.data[idx]
-let g = frame.data[idx+1]
-let b = frame.data[idx+2]
-
-let brilho = (r+g+b)/3
-
-if(brilho < 80) escuro++
-
-total++
-
-}
-}
-
-let densidade = escuro/total
-
-if(densidade > 0.75){
-
-marcadores.push({
-x:x+tamanho/2,
-y:y+tamanho/2
-})
-
-}
-
-}
-}
-
-return marcadores
-}
-
-function agruparPontos(pontos){
-
-const grupos = []
-
-pontos.forEach(p=>{
-
-let encontrado=false
-
-for(let g of grupos){
-
-let dx = p.x - g.cx
-let dy = p.y - g.cy
-
-if(Math.sqrt(dx*dx + dy*dy) < 40){
-
-g.x += p.x
-g.y += p.y
-g.count++
-
-g.cx = g.x / g.count
-g.cy = g.y / g.count
-
-encontrado=true
-break
-
-}
-
-}
-
-if(!encontrado){
-
-grupos.push({
-x:p.x,
-y:p.y,
-cx:p.x,
-cy:p.y,
-count:1
-})
-
-}
-
-})
-
-return grupos
-
-}  
 /* =========================
 INICIAR
 ========================= */
