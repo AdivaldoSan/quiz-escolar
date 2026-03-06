@@ -230,8 +230,8 @@ const frame = ctx.getImageData(0,0,largura,altura)
 
 const pontos = []
 
-for(let y=0;y<altura*0.75;y+=6){
-for(let x=largura*0.15;x<largura*0.85;x+=6){
+for(let y=0;y<altura*0.75;y+=4){
+for(let x=largura*0.15;x<largura*0.85;x+=4){
 
 let idx = (y*largura + x)*4
 
@@ -241,13 +241,13 @@ let b = frame.data[idx+2]
 
 let brilho = (r+g+b)/3
 
-if(brilho < 110){
+if(brilho < 140){
 
 pontos.push({x,y})
 
-if(pontos.length < 50){
+/*if(pontos.length < 50){
 document.getElementById("resultado").innerHTML="Poucos pontos detectados"
-return
+return*/
 }
 
 }
