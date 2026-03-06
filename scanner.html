@@ -220,20 +220,26 @@ const ctx = canvas.getContext("2d")
 canvas.width = video.videoWidth
 canvas.height = video.videoHeight
 
-const marcadores = detectarMarcadores(frame, largura, altura)
-
-ctx.fillStyle = "lime"
-
-marcadores.forEach(p=>{
-
-ctx.fillRect(p.x-2, p.y-2, 4, 4)
-
-})  
+/* capturar frame da câmera */
 
 ctx.drawImage(video,0,0)
 
 const largura = canvas.width
 const altura = canvas.height
+
+const frame = ctx.getImageData(0,0,largura,altura)
+
+/* detectar pixels escuros */
+
+const marcadores = detectarMarcadores(frame, largura, altura)
+
+/* desenhar pontos verdes */
+
+ctx.fillStyle = "lime"
+
+marcadores.forEach(p=>{
+ctx.fillRect(p.x-2, p.y-2, 4, 4)
+})
 
 /* área estimada */
 
@@ -242,22 +248,19 @@ const startY = altura*0.25
 const areaWidth = largura*0.5
 const areaHeight = altura*0.6
 
-/* desenhar retângulo */
-
 ctx.strokeStyle = "red"
 ctx.lineWidth = 4
 ctx.strokeRect(startX,startY,areaWidth,areaHeight)
 
-document.getElementById("reader").innerHTML=""
-document.getElementById("reader").appendChild(canvas)
-
-document.getElementById("resultado").innerHTML="Área de leitura marcada"
+/* mostrar canvas */
 
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(canvas)
+
+document.getElementById("resultado").innerHTML =
+"Pontos escuros detectados: " + marcadores.length
 
 }
-
 /* =========================
 LER NOVAMENTE
 ========================= */
