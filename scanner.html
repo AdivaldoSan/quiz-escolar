@@ -224,55 +224,17 @@ canvas.height = video.videoHeight
 
 ctx.drawImage(video,0,0)
 
-const frame = ctx.getImageData(0,0,canvas.width,canvas.height)
+/* mostrar imagem capturada */
 
-const largura = canvas.width
-const altura = canvas.height
+document.getElementById("reader").innerHTML=""
+document.getElementById("reader").appendChild(canvas)
 
-/* área aproximada do gabarito */
+document.getElementById("resultado").innerHTML=
 
-const startX = largura*0.35
-const startY = altura*0.25
-
-const areaWidth = largura*0.5
-const areaHeight = altura*0.6
-
-const questoes = window.qtdQuestoes
-const alternativas = 4
-
-const respostasDetectadas = []
-
-for(let q=0;q<questoes;q++){
-
-let linhaY = startY + (q*(areaHeight/questoes))
-
-let melhorIndice = 0
-let maiorEscuro = 0
-
-for(let a=0;a<alternativas;a++){
-
-let colX = startX + (a*(areaWidth/alternativas))
-
-let escuro = medirEscuro(frame,largura,colX,linhaY)
-
-if(escuro>maiorEscuro){
-
-maiorEscuro = escuro
-melhorIndice = a
-
-}
-
-}
-
-const letras = ["A","B","C","D"]
-
-respostasDetectadas.push(letras[melhorIndice])
-
-}
-
-respostas = respostasDetectadas.join("")
-
-mostrarResultado()
+`
+Frame capturado<br>
+${canvas.width} x ${canvas.height}
+`
 
 }
 
