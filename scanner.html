@@ -210,10 +210,8 @@ function lerBolhas(){
 const video = document.querySelector("video")
 
 if(!video || video.videoWidth === 0){
-
 setTimeout(lerBolhas,200)
 return
-
 }
 
 const canvas = document.createElement("canvas")
@@ -224,17 +222,26 @@ canvas.height = video.videoHeight
 
 ctx.drawImage(video,0,0)
 
-/* mostrar imagem capturada */
+const largura = canvas.width
+const altura = canvas.height
+
+/* área estimada */
+
+const startX = largura*0.35
+const startY = altura*0.25
+const areaWidth = largura*0.5
+const areaHeight = altura*0.6
+
+/* desenhar retângulo */
+
+ctx.strokeStyle = "red"
+ctx.lineWidth = 4
+ctx.strokeRect(startX,startY,areaWidth,areaHeight)
 
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(canvas)
 
-document.getElementById("resultado").innerHTML=
-
-`
-Frame capturado<br>
-${canvas.width} x ${canvas.height}
-`
+document.getElementById("resultado").innerHTML="Área de leitura marcada"
 
 }
 
