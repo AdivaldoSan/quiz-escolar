@@ -1,5 +1,5 @@
 const API =
-"https://script.google.com/macros/s/AKfycbzWziA59IFIU0eUW2jd4dfSF9kHtBsv_wHKBI_NAPE6kKuy5GRkbqtcDdVMfrszu33umw/exec";
+"https://script.google.com/macros/s/AKfycbxW3VddlKv50F0HTCaTmDMcdhBsadmFVBMHVsbXkI4-Nr8Pw-Cro2NKUEK8pSAQtXe6gw/exec";
 
 
 // ===============================
