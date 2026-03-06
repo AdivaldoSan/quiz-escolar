@@ -204,7 +204,6 @@ lerBolhas(video)
 /* =========================
 LER BOLHAS (SIMULAÇÃO)
 ========================= */
-
 function lerBolhas(){
 
 const video = document.querySelector("video")
@@ -220,7 +219,7 @@ const ctx = canvas.getContext("2d")
 canvas.width = video.videoWidth
 canvas.height = video.videoHeight
 
-/* capturar frame da câmera */
+/* capturar frame */
 
 ctx.drawImage(video,0,0)
 
@@ -232,16 +231,36 @@ const frame = ctx.getImageData(0,0,largura,altura)
 /* detectar pixels escuros */
 
 const marcadores = detectarMarcadores(frame, largura, altura)
-const grupos = agruparPontos(marcadores)
-/* ordenar grupos pelo tamanho */
 
-grupos.sort((a,b)=>b.count-a.count)
+/* agrupar pixels */
+
+const grupos = agruparPontos(marcadores)
+
+/* filtrar regiões dos cantos */
+
+const margemX = largura * 0.25
+const margemY = altura * 0.25
+
+const candidatos = grupos.filter(g => {
+
+return (
+(g.cx < margemX && g.cy < margemY) ||
+(g.cx > largura - margemX && g.cy < margemY) ||
+(g.cx < margemX && g.cy > altura - margemY) ||
+(g.cx > largura - margemX && g.cy > altura - margemY)
+)
+
+})
+
+/* ordenar por tamanho */
+
+candidatos.sort((a,b)=>b.count-a.count)
 
 /* pegar os 4 maiores */
 
-const marcadoresPrincipais = grupos.slice(0,4)
+const marcadoresPrincipais = candidatos.slice(0,4)
 
-/* desenhar apenas os marcadores */
+/* desenhar marcadores */
 
 ctx.fillStyle = "red"
 
@@ -253,34 +272,17 @@ ctx.fill()
 
 })
 
-/* desenhar pontos verdes */
-
-ctx.fillStyle = "lime"
-
-marcadores.forEach(p=>{
-ctx.fillRect(p.x-2, p.y-2, 4, 4)
-})
-
-/* área estimada */
-
-const startX = largura*0.35
-const startY = altura*0.25
-const areaWidth = largura*0.5
-const areaHeight = altura*0.6
-
-ctx.strokeStyle = "red"
-ctx.lineWidth = 4
-ctx.strokeRect(startX,startY,areaWidth,areaHeight)
-
 /* mostrar canvas */
 
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(canvas)
 
 document.getElementById("resultado").innerHTML =
-"Pontos escuros detectados: " + marcadores.length
+"Marcadores detectados: " + marcadoresPrincipais.length
 
 }
+
+  
 /* =========================
 LER NOVAMENTE
 ========================= */
