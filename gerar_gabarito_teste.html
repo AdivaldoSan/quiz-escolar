@@ -16,6 +16,14 @@ background:#f2f2f2;
 padding:20px;
 }
 
+input{
+padding:8px;
+margin:5px;
+font-size:16px;
+width:120px;
+text-transform:uppercase;
+}
+
 button{
 padding:10px 20px;
 font-size:16px;
@@ -28,8 +36,6 @@ width:210mm;
 background:white;
 padding:10mm;
 }
-
-/* cada gabarito */
 
 .folha{
 display:flex;
@@ -90,7 +96,15 @@ margin:0 12px;
 
 <body>
 
-<h2>Simulação Gabarito Scanner</h2>
+<h2>Gerador Gabarito Scanner</h2>
+
+<p>Digite o gabarito (5 letras A-D)</p>
+
+<input id="g1" placeholder="ABCDE">
+<input id="g2" placeholder="ABCDE">
+<input id="g3" placeholder="ABCDE">
+
+<br>
 
 <button onclick="gerar()">Gerar Gabaritos</button>
 <button onclick="pdf()">Gerar PDF</button>
@@ -121,16 +135,12 @@ folha.appendChild(qr)
 const area=document.createElement("div")
 area.className="area"
 
-/* marcadores */
-
 ;["m1","m2","m3","m4"].forEach(c=>{
 let m=document.createElement("div")
 m.className="marcador "+c
 area.appendChild(m)
 })
 
-
-/* 5 questões */
 
 for(let i=1;i<=5;i++){
 
@@ -175,14 +185,16 @@ return folha
 
 function gerar(){
 
+let g1=document.getElementById("g1").value.toUpperCase()||"ABCDE"
+let g2=document.getElementById("g2").value.toUpperCase()||"ABCDE"
+let g3=document.getElementById("g3").value.toUpperCase()||"ABCDE"
+
 const a4=document.getElementById("a4")
 a4.innerHTML=""
 
-/* gabaritos de teste */
-
-a4.appendChild(criarFolha(1,"ABCDE"))
-a4.appendChild(criarFolha(2,"ABCDE"))
-a4.appendChild(criarFolha(3,"ABCDE"))
+a4.appendChild(criarFolha(1,g1))
+a4.appendChild(criarFolha(2,g2))
+a4.appendChild(criarFolha(3,g3))
 
 }
 
