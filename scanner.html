@@ -241,7 +241,7 @@ let b = frame.data[idx+2]
 
 let brilho = (r+g+b)/3
 
-if(brilho < 80){
+if(brilho < 110){
 
 pontos.push({x,y})
 
@@ -263,7 +263,7 @@ for(let g of grupos){
 let dx = p.x - g.cx
 let dy = p.y - g.cy
 
-if(Math.sqrt(dx*dx + dy*dy) < 18){
+if(Math.sqrt(dx*dx + dy*dy) < 26){
 
 g.x += p.x
 g.y += p.y
@@ -295,7 +295,7 @@ count:1
 
 /* filtrar bolhas */
 
-const bolhas = grupos.filter(g => g.count > 25 && g.count < 250)
+const bolhas = grupos.filter(g => g.count > 8 && g.count < 120)
 
 /* desenhar centros */
 
