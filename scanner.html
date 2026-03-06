@@ -220,6 +220,16 @@ const ctx = canvas.getContext("2d")
 canvas.width = video.videoWidth
 canvas.height = video.videoHeight
 
+const marcadores = detectarMarcadores(frame, largura, altura)
+
+ctx.fillStyle = "lime"
+
+marcadores.forEach(p=>{
+
+ctx.fillRect(p.x-2, p.y-2, 4, 4)
+
+})  
+
 ctx.drawImage(video,0,0)
 
 const largura = canvas.width
@@ -242,6 +252,9 @@ document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(canvas)
 
 document.getElementById("resultado").innerHTML="Área de leitura marcada"
+
+document.getElementById("reader").innerHTML=""
+document.getElementById("reader").appendChild(canvas)
 
 }
 
@@ -334,6 +347,33 @@ return soma/cont
 
 }
 
+function detectarMarcadores(frame, largura, altura){
+
+const pontos = []
+
+for(let y=0;y<altura;y+=6){
+for(let x=0;x<largura;x+=6){
+
+let index = (y*largura + x)*4
+
+let r = frame.data[index]
+let g = frame.data[index+1]
+let b = frame.data[index+2]
+
+let brilho = (r+g+b)/3
+
+if(brilho < 60){   // pixel escuro
+
+pontos.push({x,y})
+
+}
+
+}
+}
+
+return pontos
+
+}  
 /* =========================
 INICIAR
 ========================= */
