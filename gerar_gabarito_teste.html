@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>Gerador Gabarito Avalia+</title>
+<title>Gerador Gabarito Scanner</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -14,13 +14,6 @@ body{
 font-family:Arial;
 background:#f2f2f2;
 padding:20px;
-}
-
-input{
-padding:8px;
-margin:5px;
-font-size:16px;
-width:160px;
 }
 
 button{
@@ -34,74 +27,72 @@ cursor:pointer;
 width:210mm;
 background:white;
 padding:10mm;
-display:flex;
-gap:10mm;
 }
+
+/* cada gabarito */
 
 .folha{
-width:60mm;
-border:2px solid #000;
-padding:6mm;
-position:relative;
-}
-
-.qr{
-width:70px;
-height:70px;
-margin-bottom:6px;
-}
-
-.info{
-font-weight:bold;
-font-size:14px;
-margin-bottom:6px;
-}
-
-.linha{
 display:flex;
 align-items:center;
-margin-bottom:4px;
-font-size:13px;
+margin-bottom:20mm;
 }
 
-.numero{
-width:18px;
+/* QR */
+
+.qr{
+width:90px;
+height:90px;
+margin-right:20mm;
 }
 
-.opcao{
-width:14px;
-height:14px;
-border:2px solid #000;
-border-radius:50%;
-margin:0 5px;
+/* área respostas */
+
+.area{
+position:relative;
+padding:10mm;
 }
+
+/* marcadores */
 
 .marcador{
-width:10px;
-height:10px;
+width:12px;
+height:12px;
 background:black;
 position:absolute;
 }
 
-.m1{top:3px;left:3px;}
-.m2{top:3px;right:3px;}
-.m3{bottom:3px;left:3px;}
-.m4{bottom:3px;right:3px;}
+.m1{top:-6px;left:-6px;}
+.m2{top:-6px;right:-6px;}
+.m3{bottom:-6px;left:-6px;}
+.m4{bottom:-6px;right:-6px;}
+
+.linha{
+display:flex;
+align-items:center;
+margin-bottom:10px;
+font-size:18px;
+}
+
+.numero{
+width:30px;
+}
+
+.opcao{
+width:22px;
+height:22px;
+border:2px solid black;
+border-radius:50%;
+margin:0 12px;
+}
 
 </style>
 </head>
 
 <body>
 
-<h2>Gerador de Gabarito (Teste Scanner)</h2>
+<h2>Simulação Gabarito Scanner</h2>
 
-<input id="g1" placeholder="Gabarito 1">
-<input id="g2" placeholder="Gabarito 2">
-<input id="g3" placeholder="Gabarito 3">
-
-<br>
-
-<button onclick="gerar()">Gerar gabaritos</button>
+<button onclick="gerar()">Gerar Gabaritos</button>
 <button onclick="pdf()">Gerar PDF</button>
 
 <br><br>
@@ -112,53 +103,67 @@ position:absolute;
 
 function criarFolha(seq,gabarito){
 
-const dadosQR = `AVP|SIM|${seq}|${gabarito}`
+const dadosQR=`AVP|SIM|${seq}|${gabarito}`
 
 const folha=document.createElement("div")
 folha.className="folha"
 
-;["m1","m2","m3","m4"].forEach(p=>{
-let m=document.createElement("div")
-m.className="marcador "+p
-folha.appendChild(m)
-})
+
+/* QR */
 
 const qr=document.createElement("div")
 qr.className="qr"
 folha.appendChild(qr)
 
-const info=document.createElement("div")
-info.className="info"
-info.innerText="Folha "+seq
-folha.appendChild(info)
 
-for(let i=0;i<gabarito.length;i++){
+/* área respostas */
+
+const area=document.createElement("div")
+area.className="area"
+
+/* marcadores */
+
+;["m1","m2","m3","m4"].forEach(c=>{
+let m=document.createElement("div")
+m.className="marcador "+c
+area.appendChild(m)
+})
+
+
+/* 5 questões */
+
+for(let i=1;i<=5;i++){
 
 let linha=document.createElement("div")
 linha.className="linha"
 
 let num=document.createElement("div")
 num.className="numero"
-num.innerText=i+1
+num.innerText=i
+
 linha.appendChild(num)
 
 for(let j=0;j<4;j++){
 
 let op=document.createElement("div")
 op.className="opcao"
+
 linha.appendChild(op)
 
 }
 
-folha.appendChild(linha)
+area.appendChild(linha)
 
 }
+
+folha.appendChild(area)
+
 
 setTimeout(()=>{
 new QRCode(qr,{
 text:dadosQR,
-width:70,
-height:70
+width:90,
+height:90
 })
 },50)
 
@@ -166,22 +171,22 @@ return folha
 
 }
 
+
+
 function gerar(){
-
-const padrao="ABCDABCDAB"
-
-let g1=document.getElementById("g1").value.toUpperCase()||padrao
-let g2=document.getElementById("g2").value.toUpperCase()||padrao
-let g3=document.getElementById("g3").value.toUpperCase()||padrao
 
 const a4=document.getElementById("a4")
 a4.innerHTML=""
 
-a4.appendChild(criarFolha(1,g1))
-a4.appendChild(criarFolha(2,g2))
-a4.appendChild(criarFolha(3,g3))
+/* gabaritos de teste */
+
+a4.appendChild(criarFolha(1,"ABCDE"))
+a4.appendChild(criarFolha(2,"ABCDE"))
+a4.appendChild(criarFolha(3,"ABCDE"))
 
 }
+
+
 
 function pdf(){
 
@@ -190,7 +195,7 @@ const el=document.getElementById("a4")
 html2pdf().set({
 
 margin:0,
-filename:"gabarito_simulacao.pdf",
+filename:"gabarito_teste.pdf",
 image:{type:"jpeg",quality:1},
 html2canvas:{scale:2},
 jsPDF:{unit:"mm",format:"a4"}
