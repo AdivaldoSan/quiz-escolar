@@ -96,7 +96,12 @@ scanner.start(
 { facingMode:"environment" },
 {
 fps:10,
-qrbox:350
+
+qrbox:{
+ width: Math.min(window.innerWidth*0.7, 500),
+ height: Math.min(window.innerWidth*0.7, 500)
+}
+
 },
 
 (qrMessage)=>{
