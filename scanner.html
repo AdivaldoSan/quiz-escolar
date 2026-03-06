@@ -219,7 +219,7 @@ const ctx = canvas.getContext("2d")
 canvas.width = video.videoWidth
 canvas.height = video.videoHeight
 
-/* capturar frame */
+/* capturar frame da câmera */
 
 ctx.drawImage(video,0,0)
 
@@ -228,46 +228,18 @@ const altura = canvas.height
 
 const frame = ctx.getImageData(0,0,largura,altura)
 
-/* detectar pixels escuros */
+/* detectar marcadores */
 
 const marcadores = detectarMarcadores(frame, largura, altura)
 
-/* agrupar pixels */
+/* desenhar marcadores encontrados */
 
-const grupos = agruparPontos(marcadores)
+ctx.fillStyle="red"
 
-/* filtrar regiões dos cantos */
-
-const margemX = largura * 0.25
-const margemY = altura * 0.25
-
-const candidatos = grupos.filter(g => {
-
-return (
-(g.cx < margemX && g.cy < margemY) ||
-(g.cx > largura - margemX && g.cy < margemY) ||
-(g.cx < margemX && g.cy > altura - margemY) ||
-(g.cx > largura - margemX && g.cy > altura - margemY)
-)
-
-})
-
-/* ordenar por tamanho */
-
-candidatos.sort((a,b)=>b.count-a.count)
-
-/* pegar os 4 maiores */
-
-const marcadoresPrincipais = candidatos.slice(0,4)
-
-/* desenhar marcadores */
-
-ctx.fillStyle = "red"
-
-marcadoresPrincipais.forEach(g=>{
+marcadores.forEach(m=>{
 
 ctx.beginPath()
-ctx.arc(g.cx, g.cy, 15, 0, Math.PI*2)
+ctx.arc(m.x,m.y,8,0,Math.PI*2)
 ctx.fill()
 
 })
@@ -278,10 +250,9 @@ document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(canvas)
 
 document.getElementById("resultado").innerHTML =
-"Marcadores detectados: " + marcadoresPrincipais.length
+"Possíveis marcadores: " + marcadores.length
 
 }
-
   
 /* =========================
 LER NOVAMENTE
@@ -374,31 +345,54 @@ return soma/cont
 
 function detectarMarcadores(frame, largura, altura){
 
-const pontos = []
+const marcadores = []
 
-for(let y=0;y<altura;y+=6){
-for(let x=0;x<largura;x+=6){
+const passo = 8
+const tamanho = 20
 
-let index = (y*largura + x)*4
+for(let y=0;y<altura-tamanho;y+=passo){
+for(let x=0;x<largura-tamanho;x+=passo){
 
-let r = frame.data[index]
-let g = frame.data[index+1]
-let b = frame.data[index+2]
+let escuro = 0
+let total = 0
+
+for(let dy=0;dy<tamanho;dy++){
+for(let dx=0;dx<tamanho;dx++){
+
+let px = x+dx
+let py = y+dy
+
+let idx = (py*largura + px)*4
+
+let r = frame.data[idx]
+let g = frame.data[idx+1]
+let b = frame.data[idx+2]
 
 let brilho = (r+g+b)/3
 
-if(brilho < 60){   // pixel escuro
+if(brilho < 80) escuro++
 
-pontos.push({x,y})
+total++
+
+}
+}
+
+let densidade = escuro/total
+
+if(densidade > 0.75){
+
+marcadores.push({
+x:x+tamanho/2,
+y:y+tamanho/2
+})
 
 }
 
 }
 }
 
-return pontos
-
-}  
+return marcadores
+}
 
 function agruparPontos(pontos){
 
