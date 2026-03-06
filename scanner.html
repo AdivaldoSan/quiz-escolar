@@ -233,19 +233,25 @@ const frame = ctx.getImageData(0,0,largura,altura)
 
 const marcadores = detectarMarcadores(frame, largura, altura)
 const grupos = agruparPontos(marcadores)
-ctx.fillStyle = "yellow"
+/* ordenar grupos pelo tamanho */
 
-grupos.forEach(g=>{
+grupos.sort((a,b)=>b.count-a.count)
 
-if(g.count > 30){
+/* pegar os 4 maiores */
+
+const marcadoresPrincipais = grupos.slice(0,4)
+
+/* desenhar apenas os marcadores */
+
+ctx.fillStyle = "red"
+
+marcadoresPrincipais.forEach(g=>{
 
 ctx.beginPath()
-ctx.arc(g.cx, g.cy, 10, 0, Math.PI*2)
+ctx.arc(g.cx, g.cy, 15, 0, Math.PI*2)
 ctx.fill()
 
-}
-
-})  
+})
 
 /* desenhar pontos verdes */
 
