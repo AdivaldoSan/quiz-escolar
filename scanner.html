@@ -342,19 +342,37 @@ l.itens=l.itens.slice(0,4)
 
 /* determinar respostas */
 
+/* escolher resposta + debug */
+
 const letras=["A","B","C","D"]
 const respostasDetectadas=[]
 
-linhas.forEach(l=>{
+let debug=""
+
+debug += "Bolhas detectadas: " + bolhas.length + "<br><br>"
+
+debug += "Linhas encontradas: " + linhas.length + "<br><br>"
+
+linhas.forEach((l,idx)=>{
+
+debug += "Linha " + (idx+1) + " → " + l.itens.length + " bolhas<br>"
+
+})
+
+debug += "<br>"
+
+/* calcular resposta */
+
+linhas.forEach((l,i)=>{
 
 let maior=0
 let indice=0
 
-l.itens.forEach((b,i)=>{
+l.itens.forEach((b,j)=>{
 
 if(b.count>maior){
 maior=b.count
-indice=i
+indice=j
 }
 
 })
@@ -368,7 +386,8 @@ respostas=respostasDetectadas.join("")
 document.getElementById("resultado").innerHTML=
 
 `
-Respostas detectadas: ${respostas}
+Respostas detectadas: ${respostas}<br><br>
+${debug}
 `
 
 document.getElementById("acoes").classList.remove("oculto")
