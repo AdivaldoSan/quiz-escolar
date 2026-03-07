@@ -187,22 +187,7 @@ ctx.fill()
 })  
 
 /* filtrar quadrados grandes */
-let candidatos = grupos.filter(g => g.count > 200 && g.count < 1200)
-/* ordenar por tamanho */
-
-candidatos.sort((a,b)=>b.count-a.count)
-
-/* pegar os 6 maiores */
-
-/* pegar os 4 maiores */
-candidatos = candidatos.slice(0,4)
-/* ordenar por posição vertical */
-
-candidatos.sort((a,b)=>a.cy-b.cy)
-
-/* pegar os 4 mais distantes */
-
-let marcadores = candidatos.slice(0,4)
+let marcadores = grupos
 
 /* =========================
 IDENTIFICAR CANTOS
