@@ -1,39 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
 <meta charset="UTF-8">
-<title>Scanner Avalia+</title>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
+<title>Leitor de Bolhas</title>
 
 <style>
 
 body{
 margin:0;
-font-family:Arial;
 background:#111;
 color:white;
+font-family:Arial;
 text-align:center;
 }
 
-#reader{
-width:100%;
-}
-
-canvas{
+video,canvas{
+width:90%;
 max-width:500px;
-width:100%;
+margin-top:10px;
 }
 
 button{
-padding:14px 20px;
+padding:12px 20px;
 margin:10px;
-font-size:18px;
-}
-
-.oculto{
-display:none;
+font-size:16px;
 }
 
 </style>
@@ -41,223 +31,86 @@ display:none;
 
 <body>
 
-<h2>Scanner Avalia+</h2>
+<h2>Leitor de Bolhas</h2>
 
-<div id="reader"></div>
+<div id="camera"></div>
 
-<div id="resultado">
-Aponte para o QR da prova
-</div>
+<div id="resultado">Centralize o gabarito</div>
 
-<div id="acoes" class="oculto">
-<button onclick="confirmar()">Confirmar leitura</button>
-<button onclick="reiniciar()">Ler novamente</button>
-</div>
-
+<button onclick="capturar()">Capturar</button>
+<button onclick="abrirCamera()">Ler novamente</button>
 
 <script>
 
-let scanner
-let folha=""
-let qtd=0
-let gabarito=""
-let respostas=""
-
 /* parâmetros calibrados */
 
-const THRESHOLD=112
-const AREA_MIN=22
-const AREA_MAX=219
+const THRESHOLD = 112
+const AREA_MIN = 22
+const AREA_MAX = 219
 
-/* =========================
-INICIAR QR
-========================= */
+let stream
 
-function iniciarQR(){
-
-scanner=new Html5Qrcode("reader")
-
-scanner.start(
-
-{facingMode:"environment"},
-
-{
-fps:10,
-qrbox:{
-width: Math.min(window.innerWidth*0.8,400),
-height: Math.min(window.innerWidth*0.8,400)
-}
-},
-
-(qr)=>{ lerQR(qr) }
-
-)
-
-}
-
-/* =========================
-LER QR
-========================= */
-
-function lerQR(dado){
-
-if(!dado.startsWith("AVP")) return
-
-scanner.stop()
-
-let partes=dado.split("|")
-
-folha=partes[2]
-qtd=parseInt(partes[3])
-gabarito=partes[4]
-
-document.getElementById("resultado").innerHTML=
-
-`
-QR detectado ✓<br><br>
-Centralize o gabarito
-`
-
-abrirCamera()
-
-}
-
-/* =========================
-CAMERA
-========================= */
+/* ======================
+ABRIR CAMERA
+====================== */
 
 function abrirCamera(){
 
 navigator.mediaDevices.getUserMedia({
 video:{facingMode:"environment"}
 })
-.then(stream=>{
+.then(s=>{
+
+stream=s
 
 let video=document.createElement("video")
 
-video.srcObject=stream
+video.srcObject=s
 video.play()
 
-document.getElementById("reader").innerHTML=""
-document.getElementById("reader").appendChild(video)
-
-/* captura automática */
-
-setTimeout(capturar,1500)
+document.getElementById("camera").innerHTML=""
+document.getElementById("camera").appendChild(video)
 
 })
 
 }
 
-/* =========================
+/* ======================
 CAPTURAR FRAME
-========================= */
+====================== */
 
 function capturar(){
 
-const video=document.querySelector("video")
+let video=document.querySelector("video")
 
-const canvas=document.createElement("canvas")
-const ctx=canvas.getContext("2d")
+let canvas=document.createElement("canvas")
+let ctx=canvas.getContext("2d")
 
 canvas.width=video.videoWidth
 canvas.height=video.videoHeight
 
 ctx.drawImage(video,0,0)
 
-document.getElementById("reader").innerHTML=""
-document.getElementById("reader").appendChild(canvas)
+document.getElementById("camera").innerHTML=""
+document.getElementById("camera").appendChild(canvas)
 
 processar(canvas)
 
 }
 
-/* =========================
-LER GRADE FIXA
-========================= */
-
-function lerGrade(canvas){
-
-const ctx = canvas.getContext("2d")
-
-const largura = canvas.width
-const altura = canvas.height
-
-const frame = ctx.getImageData(0,0,largura,altura)
-
-/* área aproximada do gabarito */
-
-const startX = largura*0.30
-const startY = altura*0.22
-
-const areaW = largura*0.40
-const areaH = altura*0.36
-
-const alturaLinha = areaH/qtd
-const larguraColuna = areaW/4
-
-const letras=["A","B","C","D"]
-
-const respostasDetectadas=[]
-
-for(let q=0;q<qtd;q++){
-
-let y = startY + q*alturaLinha
-
-let melhor=0
-let maior=0
-
-for(let a=0;a<4;a++){
-
-let x = startX + a*larguraColuna
-
-let escuro=0
-
-for(let dy=-8;dy<8;dy++){
-for(let dx=-8;dx<8;dx++){
-
-let px=Math.floor(x+dx)
-let py=Math.floor(y+dy)
-
-let idx=(py*largura+px)*4
-
-let brilho=(frame.data[idx]+frame.data[idx+1]+frame.data[idx+2])/3
-
-escuro += (255-brilho)
-
-}
-}
-
-if(escuro>maior){
-
-maior=escuro
-melhor=a
-
-}
-
-}
-
-respostasDetectadas.push(letras[melhor])
-
-}
-
-return respostasDetectadas
-
-}
-
-/* =========================
-PROCESSAR OMR
-========================= */
+/* ======================
+PROCESSAR IMAGEM
+====================== */
 
 function processar(canvas){
 
-const ctx=canvas.getContext("2d")
+let ctx=canvas.getContext("2d")
 
-const largura=canvas.width
-const altura=canvas.height
+let largura=canvas.width
+let altura=canvas.height
 
-const frame=ctx.getImageData(0,0,largura,altura)
-const data=frame.data
+let frame=ctx.getImageData(0,0,largura,altura)
+let data=frame.data
 
 /* threshold */
 
@@ -277,7 +130,7 @@ ctx.putImageData(frame,0,0)
 
 /* detectar pixels escuros */
 
-const pontos=[]
+let pontos=[]
 
 for(let y=0;y<altura;y+=4){
 for(let x=0;x<largura;x+=4){
@@ -285,9 +138,7 @@ for(let x=0;x<largura;x+=4){
 let idx=(y*largura+x)*4
 
 if(data[idx]==0){
-
 pontos.push({x,y})
-
 }
 
 }
@@ -295,7 +146,7 @@ pontos.push({x,y})
 
 /* agrupar */
 
-const grupos=[]
+let grupos=[]
 
 pontos.forEach(p=>{
 
@@ -338,9 +189,9 @@ count:1
 
 /* filtrar bolhas */
 
-const bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
+let bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
 
-/* desenhar bolhas detectadas */
+/* desenhar bolhas */
 
 ctx.fillStyle="yellow"
 
@@ -352,85 +203,109 @@ ctx.fill()
 
 })
 
-/* leitura da grade */
+/* ordenar por altura */
 
-const respostasDetectadas = lerGrade(canvas)
+bolhas.sort((a,b)=>a.cy-b.cy)
 
-respostas = respostasDetectadas.join("")
+/* agrupar linhas */
 
-/* desenhar respostas escolhidas */
+let linhas=[]
+let tolerancia=25
 
-const startX = largura*0.30
-const startY = altura*0.22
+bolhas.forEach(b=>{
 
-const areaW = largura*0.40
-const areaH = altura*0.36
+let linha=null
 
-const alturaLinha = areaH/qtd
-const larguraColuna = areaW/4
+for(let l of linhas){
+
+if(Math.abs(b.cy-l.media)<tolerancia){
+linha=l
+break
+}
+
+}
+
+if(linha){
+
+linha.itens.push(b)
+
+linha.media=
+linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
+
+}else{
+
+linhas.push({
+media:b.cy,
+itens:[b]
+})
+
+}
+
+})
+
+/* ordenar colunas */
+
+linhas.forEach(l=>{
+l.itens.sort((a,b)=>a.cx-b.cx)
+})
+
+/* descobrir respostas */
+
+const letras=["A","B","C","D"]
+
+let respostas=[]
+
+linhas.forEach(l=>{
+
+let melhor=0
+let maior=0
+
+l.itens.forEach((b,i)=>{
+
+if(b.count>maior){
+
+maior=b.count
+melhor=i
+
+}
+
+})
+
+respostas.push(letras[melhor])
+
+})
+
+/* marcar escolhidas */
 
 ctx.fillStyle="red"
 
-for(let q=0;q<qtd;q++){
+linhas.forEach(l=>{
 
-let y=startY + q*alturaLinha
-let x=startX + (respostasDetectadas[q].charCodeAt(0)-65)*larguraColuna
+let melhor=l.itens.reduce((a,b)=>a.count>b.count?a:b)
 
 ctx.beginPath()
-ctx.arc(x,y,10,0,Math.PI*2)
+ctx.arc(melhor.cx,melhor.cy,10,0,Math.PI*2)
 ctx.fill()
 
-}
+})
 
-/* debug */
-
-document.getElementById("resultado").innerHTML=
-
-`
-Respostas detectadas: ${respostas}<br>
-Bolhas detectadas: ${bolhas.length}
-`
-
-document.getElementById("acoes").classList.remove("oculto")
-
-}
-
-/* =========================
-CONFIRMAR
-========================= */
-
-function confirmar(){
+/* resultado */
 
 document.getElementById("resultado").innerHTML=
 
 `
-✓ Leitura confirmada<br><br>
-Folha ${folha}<br>
-Respostas: ${respostas}
+Respostas: ${respostas.join("")}<br>
+Bolhas detectadas: ${bolhas.length}<br>
+Linhas: ${linhas.length}
 `
-
-}
-
-/* =========================
-LER NOVAMENTE
-========================= */
-
-function reiniciar(){
-
-document.getElementById("acoes").classList.add("oculto")
-
-document.getElementById("resultado").innerHTML="Lendo novamente..."
-
-capturar()
 
 }
 
 /* iniciar */
 
-iniciarQR()
+abrirCamera()
 
 </script>
-
 
 </body>
 </html>
