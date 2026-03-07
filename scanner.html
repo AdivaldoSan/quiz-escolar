@@ -54,11 +54,13 @@ Aponte para o QR da prova
 <button onclick="reiniciar()">Ler novamente</button>
 </div>
 
+
 <script>
 
 let scanner
 let folha=""
 let qtd=0
+let gabarito=""
 let respostas=""
 
 /* parâmetros calibrados */
@@ -81,12 +83,10 @@ scanner.start(
 
 {
 fps:10,
-
 qrbox:{
 width: Math.min(window.innerWidth*0.8,400),
 height: Math.min(window.innerWidth*0.8,400)
 }
-
 },
 
 (qr)=>{ lerQR(qr) }
@@ -109,6 +109,7 @@ let partes=dado.split("|")
 
 folha=partes[2]
 qtd=parseInt(partes[3])
+gabarito=partes[4]
 
 document.getElementById("resultado").innerHTML=
 
@@ -122,15 +123,13 @@ abrirCamera()
 }
 
 /* =========================
-ABRIR CAMERA
+CAMERA
 ========================= */
 
 function abrirCamera(){
 
 navigator.mediaDevices.getUserMedia({
-
 video:{facingMode:"environment"}
-
 })
 .then(stream=>{
 
@@ -141,6 +140,8 @@ video.play()
 
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(video)
+
+/* captura automática */
 
 setTimeout(capturar,1500)
 
@@ -172,6 +173,79 @@ processar(canvas)
 }
 
 /* =========================
+LER GRADE FIXA
+========================= */
+
+function lerGrade(canvas){
+
+const ctx = canvas.getContext("2d")
+
+const largura = canvas.width
+const altura = canvas.height
+
+const frame = ctx.getImageData(0,0,largura,altura)
+
+/* área aproximada do gabarito */
+
+const startX = largura*0.30
+const startY = altura*0.22
+
+const areaW = largura*0.40
+const areaH = altura*0.36
+
+const alturaLinha = areaH/qtd
+const larguraColuna = areaW/4
+
+const letras=["A","B","C","D"]
+
+const respostasDetectadas=[]
+
+for(let q=0;q<qtd;q++){
+
+let y = startY + q*alturaLinha
+
+let melhor=0
+let maior=0
+
+for(let a=0;a<4;a++){
+
+let x = startX + a*larguraColuna
+
+let escuro=0
+
+for(let dy=-8;dy<8;dy++){
+for(let dx=-8;dx<8;dx++){
+
+let px=Math.floor(x+dx)
+let py=Math.floor(y+dy)
+
+let idx=(py*largura+px)*4
+
+let brilho=(frame.data[idx]+frame.data[idx+1]+frame.data[idx+2])/3
+
+escuro += (255-brilho)
+
+}
+}
+
+if(escuro>maior){
+
+maior=escuro
+melhor=a
+
+}
+
+}
+
+respostasDetectadas.push(letras[melhor])
+
+}
+
+return respostasDetectadas
+
+}
+
+/* =========================
 PROCESSAR OMR
 ========================= */
 
@@ -185,7 +259,7 @@ const altura=canvas.height
 const frame=ctx.getImageData(0,0,largura,altura)
 const data=frame.data
 
-/* aplicar threshold */
+/* threshold */
 
 for(let i=0;i<data.length;i+=4){
 
@@ -201,20 +275,12 @@ data[i+2]=cor
 
 ctx.putImageData(frame,0,0)
 
-/* isolar área de leitura */
-
-const xmin=largura*0.25
-const xmax=largura*0.75
-
-const ymin=altura*0.20
-const ymax=altura*0.60
-
-/* detectar pontos escuros */
+/* detectar pixels escuros */
 
 const pontos=[]
 
-for(let y=ymin;y<ymax;y+=4){
-for(let x=xmin;x<xmax;x+=4){
+for(let y=0;y<altura;y+=4){
+for(let x=0;x<largura;x+=4){
 
 let idx=(y*largura+x)*4
 
@@ -276,118 +342,53 @@ const bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
 
 /* desenhar bolhas detectadas */
 
-ctx.fillStyle="red"
+ctx.fillStyle="yellow"
 
 bolhas.forEach(b=>{
 
 ctx.beginPath()
-ctx.arc(b.cx,b.cy,8,0,Math.PI*2)
+ctx.arc(b.cx,b.cy,6,0,Math.PI*2)
 ctx.fill()
 
 })
 
-/* organizar linhas */
+/* leitura da grade */
 
-bolhas.sort((a,b)=>a.cy-b.cy)
+const respostasDetectadas = lerGrade(canvas)
 
-const linhas=[]
-const tolerancia=25
+respostas = respostasDetectadas.join("")
 
-bolhas.forEach(b=>{
+/* desenhar respostas escolhidas */
 
-let linha=null
+const startX = largura*0.30
+const startY = altura*0.22
 
-for(let l of linhas){
+const areaW = largura*0.40
+const areaH = altura*0.36
 
-if(Math.abs(b.cy-l.mediaY)<tolerancia){
-linha=l
-break
-}
+const alturaLinha = areaH/qtd
+const larguraColuna = areaW/4
 
-}
+ctx.fillStyle="red"
 
-if(linha){
+for(let q=0;q<qtd;q++){
 
-linha.itens.push(b)
+let y=startY + q*alturaLinha
+let x=startX + (respostasDetectadas[q].charCodeAt(0)-65)*larguraColuna
 
-linha.mediaY=
-linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
-
-}else{
-
-linhas.push({
-mediaY:b.cy,
-itens:[b]
-})
+ctx.beginPath()
+ctx.arc(x,y,10,0,Math.PI*2)
+ctx.fill()
 
 }
 
-})
-
-/* limitar número de linhas */
-
-linhas.sort((a,b)=>a.mediaY-b.mediaY)
-
-linhas.splice(qtd)
-
-/* ordenar colunas */
-
-linhas.forEach(l=>{
-
-l.itens.sort((a,b)=>a.cx-b.cx)
-
-l.itens=l.itens.slice(0,4)
-
-})
-
-/* determinar respostas */
-
-/* escolher resposta + debug */
-
-const letras=["A","B","C","D"]
-const respostasDetectadas=[]
-
-let debug=""
-
-debug += "Bolhas detectadas: " + bolhas.length + "<br><br>"
-
-debug += "Linhas encontradas: " + linhas.length + "<br><br>"
-
-linhas.forEach((l,idx)=>{
-
-debug += "Linha " + (idx+1) + " → " + l.itens.length + " bolhas<br>"
-
-})
-
-debug += "<br>"
-
-/* calcular resposta */
-
-linhas.forEach((l,i)=>{
-
-let maior=0
-let indice=0
-
-l.itens.forEach((b,j)=>{
-
-if(b.count>maior){
-maior=b.count
-indice=j
-}
-
-})
-
-respostasDetectadas.push(letras[indice])
-
-})
-
-respostas=respostasDetectadas.join("")
+/* debug */
 
 document.getElementById("resultado").innerHTML=
 
 `
-Respostas detectadas: ${respostas}<br><br>
-${debug}
+Respostas detectadas: ${respostas}<br>
+Bolhas detectadas: ${bolhas.length}
 `
 
 document.getElementById("acoes").classList.remove("oculto")
@@ -411,16 +412,16 @@ Respostas: ${respostas}
 }
 
 /* =========================
-REINICIAR
+LER NOVAMENTE
 ========================= */
 
 function reiniciar(){
 
 document.getElementById("acoes").classList.add("oculto")
 
-document.getElementById("resultado").innerHTML="Aponte para o QR da prova"
+document.getElementById("resultado").innerHTML="Lendo novamente..."
 
-iniciarQR()
+capturar()
 
 }
 
@@ -429,6 +430,7 @@ iniciarQR()
 iniciarQR()
 
 </script>
+
 
 </body>
 </html>
