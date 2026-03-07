@@ -15,7 +15,7 @@ text-align:center;
 }
 
 canvas{
-max-width:600px;
+max-width:650px;
 border:1px solid #444;
 margin-top:20px;
 }
@@ -35,29 +35,29 @@ margin-top:20px;
 
 <script>
 
-const canvas=document.getElementById("canvas")
-const ctx=canvas.getContext("2d")
-const upload=document.getElementById("upload")
+const canvas = document.getElementById("canvas")
+const ctx = canvas.getContext("2d")
+const upload = document.getElementById("upload")
 
-const THRESHOLD=112
-const AREA_MIN=30
-const AREA_MAX=180
+const THRESHOLD = 150
+const AREA_MIN = 30
+const AREA_MAX = 200
 
-upload.addEventListener("change",function(e){
+upload.addEventListener("change", function(e){
 
-const file=e.target.files[0]
+const file = e.target.files[0]
 if(!file) return
 
-const reader=new FileReader()
+const reader = new FileReader()
 
-reader.onload=function(ev){
+reader.onload = function(ev){
 
-const img=new Image()
+const img = new Image()
 
-img.onload=function(){
+img.onload = function(){
 
-canvas.width=img.width
-canvas.height=img.height
+canvas.width = img.width
+canvas.height = img.height
 
 ctx.drawImage(img,0,0)
 
@@ -65,7 +65,7 @@ detectar()
 
 }
 
-img.src=ev.target.result
+img.src = ev.target.result
 
 }
 
@@ -73,21 +73,22 @@ reader.readAsDataURL(file)
 
 })
 
+
 function detectar(){
 
-const frame=ctx.getImageData(0,0,canvas.width,canvas.height)
-const data=frame.data
+const frame = ctx.getImageData(0,0,canvas.width,canvas.height)
+const data = frame.data
 
-const largura=canvas.width
-const altura=canvas.height
+const largura = canvas.width
+const altura = canvas.height
 
-/* ISOLAR AREA CENTRAL */
+/* AREA DE BUSCA MAIS AMPLA */
 
-const xmin = largura * 0.30
-const xmax = largura * 0.70
+const xmin = largura * 0.20
+const xmax = largura * 0.80
 
-const ymin = altura * 0.20
-const ymax = altura * 0.55
+const ymin = altura * 0.10
+const ymax = altura * 0.60
 
 const pontos=[]
 
@@ -104,6 +105,8 @@ pontos.push({x,y})
 
 }
 }
+
+console.log("pontos detectados:",pontos.length)
 
 /* AGRUPAR PIXELS */
 
@@ -148,11 +151,11 @@ count:1
 
 })
 
+
 /* FILTRAR BOLHAS */
 
 const bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
 
-/* DESENHAR BOLHAS */
 
 ctx.fillStyle="red"
 
@@ -164,7 +167,8 @@ ctx.fill()
 
 })
 
-/* ORDENAR POR LINHA */
+
+/* ORDENAR POR LINHAS */
 
 bolhas.sort((a,b)=>a.cy-b.cy)
 
@@ -188,7 +192,7 @@ if(linha){
 
 linha.itens.push(b)
 
-linha.mediaY =
+linha.mediaY=
 linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
 
 }else{
@@ -202,17 +206,21 @@ itens:[b]
 
 })
 
+
 /* ORDENAR COLUNAS */
 
 linhas.forEach(l=>{
 
 l.itens.sort((a,b)=>a.cx-b.cx)
 
+/* limitar 4 alternativas */
+
 l.itens=l.itens.slice(0,4)
 
 })
 
-/* DESENHAR INDICES */
+
+/* DESENHAR POSIÇÃO */
 
 ctx.fillStyle="yellow"
 ctx.font="18px Arial"
