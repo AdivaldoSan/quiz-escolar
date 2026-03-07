@@ -109,7 +109,18 @@ let ctx=canvas.getContext("2d")
 let largura=canvas.width
 let altura=canvas.height
 
-let frame=ctx.getImageData(0,0,largura,altura)
+/* ISOLAR ÁREA DO GABARITO */
+
+let x0 = largura*0.25
+let y0 = altura*0.15
+let w  = largura*0.50
+let h  = altura*0.45
+
+ctx.strokeStyle="blue"
+ctx.lineWidth=3
+ctx.strokeRect(x0,y0,w,h)
+
+let frame=ctx.getImageData(x0,y0,w,h)
 let data=frame.data
 
 /* threshold */
@@ -118,7 +129,7 @@ for(let i=0;i<data.length;i+=4){
 
 let brilho=(data[i]+data[i+1]+data[i+2])/3
 
-let cor= brilho < THRESHOLD ? 0 : 255
+let cor = brilho < THRESHOLD ? 0 : 255
 
 data[i]=cor
 data[i+1]=cor
@@ -126,16 +137,16 @@ data[i+2]=cor
 
 }
 
-ctx.putImageData(frame,0,0)
+ctx.putImageData(frame,x0,y0)
 
 /* detectar pixels escuros */
 
 let pontos=[]
 
-for(let y=0;y<altura;y+=4){
-for(let x=0;x<largura;x+=4){
+for(let y=0;y<h;y+=4){
+for(let x=0;x<w;x+=4){
 
-let idx=(y*largura+x)*4
+let idx=(y*w+x)*4
 
 if(data[idx]==0){
 pontos.push({x,y})
@@ -198,7 +209,7 @@ ctx.fillStyle="yellow"
 bolhas.forEach(b=>{
 
 ctx.beginPath()
-ctx.arc(b.cx,b.cy,6,0,Math.PI*2)
+ctx.arc(b.cx+x0,b.cy+y0,6,0,Math.PI*2)
 ctx.fill()
 
 })
@@ -229,7 +240,7 @@ if(linha){
 
 linha.itens.push(b)
 
-linha.media=
+linha.media =
 linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
 
 }else{
@@ -243,53 +254,31 @@ itens:[b]
 
 })
 
-/* ordenar colunas */
-
-linhas.forEach(l=>{
-l.itens.sort((a,b)=>a.cx-b.cx)
-})
-
 /* descobrir respostas */
-
-const letras=["A","B","C","D"]
 
 let respostas=[]
 
 linhas.forEach(l=>{
 
-let melhor=0
-let maior=0
+let melhor = l.itens.reduce((a,b)=>a.count>b.count?a:b)
 
-l.itens.forEach((b,i)=>{
+/* calcular coluna pela posição X */
 
-if(b.count>maior){
+let coluna = Math.floor(melhor.cx / (w/4))
 
-maior=b.count
-melhor=i
+let letra = ["A","B","C","D"][coluna]
 
-}
+respostas.push(letra)
 
-})
-
-respostas.push(letras[melhor])
-
-})
-
-/* marcar escolhidas */
+/* desenhar selecionada */
 
 ctx.fillStyle="red"
 
-linhas.forEach(l=>{
-
-let melhor=l.itens.reduce((a,b)=>a.count>b.count?a:b)
-
 ctx.beginPath()
-ctx.arc(melhor.cx,melhor.cy,10,0,Math.PI*2)
+ctx.arc(melhor.cx+x0,melhor.cy+y0,10,0,Math.PI*2)
 ctx.fill()
 
 })
-
-/* resultado */
 
 document.getElementById("resultado").innerHTML=
 
