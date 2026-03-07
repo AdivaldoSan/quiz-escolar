@@ -59,7 +59,6 @@ Aponte para o QR da prova
 let scanner
 let folha=""
 let qtd=0
-let gabarito=""
 let respostas=""
 
 /* parâmetros calibrados */
@@ -110,7 +109,6 @@ let partes=dado.split("|")
 
 folha=partes[2]
 qtd=parseInt(partes[3])
-gabarito=partes[4]
 
 document.getElementById("resultado").innerHTML=
 
@@ -124,7 +122,7 @@ abrirCamera()
 }
 
 /* =========================
-CAMERA
+ABRIR CAMERA
 ========================= */
 
 function abrirCamera(){
@@ -143,8 +141,6 @@ video.play()
 
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(video)
-
-/* captura automática */
 
 setTimeout(capturar,1500)
 
@@ -189,7 +185,7 @@ const altura=canvas.height
 const frame=ctx.getImageData(0,0,largura,altura)
 const data=frame.data
 
-/* threshold */
+/* aplicar threshold */
 
 for(let i=0;i<data.length;i+=4){
 
@@ -205,12 +201,20 @@ data[i+2]=cor
 
 ctx.putImageData(frame,0,0)
 
+/* isolar área de leitura */
+
+const xmin=largura*0.25
+const xmax=largura*0.75
+
+const ymin=altura*0.20
+const ymax=altura*0.60
+
 /* detectar pontos escuros */
 
 const pontos=[]
 
-for(let y=0;y<altura;y+=4){
-for(let x=0;x<largura;x+=4){
+for(let y=ymin;y<ymax;y+=4){
+for(let x=xmin;x<xmax;x+=4){
 
 let idx=(y*largura+x)*4
 
@@ -270,7 +274,7 @@ count:1
 
 const bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
 
-/* desenhar */
+/* desenhar bolhas detectadas */
 
 ctx.fillStyle="red"
 
@@ -287,7 +291,7 @@ ctx.fill()
 bolhas.sort((a,b)=>a.cy-b.cy)
 
 const linhas=[]
-const tol=25
+const tolerancia=25
 
 bolhas.forEach(b=>{
 
@@ -295,7 +299,7 @@ let linha=null
 
 for(let l of linhas){
 
-if(Math.abs(b.cy-l.mediaY)<tol){
+if(Math.abs(b.cy-l.mediaY)<tolerancia){
 linha=l
 break
 }
@@ -305,6 +309,7 @@ break
 if(linha){
 
 linha.itens.push(b)
+
 linha.mediaY=
 linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
 
@@ -319,9 +324,23 @@ itens:[b]
 
 })
 
-linhas.forEach(l=>l.itens.sort((a,b)=>a.cx-b.cx))
+/* limitar número de linhas */
 
-/* escolher resposta */
+linhas.sort((a,b)=>a.mediaY-b.mediaY)
+
+linhas.splice(qtd)
+
+/* ordenar colunas */
+
+linhas.forEach(l=>{
+
+l.itens.sort((a,b)=>a.cx-b.cx)
+
+l.itens=l.itens.slice(0,4)
+
+})
+
+/* determinar respostas */
 
 const letras=["A","B","C","D"]
 const respostasDetectadas=[]
