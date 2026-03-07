@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Detector de Marcadores</title>
+
+<style>
+
+body{
+margin:0;
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+video,canvas{
+width:90%;
+max-width:500px;
+margin-top:10px;
+}
+
+button{
+padding:12px 20px;
+margin:10px;
+font-size:16px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Detector de Marcadores</h2>
+
+<div id="camera"></div>
+
+<div id="info">Centralize a folha</div>
+
+<button onclick="capturar()">Capturar</button>
+<button onclick="abrirCamera()">Ler novamente</button>
+
+<script>
+
+const THRESHOLD=110
+
+let stream
+
+/* ===================== */
+
+function abrirCamera(){
+
+navigator.mediaDevices.getUserMedia({
+video:{facingMode:"environment"}
+})
+.then(s=>{
+
+stream=s
+
+let video=document.createElement("video")
+video.srcObject=s
+video.play()
+
+document.getElementById("camera").innerHTML=""
+document.getElementById("camera").appendChild(video)
+
+})
+
+}
+
+/* ===================== */
+
+function capturar(){
+
+let video=document.querySelector("video")
+
+let canvas=document.createElement("canvas")
+let ctx=canvas.getContext("2d")
+
+canvas.width=video.videoWidth
+canvas.height=video.videoHeight
+
+ctx.drawImage(video,0,0)
+
+document.getElementById("camera").innerHTML=""
+document.getElementById("camera").appendChild(canvas)
+
+processar(canvas)
+
+}
+
+/* ===================== */
+
+function processar(canvas){
+
+let ctx=canvas.getContext("2d")
+
+let largura=canvas.width
+let altura=canvas.height
+
+let frame=ctx.getImageData(0,0,largura,altura)
+let data=frame.data
+
+/* threshold */
+
+for(let i=0;i<data.length;i+=4){
+
+let brilho=(data[i]+data[i+1]+data[i+2])/3
+
+let cor = brilho < THRESHOLD ? 0 : 255
+
+data[i]=cor
+data[i+1]=cor
+data[i+2]=cor
+
+}
+
+ctx.putImageData(frame,0,0)
+
+/* detectar pixels escuros */
+
+let pontos=[]
+
+for(let y=0;y<altura;y+=4){
+for(let x=0;x<largura;x+=4){
+
+let idx=(y*largura+x)*4
+
+if(data[idx]==0){
+pontos.push({x,y})
+}
+
+}
+}
+
+/* agrupar */
+
+let grupos=[]
+
+pontos.forEach(p=>{
+
+let achou=false
+
+for(let g of grupos){
+
+let dx=p.x-g.cx
+let dy=p.y-g.cy
+
+if(Math.sqrt(dx*dx+dy*dy)<30){
+
+g.x+=p.x
+g.y+=p.y
+g.count++
+
+g.cx=g.x/g.count
+g.cy=g.y/g.count
+
+achou=true
+break
+
+}
+
+}
+
+if(!achou){
+
+grupos.push({
+x:p.x,
+y:p.y,
+cx:p.x,
+cy:p.y,
+count:1
+})
+
+}
+
+})
+
+/* filtrar quadrados grandes */
+
+let marcadores=grupos.filter(g=>g.count>200)
+
+/* desenhar */
+
+ctx.fillStyle="red"
+
+marcadores.forEach(m=>{
+
+ctx.beginPath()
+ctx.arc(m.cx,m.cy,12,0,Math.PI*2)
+ctx.fill()
+
+})
+
+document.getElementById("info").innerHTML=
+
+`
+Marcadores detectados: ${marcadores.length}
+`
+
+}
+
+abrirCamera()
+
+</script>
+
+</body>
+</html>
