@@ -205,6 +205,45 @@ candidatos.sort((a,b)=>a.cy-b.cy)
 
 let marcadores = candidatos.slice(0,4)
 
+/* =========================
+IDENTIFICAR CANTOS
+========================= */
+
+let tl,tr,bl,br
+
+let minSum = Infinity
+let maxSum = -Infinity
+let minDiff = Infinity
+let maxDiff = -Infinity
+
+marcadores.forEach(p=>{
+
+let sum = p.cx + p.cy
+let diff = p.cx - p.cy
+
+if(sum < minSum){
+minSum = sum
+tl = p
+}
+
+if(sum > maxSum){
+maxSum = sum
+br = p
+}
+
+if(diff < minDiff){
+minDiff = diff
+tr = p
+}
+
+if(diff > maxDiff){
+maxDiff = diff
+bl = p
+}
+
+})
+  
+
   
 /* desenhar */
 
@@ -217,6 +256,31 @@ ctx.arc(m.cx,m.cy,12,0,Math.PI*2)
 ctx.fill()
 
 })
+
+/* =========================
+DESENHAR CANTOS
+========================= */
+
+ctx.fillStyle="blue"
+ctx.beginPath()
+ctx.arc(tl.cx,tl.cy,14,0,Math.PI*2)
+ctx.fill()
+
+ctx.fillStyle="green"
+ctx.beginPath()
+ctx.arc(tr.cx,tr.cy,14,0,Math.PI*2)
+ctx.fill()
+
+ctx.fillStyle="orange"
+ctx.beginPath()
+ctx.arc(bl.cx,bl.cy,14,0,Math.PI*2)
+ctx.fill()
+
+ctx.fillStyle="purple"
+ctx.beginPath()
+ctx.arc(br.cx,br.cy,14,0,Math.PI*2)
+ctx.fill()
+  
 
 document.getElementById("info").innerHTML=
 
