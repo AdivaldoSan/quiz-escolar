@@ -176,6 +176,16 @@ count:1
 
 })
 
+ctx.fillStyle = "yellow"
+
+grupos.forEach(g => {
+
+ctx.beginPath()
+ctx.arc(g.cx, g.cy, 4, 0, Math.PI*2)
+ctx.fill()
+
+})  
+
 /* filtrar quadrados grandes */
 
 let marcadores = grupos.filter(g => g.count > 30 && g.count < 200)
