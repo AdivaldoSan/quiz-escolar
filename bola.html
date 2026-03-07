@@ -37,14 +37,16 @@ margin-top:20px;
 
 const canvas=document.getElementById("canvas")
 const ctx=canvas.getContext("2d")
+const upload=document.getElementById("upload")
 
 const THRESHOLD=112
 const AREA_MIN=30
 const AREA_MAX=180
 
-upload.onchange=e=>{
+upload.addEventListener("change",function(e){
 
 const file=e.target.files[0]
+if(!file) return
 
 const reader=new FileReader()
 
@@ -69,7 +71,7 @@ img.src=ev.target.result
 
 reader.readAsDataURL(file)
 
-}
+})
 
 function detectar(){
 
@@ -192,4 +194,48 @@ linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
 }else{
 
 linhas.push({
-mediaY:b.cy
+mediaY:b.cy,
+itens:[b]
+})
+
+}
+
+})
+
+/* ORDENAR COLUNAS */
+
+linhas.forEach(l=>{
+
+l.itens.sort((a,b)=>a.cx-b.cx)
+
+l.itens=l.itens.slice(0,4)
+
+})
+
+/* DESENHAR INDICES */
+
+ctx.fillStyle="yellow"
+ctx.font="18px Arial"
+
+const letras=["A","B","C","D"]
+
+linhas.forEach((l,i)=>{
+
+l.itens.forEach((b,j)=>{
+
+ctx.fillText(
+(i+1)+letras[j],
+b.cx+10,
+b.cy
+)
+
+})
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
