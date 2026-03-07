@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>Teste de Ordenação das Bolhas</title>
+<title>OMR Lab</title>
 
 <style>
 
@@ -17,7 +17,15 @@ text-align:center;
 canvas{
 max-width:650px;
 border:1px solid #444;
-margin-top:20px;
+margin-top:15px;
+}
+
+.controls{
+margin-top:15px;
+}
+
+input[type=range]{
+width:250px;
 }
 
 </style>
@@ -25,7 +33,7 @@ margin-top:20px;
 
 <body>
 
-<h2>Teste de Ordenação das Bolhas</h2>
+<h2>OMR LAB</h2>
 
 <input type="file" id="upload">
 
@@ -33,39 +41,64 @@ margin-top:20px;
 
 <canvas id="canvas"></canvas>
 
+<div class="controls">
+
+<p>
+Threshold
+<br>
+<input type="range" id="thr" min="50" max="200" value="150">
+<span id="thrval">150</span>
+</p>
+
+<p>
+Área mínima
+<br>
+<input type="range" id="amin" min="5" max="150" value="30">
+<span id="aminval">30</span>
+</p>
+
+<p>
+Área máxima
+<br>
+<input type="range" id="amax" min="100" max="500" value="200">
+<span id="amaxval">200</span>
+</p>
+
+<button onclick="ler()">LER</button>
+
+</div>
+
+<h3 id="resultado"></h3>
+
 <script>
 
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d")
+
 const upload = document.getElementById("upload")
 
-const THRESHOLD = 150
-const AREA_MIN = 30
-const AREA_MAX = 200
+let imagem = null
 
-upload.addEventListener("change", function(e){
+upload.addEventListener("change",function(e){
 
 const file = e.target.files[0]
-if(!file) return
 
 const reader = new FileReader()
 
-reader.onload = function(ev){
+reader.onload=function(ev){
 
-const img = new Image()
+imagem = new Image()
 
-img.onload = function(){
+imagem.onload=function(){
 
-canvas.width = img.width
-canvas.height = img.height
+canvas.width = imagem.width
+canvas.height = imagem.height
 
-ctx.drawImage(img,0,0)
-
-detectar()
+ctx.drawImage(imagem,0,0)
 
 }
 
-img.src = ev.target.result
+imagem.src = ev.target.result
 
 }
 
@@ -73,8 +106,19 @@ reader.readAsDataURL(file)
 
 })
 
+function ler(){
 
-function detectar(){
+if(!imagem) return
+
+ctx.drawImage(imagem,0,0)
+
+const THRESHOLD = parseInt(thr.value)
+const AREA_MIN = parseInt(amin.value)
+const AREA_MAX = parseInt(amax.value)
+
+thrval.innerText = THRESHOLD
+aminval.innerText = AREA_MIN
+amaxval.innerText = AREA_MAX
 
 const frame = ctx.getImageData(0,0,canvas.width,canvas.height)
 const data = frame.data
@@ -82,7 +126,7 @@ const data = frame.data
 const largura = canvas.width
 const altura = canvas.height
 
-/* AREA DE BUSCA MAIS AMPLA */
+/* AREA DE BUSCA */
 
 const xmin = largura * 0.20
 const xmax = largura * 0.80
@@ -106,9 +150,7 @@ pontos.push({x,y})
 }
 }
 
-console.log("pontos detectados:",pontos.length)
-
-/* AGRUPAR PIXELS */
+/* AGRUPAMENTO */
 
 const grupos=[]
 
@@ -151,11 +193,11 @@ count:1
 
 })
 
-
 /* FILTRAR BOLHAS */
 
 const bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
 
+/* DESENHAR BOLHAS */
 
 ctx.fillStyle="red"
 
@@ -167,8 +209,7 @@ ctx.fill()
 
 })
 
-
-/* ORDENAR POR LINHAS */
+/* ORDENAR LINHAS */
 
 bolhas.sort((a,b)=>a.cy-b.cy)
 
@@ -192,7 +233,7 @@ if(linha){
 
 linha.itens.push(b)
 
-linha.mediaY=
+linha.mediaY =
 linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
 
 }else{
@@ -206,40 +247,42 @@ itens:[b]
 
 })
 
-
 /* ORDENAR COLUNAS */
 
 linhas.forEach(l=>{
 
 l.itens.sort((a,b)=>a.cx-b.cx)
 
-/* limitar 4 alternativas */
-
-l.itens=l.itens.slice(0,4)
+l.itens = l.itens.slice(0,4)
 
 })
 
-
-/* DESENHAR POSIÇÃO */
-
-ctx.fillStyle="yellow"
-ctx.font="18px Arial"
+/* DETECTAR RESPOSTAS */
 
 const letras=["A","B","C","D"]
 
-linhas.forEach((l,i)=>{
+let respostas=[]
 
-l.itens.forEach((b,j)=>{
+linhas.forEach(l=>{
 
-ctx.fillText(
-(i+1)+letras[j],
-b.cx+10,
-b.cy
-)
+let maior=0
+let indice=0
+
+l.itens.forEach((b,i)=>{
+
+if(b.count>maior){
+maior=b.count
+indice=i
+}
 
 })
 
+respostas.push(letras[indice])
+
 })
+
+document.getElementById("resultado").innerHTML =
+"Respostas detectadas: "+respostas.join("")
 
 }
 
