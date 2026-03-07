@@ -187,16 +187,15 @@ ctx.fill()
 })  
 
 /* filtrar quadrados grandes */
-let candidatos = grupos.filter(g => g.count > 30 && g.count < 200)
-
+let candidatos = grupos.filter(g => g.count > 200 && g.count < 1200)
 /* ordenar por tamanho */
 
 candidatos.sort((a,b)=>b.count-a.count)
 
 /* pegar os 6 maiores */
 
-candidatos = candidatos.slice(0,6)
-
+/* pegar os 4 maiores */
+candidatos = candidatos.slice(0,4)
 /* ordenar por posição vertical */
 
 candidatos.sort((a,b)=>a.cy-b.cy)
