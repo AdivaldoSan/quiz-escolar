@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<title>OMR Ordem das Bolhas</title>
+
+<style>
+
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+canvas{
+max-width:600px;
+border:1px solid #444;
+margin-top:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Teste de Ordenação das Bolhas</h2>
+
+<input type="file" id="upload">
+
+<br>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+const canvas=document.getElementById("canvas")
+const ctx=canvas.getContext("2d")
+
+upload.onchange=e=>{
+
+const file=e.target.files[0]
+
+const reader=new FileReader()
+
+reader.onload=function(ev){
+
+const img=new Image()
+
+img.onload=function(){
+
+canvas.width=img.width
+canvas.height=img.height
+
+ctx.drawImage(img,0,0)
+
+detectar()
+
+}
+
+img.src=ev.target.result
+
+}
+
+reader.readAsDataURL(file)
+
+}
+
+function detectar(){
+
+const frame=ctx.getImageData(0,0,canvas.width,canvas.height)
+const data=frame.data
+
+const largura=canvas.width
+const altura=canvas.height
+
+const THRESHOLD=112
+const AREA_MIN=22
+const AREA_MAX=219
+
+const pontos=[]
+
+for(let y=0;y<altura;y+=4){
+for(let x=0;x<largura;x+=4){
+
+let idx=(y*largura+x)*4
+
+let brilho=(data[idx]+data[idx+1]+data[idx+2])/3
+
+if(brilho<THRESHOLD){
+pontos.push({x,y})
+}
+
+}
+}
+
+const grupos=[]
+
+pontos.forEach(p=>{
+
+let achou=false
+
+for(let g of grupos){
+
+let dx=p.x-g.cx
+let dy=p.y-g.cy
+
+if(Math.sqrt(dx*dx+dy*dy)<20){
+
+g.x+=p.x
+g.y+=p.y
+g.count++
+
+g.cx=g.x/g.count
+g.cy=g.y/g.count
+
+achou=true
+break
+
+}
+
+}
+
+if(!achou){
+
+grupos.push({
+x:p.x,
+y:p.y,
+cx:p.x,
+cy:p.y,
+count:1
+})
+
+}
+
+})
+
+const bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
+
+ctx.fillStyle="red"
+
+bolhas.forEach(b=>{
+
+ctx.beginPath()
+ctx.arc(b.cx,b.cy,8,0,Math.PI*2)
+ctx.fill()
+
+})
+
+/* ordenar */
+
+bolhas.sort((a,b)=>a.cy-b.cy)
+
+const linhas=[]
+const tolerancia=25
+
+bolhas.forEach(b=>{
+
+let linha=null
+
+for(let l of linhas){
+
+if(Math.abs(b.cy-l.mediaY)<tolerancia){
+linha=l
+break
+}
+
+}
+
+if(linha){
+
+linha.itens.push(b)
+
+linha.mediaY=
+linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
+
+}else{
+
+linhas.push({
+mediaY:b.cy,
+itens:[b]
+})
+
+}
+
+})
+
+linhas.forEach(l=>{
+
+l.itens.sort((a,b)=>a.cx-b.cx)
+
+})
+
+/* desenhar indices */
+
+ctx.fillStyle="yellow"
+ctx.font="18px Arial"
+
+const letras=["A","B","C","D"]
+
+linhas.forEach((l,i)=>{
+
+l.itens.forEach((b,j)=>{
+
+ctx.fillText(
+(i+1)+letras[j],
+b.cx+10,
+b.cy
+)
+
+})
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
