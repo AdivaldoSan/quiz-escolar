@@ -21,29 +21,19 @@ text-align:center;
 width:100%;
 }
 
-#resultado{
-padding:12px;
-font-size:18px;
+canvas{
+max-width:500px;
+width:100%;
 }
 
 button{
-padding:14px 22px;
+padding:14px 20px;
 margin:10px;
 font-size:18px;
 }
 
 .oculto{
 display:none;
-}
-
-video{
-width:100%;
-max-width:500px;
-}
-
-canvas{
-width:100%;
-max-width:500px;
 }
 
 </style>
@@ -59,51 +49,24 @@ max-width:500px;
 Aponte para o QR da prova
 </div>
 
-<div id="captura" class="oculto">
-<button onclick="capturar()">CAPTURAR</button>
-</div>
-
 <div id="acoes" class="oculto">
-<button onclick="confirmar()">Confirmar envio</button>
-<button onclick="capturar()">Capturar novamente</button>
+<button onclick="confirmar()">Confirmar leitura</button>
+<button onclick="reiniciar()">Ler novamente</button>
 </div>
 
 <script>
 
 let scanner
-let gabarito=""
-let respostas=""
 let folha=""
 let qtd=0
+let gabarito=""
+let respostas=""
 
-/* =========================
-BIP
-========================= */
+/* parâmetros calibrados */
 
-function beep(){
-
-const ctx=new AudioContext()
-const osc=ctx.createOscillator()
-
-osc.connect(ctx.destination)
-osc.frequency.value=900
-osc.start()
-
-setTimeout(()=>osc.stop(),150)
-
-}
-
-/* =========================
-VIBRAÇÃO
-========================= */
-
-function vibrar(){
-
-if(navigator.vibrate){
-navigator.vibrate(150)
-}
-
-}
+const THRESHOLD=112
+const AREA_MIN=22
+const AREA_MAX=219
 
 /* =========================
 INICIAR QR
@@ -141,9 +104,6 @@ function lerQR(dado){
 
 if(!dado.startsWith("AVP")) return
 
-beep()
-vibrar()
-
 scanner.stop()
 
 let partes=dado.split("|")
@@ -156,20 +116,18 @@ document.getElementById("resultado").innerHTML=
 
 `
 QR detectado ✓<br><br>
-Folha ${folha}<br>
-${qtd} questões<br><br>
-Centralize a folha e toque CAPTURAR
+Centralize o gabarito
 `
 
-abrirCameraBolhas()
+abrirCamera()
 
 }
 
 /* =========================
-CAMERA BOLHAS
+CAMERA
 ========================= */
 
-function abrirCameraBolhas(){
+function abrirCamera(){
 
 navigator.mediaDevices.getUserMedia({
 
@@ -186,7 +144,9 @@ video.play()
 document.getElementById("reader").innerHTML=""
 document.getElementById("reader").appendChild(video)
 
-document.getElementById("captura").classList.remove("oculto")
+/* captura automática */
+
+setTimeout(capturar,1500)
 
 })
 
@@ -227,76 +187,162 @@ const largura=canvas.width
 const altura=canvas.height
 
 const frame=ctx.getImageData(0,0,largura,altura)
+const data=frame.data
 
-/* área do gabarito */
+/* threshold */
 
-const startX=largura*0.30
-const startY=altura*0.20
+for(let i=0;i<data.length;i+=4){
 
-const areaW=largura*0.45
-const areaH=altura*0.45
+let brilho=(data[i]+data[i+1]+data[i+2])/3
 
-const respostasDetectadas=[]
+let cor= brilho < THRESHOLD ? 0 : 255
 
-const letras=["A","B","C","D"]
+data[i]=cor
+data[i+1]=cor
+data[i+2]=cor
 
-for(let q=0;q<qtd;q++){
+}
 
-let y=startY+(q*(areaH/qtd))
+ctx.putImageData(frame,0,0)
 
-let melhor=0
-let maior=0
+/* detectar pontos escuros */
 
-for(let a=0;a<4;a++){
+const pontos=[]
 
-let x=startX+(a*(areaW/4))
+for(let y=0;y<altura;y+=4){
+for(let x=0;x<largura;x+=4){
 
-let escuro=0
+let idx=(y*largura+x)*4
 
-for(let dy=-6;dy<6;dy++){
-for(let dx=-6;dx<6;dx++){
+if(data[idx]==0){
 
-let px=Math.floor(x+dx)
-let py=Math.floor(y+dy)
+pontos.push({x,y})
 
-let idx=(py*largura+px)*4
-
-let r=frame.data[idx]
-let g=frame.data[idx+1]
-let b=frame.data[idx+2]
-
-let brilho=(r+g+b)/3
-
-escuro+=(255-brilho)
+}
 
 }
 }
 
-if(escuro>maior){
-maior=escuro
-melhor=a
-}
+/* agrupar */
+
+const grupos=[]
+
+pontos.forEach(p=>{
+
+let achou=false
+
+for(let g of grupos){
+
+let dx=p.x-g.cx
+let dy=p.y-g.cy
+
+if(Math.sqrt(dx*dx+dy*dy)<20){
+
+g.x+=p.x
+g.y+=p.y
+g.count++
+
+g.cx=g.x/g.count
+g.cy=g.y/g.count
+
+achou=true
+break
 
 }
 
-respostasDetectadas.push(letras[melhor])
+}
+
+if(!achou){
+
+grupos.push({
+x:p.x,
+y:p.y,
+cx:p.x,
+cy:p.y,
+count:1
+})
 
 }
 
-/* desenhar bolhas detectadas */
+})
+
+/* filtrar bolhas */
+
+const bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
+
+/* desenhar */
 
 ctx.fillStyle="red"
 
-for(let q=0;q<qtd;q++){
-
-let y=startY+(q*(areaH/qtd))
-let x=startX+(respostasDetectadas[q].charCodeAt(0)-65)*(areaW/4)
+bolhas.forEach(b=>{
 
 ctx.beginPath()
-ctx.arc(x,y,10,0,Math.PI*2)
+ctx.arc(b.cx,b.cy,8,0,Math.PI*2)
 ctx.fill()
 
+})
+
+/* organizar linhas */
+
+bolhas.sort((a,b)=>a.cy-b.cy)
+
+const linhas=[]
+const tol=25
+
+bolhas.forEach(b=>{
+
+let linha=null
+
+for(let l of linhas){
+
+if(Math.abs(b.cy-l.mediaY)<tol){
+linha=l
+break
 }
+
+}
+
+if(linha){
+
+linha.itens.push(b)
+linha.mediaY=
+linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
+
+}else{
+
+linhas.push({
+mediaY:b.cy,
+itens:[b]
+})
+
+}
+
+})
+
+linhas.forEach(l=>l.itens.sort((a,b)=>a.cx-b.cx))
+
+/* escolher resposta */
+
+const letras=["A","B","C","D"]
+const respostasDetectadas=[]
+
+linhas.forEach(l=>{
+
+let maior=0
+let indice=0
+
+l.itens.forEach((b,i)=>{
+
+if(b.count>maior){
+maior=b.count
+indice=i
+}
+
+})
+
+respostasDetectadas.push(letras[indice])
+
+})
 
 respostas=respostasDetectadas.join("")
 
@@ -306,7 +352,6 @@ document.getElementById("resultado").innerHTML=
 Respostas detectadas: ${respostas}
 `
 
-document.getElementById("captura").classList.add("oculto")
 document.getElementById("acoes").classList.remove("oculto")
 
 }
@@ -320,15 +365,28 @@ function confirmar(){
 document.getElementById("resultado").innerHTML=
 
 `
-✓ Resultado enviado<br><br>
-Folha ${folha}
+✓ Leitura confirmada<br><br>
+Folha ${folha}<br>
+Respostas: ${respostas}
 `
 
 }
 
 /* =========================
-INICIAR
+REINICIAR
 ========================= */
+
+function reiniciar(){
+
+document.getElementById("acoes").classList.add("oculto")
+
+document.getElementById("resultado").innerHTML="Aponte para o QR da prova"
+
+iniciarQR()
+
+}
+
+/* iniciar */
 
 iniciarQR()
 
