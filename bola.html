@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>OMR Ordem das Bolhas</title>
+<title>Teste de Ordenação das Bolhas</title>
 
 <style>
 
@@ -37,6 +37,10 @@ margin-top:20px;
 
 const canvas=document.getElementById("canvas")
 const ctx=canvas.getContext("2d")
+
+const THRESHOLD=112
+const AREA_MIN=30
+const AREA_MAX=180
 
 upload.onchange=e=>{
 
@@ -75,25 +79,31 @@ const data=frame.data
 const largura=canvas.width
 const altura=canvas.height
 
-const THRESHOLD=112
-const AREA_MIN=22
-const AREA_MAX=219
+/* ISOLAR AREA CENTRAL */
+
+const xmin = largura * 0.30
+const xmax = largura * 0.70
+
+const ymin = altura * 0.20
+const ymax = altura * 0.55
 
 const pontos=[]
 
-for(let y=0;y<altura;y+=4){
-for(let x=0;x<largura;x+=4){
+for(let y=ymin;y<ymax;y+=4){
+for(let x=xmin;x<xmax;x+=4){
 
 let idx=(y*largura+x)*4
 
 let brilho=(data[idx]+data[idx+1]+data[idx+2])/3
 
-if(brilho<THRESHOLD){
+if(brilho < THRESHOLD){
 pontos.push({x,y})
 }
 
 }
 }
+
+/* AGRUPAR PIXELS */
 
 const grupos=[]
 
@@ -136,7 +146,11 @@ count:1
 
 })
 
+/* FILTRAR BOLHAS */
+
 const bolhas=grupos.filter(g=>g.count>AREA_MIN && g.count<AREA_MAX)
+
+/* DESENHAR BOLHAS */
 
 ctx.fillStyle="red"
 
@@ -148,7 +162,7 @@ ctx.fill()
 
 })
 
-/* ordenar */
+/* ORDENAR POR LINHA */
 
 bolhas.sort((a,b)=>a.cy-b.cy)
 
@@ -172,50 +186,10 @@ if(linha){
 
 linha.itens.push(b)
 
-linha.mediaY=
+linha.mediaY =
 linha.itens.reduce((s,i)=>s+i.cy,0)/linha.itens.length
 
 }else{
 
 linhas.push({
-mediaY:b.cy,
-itens:[b]
-})
-
-}
-
-})
-
-linhas.forEach(l=>{
-
-l.itens.sort((a,b)=>a.cx-b.cx)
-
-})
-
-/* desenhar indices */
-
-ctx.fillStyle="yellow"
-ctx.font="18px Arial"
-
-const letras=["A","B","C","D"]
-
-linhas.forEach((l,i)=>{
-
-l.itens.forEach((b,j)=>{
-
-ctx.fillText(
-(i+1)+letras[j],
-b.cx+10,
-b.cy
-)
-
-})
-
-})
-
-}
-
-</script>
-
-</body>
-</html>
+mediaY:b.cy
