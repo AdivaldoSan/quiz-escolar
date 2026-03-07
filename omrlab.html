@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<title>OMR LAB - Calibração</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+margin:0;
+padding:20px;
+}
+
+canvas{
+max-width:45%;
+border:1px solid #444;
+margin:10px;
+}
+
+input[type=range]{
+width:300px;
+}
+
+.controls{
+margin-top:20px;
+}
+
+.parametros{
+background:#222;
+padding:10px;
+margin-top:20px;
+font-family:monospace;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>OMR LAB — Calibração de Bolhas</h2>
+
+<input type="file" id="upload">
+
+<br><br>
+
+<canvas id="original"></canvas>
+<canvas id="processado"></canvas>
+
+<div class="controls">
+
+<p>
+Threshold
+<br>
+<input type="range" id="threshold" min="50" max="220" value="140">
+<span id="tval">140</span>
+</p>
+
+<p>
+Área mínima bolha
+<br>
+<input type="range" id="amin" min="5" max="200" value="20">
+<span id="aminv">20</span>
+</p>
+
+<p>
+Área máxima bolha
+<br>
+<input type="range" id="amax" min="50" max="1000" value="400">
+<span id="amaxv">400</span>
+</p>
+
+</div>
+
+<h3>Parâmetros obtidos</h3>
+
+<div class="parametros" id="params"></div>
+
+<button onclick="copiar()">Copiar parâmetros</button>
+
+<script>
+
+const original=document.getElementById("original")
+const processado=document.getElementById("processado")
+
+const octx=original.getContext("2d")
+const pctx=processado.getContext("2d")
+
+let img=null
+
+upload.onchange=e=>{
+
+const file=e.target.files[0]
+
+const reader=new FileReader()
+
+reader.onload=function(ev){
+
+img=new Image()
+
+img.onload=function(){
+
+original.width=img.width
+original.height=img.height
+
+processado.width=img.width
+processado.height=img.height
+
+octx.drawImage(img,0,0)
+
+rodar()
+
+}
+
+img.src=ev.target.result
+
+}
+
+reader.readAsDataURL(file)
+
+}
+
+threshold.oninput=rodar
+amin.oninput=rodar
+amax.oninput=rodar
+
+function rodar(){
+
+if(!img)return
+
+tval.innerText=threshold.value
+aminv.innerText=amin.value
+amaxv.innerText=amax.value
+
+octx.drawImage(img,0,0)
+
+let frame=octx.getImageData(0,0,original.width,original.height)
+
+let data=frame.data
+
+const thr=parseInt(threshold.value)
+
+for(let i=0;i<data.length;i+=4){
+
+let r=data[i]
+let g=data[i+1]
+let b=data[i+2]
+
+let brilho=(r+g+b)/3
+
+let cor= brilho < thr ? 0 : 255
+
+data[i]=cor
+data[i+1]=cor
+data[i+2]=cor
+
+}
+
+pctx.putImageData(frame,0,0)
+
+detectar(frame)
+
+}
+
+function detectar(frame){
+
+let largura=frame.width
+let altura=frame.height
+
+let pontos=[]
+
+for(let y=0;y<altura;y+=4){
+for(let x=0;x<largura;x+=4){
+
+let idx=(y*largura+x)*4
+
+if(frame.data[idx]==0){
+
+pontos.push({x,y})
+
+}
+
+}
+}
+
+let grupos=[]
+
+pontos.forEach(p=>{
+
+let achou=false
+
+for(let g of grupos){
+
+let dx=p.x-g.cx
+let dy=p.y-g.cy
+
+if(Math.sqrt(dx*dx+dy*dy)<20){
+
+g.x+=p.x
+g.y+=p.y
+g.count++
+
+g.cx=g.x/g.count
+g.cy=g.y/g.count
+
+achou=true
+break
+
+}
+
+}
+
+if(!achou){
+
+grupos.push({
+x:p.x,
+y:p.y,
+cx:p.x,
+cy:p.y,
+count:1
+})
+
+}
+
+})
+
+let min=parseInt(amin.value)
+let max=parseInt(amax.value)
+
+let bolhas=grupos.filter(g=>g.count>min && g.count<max)
+
+pctx.fillStyle="red"
+
+bolhas.forEach(b=>{
+
+pctx.beginPath()
+pctx.arc(b.cx,b.cy,8,0,Math.PI*2)
+pctx.fill()
+
+})
+
+params.innerText=`
+
+threshold = ${threshold.value}
+
+area_min = ${amin.value}
+
+area_max = ${amax.value}
+
+`
+
+}
+
+function copiar(){
+
+navigator.clipboard.writeText(params.innerText)
+
+alert("Parâmetros copiados")
+
+}
+
+</script>
+
+</body>
+</html>
